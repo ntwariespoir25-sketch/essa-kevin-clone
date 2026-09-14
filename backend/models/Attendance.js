@@ -8,4 +8,7 @@ const attendanceSchema = new mongoose.Schema({
   teacherId: { type: mongoose.Schema.Types.ObjectId, ref: 'User' }
 });
 
+attendanceSchema.index({ classId: 1, date: 1 });
+attendanceSchema.index({ studentId: 1 });
+
 module.exports = mongoose.model('Attendance', attendanceSchema);

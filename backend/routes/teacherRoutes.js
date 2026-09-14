@@ -126,6 +126,31 @@ router.post('/teacher/assignments', authMiddleware, requireRole('teacher', 'acad
   }
 });
 
+router.put('/teacher/assignments/:id/grade', authMiddleware, requireRole('teacher', 'academic_admin', 'super_admin'), async (req, res) => {
+  try {
+    const { studentId, score, feedback } = req.body;
+    const points = parseFloat(score);
+    if (!studentId || isNaN(points)) {
+      return res.status(400).json({ message: 'studentId and a numeric score are required' });
+    }
+    const assignment = await Assignment.findById(req.params.id);
+    if (!assignment) return res.status(404).json({ message: 'Assignment not found' });
+    const sub = assignment.submissions.find(s => String(s.studentId) === String(studentId));
+    if (!sub) return res.status(404).json({ message: 'This student has not submitted the assignment yet' });
+
+    sub.score = points;
+    sub.grade = points >= 80 ? 'A' : points >= 70 ? 'B' : points >= 60 ? 'C' : points >= 50 ? 'D' : 'F';
+    sub.feedback = feedback || '';
+    sub.status = 'graded';
+    sub.gradedAt = new Date();
+    await assignment.save();
+
+    res.json({ success: true, assignment });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+});
+
 // ==================== LESSON PLANS ====================
 router.get('/teacher/lesson-plans', authMiddleware, requireRole('teacher', 'academic_admin', 'super_admin'), async (req, res) => {
   try {

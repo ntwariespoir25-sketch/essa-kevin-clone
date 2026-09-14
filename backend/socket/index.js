@@ -1,5 +1,6 @@
 const socketIo = require('socket.io');
 const jwt = require('jsonwebtoken');
+const { getJWTSecret } = require('../utils/jwt');
 
 let io = null;
 
@@ -15,7 +16,7 @@ const initSocket = (server) => {
     try {
       const token = socket.handshake.auth.token;
       if (!token) return next(new Error('Authentication error'));
-      const decoded = jwt.verify(token, process.env.JWT_SECRET || 'secretkey');
+      const decoded = jwt.verify(token, getJWTSecret());
       socket.userId   = decoded.id;
       socket.userRole = decoded.role;
       next();

@@ -1,9 +1,11 @@
 const express = require('express');
+const jwt = require('jsonwebtoken');
 
 const Permission = require('../models/Permission');
 const User = require('../models/User');
 const authMiddleware = require('../middleware/auth');
 const requireRole = require('../middleware/roleCheck');
+const { getJWTSecret } = require('../utils/jwt');
 
 const router = express.Router();
 
@@ -55,7 +57,18 @@ router.get('/super-admin/permissions', authMiddleware, requireRole('super_admin'
   }
 });
 
-router.get('/permissions/:id/slip', async (req, res) => {
+router.get('/permissions/:id/slip', (req, res) => {
+  const token = req.headers.authorization?.split(' ')[1] || req.query.token;
+  if (!token) return res.status(401).send('<h2>Unauthorized: a token is required to view this slip</h2>');
+  try {
+    jwt.verify(token, getJWTSecret());
+  } catch {
+    return res.status(401).send('<h2>Unauthorized: invalid or expired token</h2>');
+  }
+  renderSlip(req, res);
+});
+
+const renderSlip = async (req, res) => {
   try {
     const permission = await Permission.findById(req.params.id);
     if (!permission) {
@@ -143,7 +156,7 @@ router.get('/permissions/:id/slip', async (req, res) => {
     console.error('Error generating permission slip:', error);
     res.status(500).send('<h2>Error generating permission slip</h2>');
   }
-});
+};
 
 router.get('/permissions/:id/slip-pdf', authMiddleware, async (req, res) => {
   try {

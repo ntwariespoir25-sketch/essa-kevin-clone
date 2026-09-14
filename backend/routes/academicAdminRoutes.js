@@ -1,31 +1,36 @@
 const express = require('express');
 const bcrypt = require('bcryptjs');
+const crypto = require('crypto');
 
 const User = require('../models/User');
 const TeacherProfile = require('../models/TeacherProfile');
 const Student = require('../models/Student');
 const Class = require('../models/Class');
+const Grade = require('../models/Grade');
 const authMiddleware = require('../middleware/auth');
 const requireRole = require('../middleware/roleCheck');
 const { sendWelcomeEmail } = require('../utils/emailService');
+const { paginate, respondList } = require('../utils/paginate');
 
 const router = express.Router();
 
 // ==================== TEACHERS ====================
 router.get('/academic-admin/teachers-list', authMiddleware, async (req, res) => {
-  const teachers = await TeacherProfile.find().sort({ fullName: 1 });
-  res.json(teachers);
+  const { page, limit, skip } = paginate(req.query);
+  const total = await TeacherProfile.countDocuments();
+  const teachers = await TeacherProfile.find().sort({ fullName: 1 }).skip(skip).limit(limit || undefined);
+  respondList(res, teachers, { page, limit, total });
 });
 
 router.post('/academic-admin/create-teacher-credentials', authMiddleware, requireRole('academic_admin', 'super_admin'), async (req, res) => {
   try {
     const { fullName, email, password, subject, phone } = req.body;
     if (await User.findOne({ email })) return res.status(400).json({ message: 'Email already exists' });
-    const finalPassword = password || 'teacher123';
+    const finalPassword = password || crypto.randomBytes(6).toString('hex').slice(0, 10);
     const hashedPassword = await bcrypt.hash(finalPassword, 10);
     const teacherUser = await User.create({ fullName, email, password: hashedPassword, role: 'teacher', phone: phone || '', createdBy: req.userId });
     const teacherProfile = await TeacherProfile.create({ userId: teacherUser._id, fullName, email, subject: subject || 'General', phone: phone || '' });
-    sendWelcomeEmail({ fullName, email, role: 'teacher', tempPassword: finalPassword }).catch(console.error);
+    sendWelcomeEmail({ _id: teacherUser._id, fullName, email, role: 'teacher' }).catch(console.error);
     res.json({ success: true, teacher: teacherProfile, password: finalPassword });
   } catch (error) {
     res.status(500).json({ message: error.message });
@@ -98,8 +103,10 @@ router.delete('/academic-admin/classes/:id', authMiddleware, requireRole('academ
 // ==================== STUDENTS ====================
 router.get('/academic-admin/students', authMiddleware, async (req, res) => {
   try {
-    const students = await Student.find().populate('classId', 'grade className').sort({ fullName: 1 });
-    res.json(students);
+    const { page, limit, skip } = paginate(req.query);
+    const total = await Student.countDocuments();
+    const students = await Student.find().populate('classId', 'grade className').sort({ fullName: 1 }).skip(skip).limit(limit || undefined);
+    respondList(res, students, { page, limit, total });
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
@@ -147,29 +154,52 @@ router.post('/academic-admin/students', authMiddleware, requireRole('academic_ad
 router.get('/academic-admin/students-performance', authMiddleware, async (req, res) => {
   try {
     const students = await Student.find().populate('classId', 'grade className');
-    const performanceData = students.map(s => ({
-      studentId: s.studentId || `STU${s._id.toString().slice(-6)}`,
-      name: s.fullName,
-      class: s.classId ? `${s.classId.grade} ${s.classId.className}` : 'Not Assigned',
-      averageScore: Math.floor(Math.random() * 30) + 65
-    }));
+    const gradeAgg = await Grade.aggregate([
+      { $group: { _id: '$studentId', average: { $avg: '$score' }, count: { $sum: 1 } } }
+    ]);
+    const scoreMap = new Map(gradeAgg.map(g => [String(g._id), g]));
+    const performanceData = students.map(s => {
+      const agg = scoreMap.get(String(s._id));
+      const average = agg ? Math.round(agg.average) : 0;
+      return {
+        studentId: s.studentId || `STU${s._id.toString().slice(-6)}`,
+        name: s.fullName,
+        class: s.classId ? `${s.classId.grade} ${s.classId.className}` : 'Not Assigned',
+        averageScore: average,
+        subjectsTracked: agg ? agg.count : 0,
+        grade: average >= 80 ? 'A' : average >= 70 ? 'B' : average >= 60 ? 'C' : average >= 50 ? 'D' : 'F'
+      };
+    }).sort((a, b) => b.averageScore - a.averageScore);
     res.json(performanceData);
-  } catch {
-    res.json([]);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
   }
 });
 
 router.get('/academic-admin/class-performance', authMiddleware, async (req, res) => {
   try {
     const classes = await Class.find();
-    const performanceData = classes.map(cls => ({
-      className: `${cls.grade} ${cls.className}`,
-      studentCount: cls.students?.length || 0,
-      averageScore: Math.floor(Math.random() * 25) + 70
-    }));
+    const students = await Student.find({ classId: { $in: classes.map(c => c._id) } });
+    const gradeAgg = await Grade.aggregate([
+      { $group: { _id: '$studentId', average: { $avg: '$score' } } }
+    ]);
+    const scoreMap = new Map(gradeAgg.map(g => [String(g._id), g.average]));
+    const performanceData = classes.map(cls => {
+      const classStudents = students.filter(s => String(s.classId) === String(cls._id));
+      const scores = classStudents
+        .map(s => scoreMap.get(String(s._id)))
+        .filter(avg => avg !== undefined);
+      const sum = scores.reduce((a, b) => a + b, 0);
+      return {
+        className: `${cls.grade} ${cls.className}`,
+        studentCount: classStudents.length,
+        assessedCount: scores.length,
+        averageScore: scores.length ? Math.round(sum / scores.length) : 0
+      };
+    });
     res.json(performanceData);
-  } catch {
-    res.json([]);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
   }
 });
 

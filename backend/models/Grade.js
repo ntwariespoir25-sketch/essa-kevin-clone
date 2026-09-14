@@ -11,4 +11,8 @@ const gradeSchema = new mongoose.Schema({
   createdAt: { type: Date, default: Date.now }
 });
 
+gradeSchema.index({ studentId: 1 });
+gradeSchema.index({ teacherId: 1 });
+gradeSchema.index({ studentId: 1, subject: 1, term: 1, year: 1 });
+
 module.exports = mongoose.model('Grade', gradeSchema);

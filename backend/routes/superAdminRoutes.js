@@ -1,5 +1,6 @@
 const express = require('express');
 const bcrypt = require('bcryptjs');
+const crypto = require('crypto');
 
 const User = require('../models/User');
 const TeacherProfile = require('../models/TeacherProfile');
@@ -13,22 +14,27 @@ const Expense = require('../models/Expense');
 const authMiddleware = require('../middleware/auth');
 const requireRole = require('../middleware/roleCheck');
 const { sendWelcomeEmail } = require('../utils/emailService');
+const { paginate, respondList } = require('../utils/paginate');
 
 const router = express.Router();
 
 router.get('/super-admin/admins', authMiddleware, requireRole('super_admin'), async (req, res) => {
-  const admins = await User.find({ role: { $in: ['academic_admin', 'discipline_admin', 'accounts_admin'] } }).select('-password');
-  res.json(admins);
+  const { page, limit, skip } = paginate(req.query);
+  const total = await User.countDocuments({ role: { $in: ['academic_admin', 'discipline_admin', 'accounts_admin'] } });
+  const admins = await User.find({ role: { $in: ['academic_admin', 'discipline_admin', 'accounts_admin'] } })
+    .select('-password').skip(skip).limit(limit || undefined);
+  respondList(res, admins, { page, limit, total });
 });
 
 router.post('/super-admin/create-admin', authMiddleware, requireRole('super_admin'), async (req, res) => {
   try {
     const { fullName, email, password, phone, role } = req.body;
     if (await User.findOne({ email })) return res.status(400).json({ message: 'Email already exists' });
-    const hashedPassword = await bcrypt.hash(password || 'admin123', 10);
+    const finalPassword = password || crypto.randomBytes(6).toString('hex').slice(0, 10);
+    const hashedPassword = await bcrypt.hash(finalPassword, 10);
     const newAdmin = await User.create({ fullName, email, password: hashedPassword, role, phone: phone || '', createdBy: req.userId });
-    sendWelcomeEmail({ fullName, email, role, tempPassword: password || 'admin123' }).catch(console.error);
-    res.json({ success: true, user: { _id: newAdmin._id, fullName, email, role } });
+    sendWelcomeEmail({ _id: newAdmin._id, fullName, email, role }).catch(console.error);
+    res.json({ success: true, user: { _id: newAdmin._id, fullName, email, role }, password: finalPassword });
   } catch (error) {
     res.status(500).json({ message: error.message });
   }

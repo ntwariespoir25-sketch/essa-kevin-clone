@@ -13,4 +13,7 @@ const studentSchema = new mongoose.Schema({
   enrollmentDate: { type: Date, default: Date.now }
 });
 
+studentSchema.index({ studentId: 1 });
+studentSchema.index({ classId: 1 });
+
 module.exports = mongoose.model('Student', studentSchema);

@@ -1,8 +1,18 @@
+const jwt = require('jsonwebtoken');
+
 const emailTransporter = require('../config/email');
 const Subscription = require('../models/Subscription');
+const { getJWTSecret } = require('./jwt');
+
+const buildSetupLink = (userId) => {
+  const token = jwt.sign({ id: userId, purpose: 'setup' }, getJWTSecret(), { expiresIn: '24h' });
+  const baseUrl = process.env.FRONTEND_URL || 'http://localhost:5173';
+  return `${baseUrl}/set-password?token=${token}`;
+};
 
 const sendWelcomeEmail = async (user) => {
   if (!process.env.EMAIL_USER) return;
+  const setupLink = user._id ? buildSetupLink(user._id) : null;
   await emailTransporter.sendMail({
     from: process.env.EMAIL_USER,
     to: user.email,
@@ -15,9 +25,14 @@ const sendWelcomeEmail = async (user) => {
         <p>Your account has been created successfully.</p>
         <div style="background:white;padding:15px;border-radius:8px;border-left:4px solid #ffc107;">
           <p><strong>Email:</strong> ${user.email}</p>
-          <p><strong>Password:</strong> ${user.tempPassword || 'Set by administrator'}</p>
           <p><strong>Role:</strong> ${user.role?.toUpperCase()}</p>
         </div>
+        ${setupLink ? `
+        <p style="margin-top:16px;">To set your password and activate your account, click the button below:</p>
+        <p style="text-align:center;margin:20px 0;">
+          <a href="${setupLink}" style="background:#1a3a5c;color:white;padding:12px 24px;border-radius:8px;text-decoration:none;font-weight:600;display:inline-block;">Set Your Password</a>
+        </p>
+        <p style="font-size:12px;color:#777;">This link is valid for 24 hours. If it expires, please contact the school administration.</p>` : ''}
         <p>Best regards,<br><strong>ESSA Nyarugunga Administration</strong></p>
       </div></div>`
   });

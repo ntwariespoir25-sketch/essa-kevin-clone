@@ -18,4 +18,7 @@ const messageSchema = new mongoose.Schema({
   createdAt: { type: Date, default: Date.now }
 });
 
+messageSchema.index({ recipientId: 1, isRead: 1 });
+messageSchema.index({ senderId: 1, createdAt: -1 });
+
 module.exports = mongoose.model('Message', messageSchema);

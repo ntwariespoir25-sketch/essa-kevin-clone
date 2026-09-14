@@ -6,6 +6,7 @@ dns.setDefaultResultOrder('ipv4first');
 
 const express = require('express');
 const cors = require('cors');
+const helmet = require('helmet');
 const http = require('http');
 const path = require('path');
 
@@ -13,13 +14,20 @@ const connectDB = require('./config/database');
 const { initSocket } = require('./socket');
 const seedDatabase = require('./utils/seedDatabase');
 const errorHandler = require('./middleware/errorHandler');
+const { apiLimiter } = require('./config/rateLimit');
 const User = require('./models/User');
+
+if (!process.env.JWT_SECRET) {
+  console.error('❌ JWT_SECRET is not set. Add it to your .env file.');
+  process.exit(1);
+}
 
 // ==================== APP SETUP ====================
 const app = express();
 const server = http.createServer(app);
 initSocket(server);
 
+app.use(helmet());
 app.use(cors({
   origin: process.env.FRONTEND_URL || 'http://localhost:5173',
   credentials: true
@@ -28,6 +36,8 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+
+app.use('/api', apiLimiter);
 
 // ==================== ROUTES ====================
 app.use('/api', require('./routes/authRoutes'));
@@ -43,10 +53,12 @@ app.use('/api', require('./routes/superAdminRoutes'));
 app.use('/api', require('./routes/academicAdminRoutes'));
 app.use('/api', require('./routes/teacherRoutes'));
 app.use('/api', require('./routes/studentRoutes'));
+app.use('/api', require('./routes/parentRoutes'));
 app.use('/api', require('./routes/disciplineAdminRoutes'));
 app.use('/api', require('./routes/permissionRoutes'));
 app.use('/api', require('./routes/accountsRoutes'));
 app.use('/api', require('./routes/messageRoutes'));
+app.use('/api', require('./routes/academicOpsRoutes'));
 
 // ==================== ERROR HANDLER ====================
 app.use(errorHandler);
