@@ -1,0 +1,82 @@
+Updates on Portal Role Based Access
+1.Super Admin 
+a.manages sub admins 
+b.view the school overview 
+c.announces to school users in categories
+d.manages permission requests by admins
+e.manages school discipline cases
+
+2.academic admins
+a.manages teachers 
+b.manages teacher class student assignment
+c.manages student with sdms code and parent number 
+d.overview school perfomance
+e.manages teachers permission requests
+f.requests permission to super admins
+g.Receives Application forms (as form please) from admission page
+h.manages news and galleries to website
+g.announces in categories  and view announcements 
+
+3.Discipline admins
+a.overview school behaviour status 
+b.manages discipline cases
+c.announces to school users in categories and view the announcements
+d.report students to parents
+e.manages student and parent permission requests
+f.request permission to super admin
+
+4.Accounts admin
+a.manges school Accounts
+b.manages school budget income and expenses
+c.Manages school employees salaries and their Accounts in CRUD table
+d.assign school fees per class
+e.overview students payment status per class
+f.announces parents to pay 
+g.manages stock in CRUD table
+
+5.teacher Portal
+
+a.overview assigned class perfomance
+b.manages subjects and modules 
+c.manages assessments to class
+d.manages class attendance in table
+e.manages assessments grading
+f.report student incidents indiscipline cases to discipline admin
+g.request permission to academic admin
+
+6.students Portal
+
+a.overview discipline status and history
+b.overview payment status and history
+c.overview assessments assigned
+d.view the announcements from admins
+e.request permission to Discipline admin
+
+7.parent Portal
+a.OTP login
+b.link to student
+c.overview students behaviour status and history
+d.overview students payment status and history
+e.view the school announcements
+f. request permission for student to discipline admin
+g.pays school fees (urubuto payment api)
+
+8.Overal Portal Updates
+
+a.Dark Mode 
+b.Modal Change Password on the first log in 
+c.Profile Settings:
+-Profile Picture
+-Name 
+-Email
+-Phone Number 
+-Password Reset 
+d.Advanced Messaging System:
+-Typing indications
+-CRUD messages
+-Message by categories(student,parent,admin,teacher etc) selecting 
+-Unread messages auto update and also more
+-Real Time Chatting Features
+
+f.Logout Warning Sweet2Alert Notifications Moadal 
+g.Portal Mobile Freindly Design (Responsiveness)
