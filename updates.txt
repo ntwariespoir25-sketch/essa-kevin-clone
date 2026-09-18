@@ -79,4 +79,4 @@ d.Advanced Messaging System:
 -Real Time Chatting Features
 
 f.Logout Warning Sweet2Alert Notifications Moadal 
-g.Portal Mobile Freindly Design (Responsiveness)
+g.Portal Tabs Mobile Freindly Design (Responsiveness) improvements
