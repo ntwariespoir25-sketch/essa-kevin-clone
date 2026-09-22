@@ -17,7 +17,6 @@ const Announcement = require('../models/Announcement');
 const authMiddleware = require('../middleware/auth');
 const { publicFormLimiter } = require('../config/rateLimit');
 const { getJWTSecret } = require('../utils/jwt');
-const { buildReportCard } = require('../utils/reportCard');
 
 const router = express.Router();
 
@@ -224,25 +223,6 @@ router.get('/parent/children/:childId/announcements', authMiddleware, async (req
       return aud.some(x => String(x).toLowerCase().includes(String(gradeLabel).toLowerCase()));
     });
     res.json(visible);
-  } catch (error) {
-    res.status(500).json({ message: error.message });
-  }
-});
-
-router.get('/parent/children/:childId/events', authMiddleware, async (req, res) => {
-  res.json([]);
-});
-
-router.get('/parent/children/:childId/documents', authMiddleware, async (req, res) => {
-  res.json([]);
-});
-
-router.get('/parent/children/:childId/report-card', authMiddleware, async (req, res) => {
-  try {
-    const profile = await ParentProfile.findOne({ userId: req.userId });
-    const child = await getChildForParent(profile, req.params.childId);
-    if (!child) return res.status(403).json({ message: 'This child is not linked to your account' });
-    res.json(await buildReportCard(child, req.query));
   } catch (error) {
     res.status(500).json({ message: error.message });
   }

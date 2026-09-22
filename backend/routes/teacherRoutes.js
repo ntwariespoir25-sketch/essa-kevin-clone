@@ -186,21 +186,4 @@ router.post('/teacher/lesson-plans', authMiddleware, requireRole('teacher', 'aca
   }
 });
 
-// ==================== LEAVES ====================
-router.get('/teacher/leaves', authMiddleware, requireRole('teacher'), async (req, res) => {
-  try {
-    res.json([]);
-  } catch (error) {
-    res.json([]);
-  }
-});
-
-router.post('/teacher/leaves', authMiddleware, requireRole('teacher'), async (req, res) => {
-  try {
-    res.json({ success: true });
-  } catch (error) {
-    res.status(500).json({ message: error.message });
-  }
-});
-
 module.exports = router;

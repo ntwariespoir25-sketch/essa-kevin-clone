@@ -58,7 +58,6 @@ app.use('/api', require('./routes/disciplineAdminRoutes'));
 app.use('/api', require('./routes/permissionRoutes'));
 app.use('/api', require('./routes/accountsRoutes'));
 app.use('/api', require('./routes/messageRoutes'));
-app.use('/api', require('./routes/academicOpsRoutes'));
 
 // ==================== ERROR HANDLER ====================
 app.use(errorHandler);

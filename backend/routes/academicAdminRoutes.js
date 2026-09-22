@@ -150,6 +150,29 @@ router.post('/academic-admin/students', authMiddleware, requireRole('academic_ad
   }
 });
 
+router.delete('/academic-admin/students/:id', authMiddleware, requireRole('academic_admin', 'super_admin'), async (req, res) => {
+  try {
+    const student = await Student.findById(req.params.id);
+    if (!student) return res.status(404).json({ message: 'Student not found' });
+
+    if (student.classId) {
+      await Class.findByIdAndUpdate(student.classId, { $pull: { students: student._id } });
+    }
+    if (student.userId) await User.findByIdAndDelete(student.userId);
+
+    await Grade.deleteMany({ studentId: student._id });
+    await Attendance.deleteMany({ studentId: student._id });
+    await Discipline.deleteMany({ studentId: student._id });
+    await FeePayment.deleteMany({ studentId: student._id });
+    await Invoice.deleteMany({ studentId: student._id });
+
+    await Student.findByIdAndDelete(req.params.id);
+    res.json({ success: true });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+});
+
 // ==================== PERFORMANCE ====================
 router.get('/academic-admin/students-performance', authMiddleware, async (req, res) => {
   try {

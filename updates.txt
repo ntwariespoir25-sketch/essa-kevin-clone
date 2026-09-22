@@ -80,3 +80,301 @@ d.Advanced Messaging System:
 
 f.Logout Warning Sweet2Alert Notifications Moadal 
 g.Portal Tabs Mobile Freindly Design (Responsiveness) improvements
+
+Additional Features & Updates for my School Management System
+Since my 7 portals (Super Admin, Academic Admin, Discipline Admin, Accounts Admin, Teacher, Student, Parent) already cover the core structure, here's what you can add within existing portals or as cross-cutting system updates — no new portals needed.
+
+1. Super Admin — Additional Features
+Audit Logs / Activity Trail — track every action (who did what, when)
+
+System Analytics Dashboard — total users, active sessions, login trends, portal usage heatmaps
+
+Bulk User Import/Export — CSV/Excel for students, teachers, parents
+
+Academic Year & Term Management — set current term, archive old years, promote students
+
+School Settings — logo, motto, grading system, fee currency, timezone
+
+Role & Permission Matrix Editor — granular toggle per role (beyond default RBAC)
+
+Backup & Restore — manual/auto DB snapshots
+
+Maintenance Mode — lock portal during updates with custom message
+
+Multi-School Support (if scaling) — switch between branches
+
+Announcement Scheduling — post later, auto-expire
+
+SMS/Email Gateway Settings — configure providers (Twilio, SendGrid, etc.)
+
+Two-Factor Authentication (2FA) enforcement for admins
+
+Session Management — force logout users, view active devices
+
+Data Retention & Privacy Controls — GDPR-style export/delete requests
+
+2. Academic Admin — Additional Features
+Timetable / Class Scheduler — drag-and-drop periods, teacher clash detection
+
+Exam Management — create exam types (CAT, Midterm, Final), weightings
+
+Report Card Generator — PDF export with school branding, auto-compute GPA/average
+
+Promotion & Demotion Tools — bulk move students to next class
+
+Subject Allocation — assign teachers to subjects per class
+
+Lesson Plan / Syllabus Tracker — teachers submit, admin approves
+
+Academic Calendar — events, holidays, exam dates visible to all
+
+Attendance Overview — school-wide daily/weekly attendance analytics
+
+Student Transfer Management — transfer in/out with records
+
+Admission Workflow Builder — customize form fields, approval stages
+
+Bulk Announcements with Attachments — PDFs, images, links
+
+Performance Comparison — class vs class, term vs term charts
+
+3. Discipline Admin — Additional Features
+Incident Categories & Severity Levels — minor, major, critical
+
+Behavior Points System — merit/demerit points, auto-thresholds for action
+
+Discipline Report Export — PDF for parent meetings
+
+Case Timeline View — full history of a case (reported → resolved)
+
+Repeat Offender Flagging — auto-highlight students with multiple cases
+
+Counseling Referral Module — refer student to counselor, track sessions
+
+Parent Notification Templates — pre-written SMS/email for common cases
+
+Appeal System — student/parent can appeal a decision
+
+Confidential Notes — admin-only internal remarks
+
+Discipline Analytics — trends by class, gender, term
+
+4. Accounts Admin — Additional Features
+Invoice Generator — auto-generate fee invoices per student/class
+
+Receipt Printing / PDF — auto-send after payment
+
+Partial Payment Tracking — installments, balance carry-forward
+
+Scholarship & Discount Management — apply per student with reason
+
+Payroll Automation — deductions (tax, loans, advances), payslip PDF
+
+Expense Categories & Approval Flow — request → approve → record
+
+Financial Reports — P&L, cash flow, income vs expense per term
+
+Budget vs Actual Comparison — variance analysis
+
+Stock Alerts — low stock, reorder level, supplier tracking
+
+Multi-Currency Support — if needed
+
+Payment Reconciliation — match Urubuto/MoMo transactions to students
+
+Debtors List — auto-generate list of unpaid students
+
+Fee Structure Versioning — keep history per academic year
+
+5. Teacher Portal — Additional Features
+Lesson Plan Submission — upload weekly plans
+
+Resource Library — upload notes, slides, videos for students
+
+Assignment & Homework Module — create, deadline, submit, grade
+
+Quiz/Test Builder — auto-grading for MCQs
+
+Gradebook — weighted columns, auto-average
+
+Class Timetable View — personal schedule
+
+Student Progress Tracker — per-student performance graph
+
+Parent Communication — direct message parents (with admin approval)
+
+Attendance Analytics — chronic absentees flagged
+
+Behavior Notes — positive/negative remarks (feeds to Discipline Admin)
+
+Substitute Request — mark absence, request substitute
+
+Exam Marks Entry — bulk upload via Excel
+
+Announcement to Class — class-only announcements
+
+6. Student Portal — Additional Features
+Timetable View — daily/weekly schedule
+
+Assignment Submission — upload files, see feedback
+
+Grades & Report Card — view term results, download PDF
+
+Attendance History — own attendance record
+
+Library / Resources — access uploaded materials
+
+Fee Balance Widget — real-time outstanding balance
+
+Permission Request Tracker — status of submitted requests
+
+Announcement Inbox — filter by category (academic, discipline, fee)
+
+Profile Self-Service — update photo, phone (with OTP verify)
+
+Notification Center — push/in-app alerts
+
+7. Parent Portal — Additional Features
+Multi-Child Support — switch between children in one account
+
+Real-Time Fee Balance — per child, per term
+
+Payment History & Receipts — download PDF receipts
+
+Attendance Alerts — SMS/push when child absent
+
+Grade Notifications — alert when new marks posted
+
+Behavior Alerts — instant notify on incident
+
+Teacher Messaging — message teachers (with moderation)
+
+Appointment Booking — schedule parent-teacher meeting
+
+School Calendar Sync — export events to Google Calendar
+
+Consent Forms — digital sign for trips, activities
+
+Feedback / Survey — rate school services
+
+Emergency Contacts — manage pickup list
+
+8. Overall Portal Updates (Cross-Cutting)
+UI/UX
+Dark Mode ✅ (already listed)
+
+Light/Dark Auto-Switch based on system
+
+Multi-Language Support — English, Kinyarwanda, French
+
+Breadcrumb Navigation
+
+Global Search — search students, teachers, cases, invoices
+
+Keyboard Shortcuts for power users
+
+Onboarding Tour — first-time walkthrough per role
+
+Security
+2FA (TOTP / SMS)
+
+Login History & Device Management
+
+Auto Logout on Inactivity (with warning modal) ✅
+
+Password Strength Meter
+
+Account Lockout after failed attempts
+
+IP Whitelisting for admin portals
+
+Encrypted File Storage
+
+Role-Based API Rate Limiting
+
+Communication
+Advanced Messaging System ✅ (already listed)
+
+Typing indicators
+
+CRUD messages
+
+Category-based messaging
+
+Unread auto-update
+
+Real-time chat
+
+Push Notifications (web + mobile)
+
+Email Digest — daily/weekly summary
+
+SMS Fallback for critical alerts
+
+Announcement Read Receipts
+
+Message Search & Filters
+
+Group Chats — class group, staff group, parent group
+
+File Sharing in Chat — images, PDFs, docs
+
+Message Reactions & Replies
+
+Voice Notes (optional)
+
+System
+Offline Mode (PWA) — cached data, sync when online
+
+Progressive Web App — installable on phone
+
+Print-Friendly Views — report cards, receipts, timetables
+
+Bulk Actions — select multiple, act once
+
+Data Export — CSV/PDF per module
+
+API Access — for third-party integrations
+
+Webhooks — trigger external services
+
+Error Logging & Monitoring — Sentry-style
+
+Feature Flags — toggle features without deploy
+
+Version History / Changelog in portal
+
+Integrations
+Urubuto Payment API ✅ (already for parent)
+
+MoMo / Airtel Money
+
+Bank Integration for fee reconciliation
+
+vidante.ai   for online classes
+
+Zoom / Google Meet for online classes
+
+
+
+Analytics & Reporting
+Custom Report Builder — drag fields, filter, export
+
+Dashboard Widgets — customizable per role
+
+KPI Cards — attendance %, fee collection %, pass rate
+
+Trend Charts — term-over-term, year-over-year
+
+Predictive Insights — at-risk students (low attendance + low grades)
+
+Scheduled Reports — auto-email weekly/monthly
+
+Accessibility
+Screen Reader Support
+
+High Contrast Mode
+
+Font Size Adjustment
+
+Color Blind Friendly Palettes
