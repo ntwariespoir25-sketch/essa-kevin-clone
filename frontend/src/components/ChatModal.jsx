@@ -94,7 +94,7 @@ const response = await fetch(`${API_URL}/api/messages/conversation/${otherUserId
   const markConversationAsRead = async (otherUserId) => {
     const token = getToken();
     try {
-    await fetch(`${API_URL}/api/messages/mark-read/${otherUserId}`, { {
+    await fetch(`${API_URL}/api/messages/mark-read/${otherUserId}`, {
         method: 'PUT',
         headers: { 'Authorization': `Bearer ${token}` }
       });
