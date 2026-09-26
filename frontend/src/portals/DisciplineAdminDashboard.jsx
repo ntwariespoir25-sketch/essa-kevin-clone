@@ -3,8 +3,8 @@ import { useNavigate } from 'react-router-dom';
 import Swal from 'sweetalert2';
 import io from 'socket.io-client';
 
-const API_URL = 'http://localhost:5000/api';
-const SOCKET_URL = 'http://localhost:5000';
+const API_URL = import.meta.env.VITE_API_URL;
+const SOCKET_URL = API_URL;
 const getToken = () => localStorage.getItem('portalToken');
 const authHeaders = () => ({ 'Content-Type': 'application/json', Authorization: `Bearer ${getToken()}` });
 
@@ -259,7 +259,7 @@ const DisciplineAdminDashboard = () => {
 
   // ─── API ──────────────────────────────────────────────────────────
   const api = useCallback(async (path, opts = {}) => {
-    const res = await fetch(`${API_URL}${path}`, { headers: authHeaders(), ...opts });
+    const res = await fetch(`${API_URL}/api${path}`, { headers: authHeaders(), ...opts });
     if (!res.ok) return Promise.reject(await res.json());
     return res.json();
   }, []);
@@ -451,7 +451,7 @@ const DisciplineAdminDashboard = () => {
   
   if (printResult.isConfirmed) {
     const token = getToken();
-    const slipUrl = `${API_URL}/permissions/${permission._id}/slip?token=${encodeURIComponent(token)}`;
+    const slipUrl = `${API_URL}/api/permissions/${permission._id}/slip?token=${encodeURIComponent(token)}`;
     const slipWindow = window.open(slipUrl, '_blank');
     if (!slipWindow) {
       Swal.fire('Popup Blocked', 'Please allow pop-ups to print permission slips.', 'warning');
@@ -743,7 +743,7 @@ const DisciplineAdminDashboard = () => {
                     small 
                     icon="fas fa-print" 
                     color="#3498db" 
-                    onClick={() => { const t = getToken(); window.open(`${API_URL}/permissions/${p._id}/slip?token=${encodeURIComponent(t)}`, '_blank'); }}
+                    onClick={() => { const t = getToken(); window.open(`${API_URL}/api/permissions/${p._id}/slip?token=${encodeURIComponent(t)}`, '_blank'); }}
                   >
                     Print Slip
                   </Btn>

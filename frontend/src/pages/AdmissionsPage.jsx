@@ -21,7 +21,7 @@ import musicClubImg from '../assets/music-club.png';
 import sportsClubImg from '../assets/sports-club.png';
 
 // API Base URL
-const API_URL = 'http://localhost:5000/api';
+const API_URL = import.meta.env.VITE_API_URL;
 
 const AdmissionsPage = () => {
   const [activeFaq, setActiveFaq] = useState(null);
@@ -141,7 +141,7 @@ const AdmissionsPage = () => {
     setIsSubmitting(true);
     
     try {
-      const response = await fetch(`${API_URL}/admissions/submit`, {
+      const response = await fetch(`${API_URL}/api/admissions/submit`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(formData)

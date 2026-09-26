@@ -8,7 +8,7 @@ import Footer from '../components/Footer';
 import heroBg from '../assets/hero-bg.jpg';
 
 // API Base URL
-const API_URL = 'http://localhost:5000/api';
+const API_URL = import.meta.env.VITE_API_URL;
 
 const NewsPage = () => {
   const [activeCategory, setActiveCategory] = useState('all');
@@ -40,7 +40,7 @@ const NewsPage = () => {
   const fetchNews = async () => {
     setLoading(true);
     try {
-      const response = await fetch(`${API_URL}/news/public`);
+      const response = await fetch(`${API_URL}/api/news/public`);
       const data = await response.json();
       
       if (data.success) {
@@ -78,7 +78,7 @@ const NewsPage = () => {
   const handleNewsClick = async (news) => {
     // Increment view count
     try {
-      await fetch(`${API_URL}/news/${news._id}/view`, { method: 'POST' });
+      await fetch(`${API_URL}/api/news/${news._id}/view`, { method: 'POST' });
     } catch (e) { console.error(e); }
     
     setSelectedNews(news);
@@ -97,7 +97,7 @@ const NewsPage = () => {
     const email = e.target.email.value;
     if (email) {
       try {
-        const response = await fetch(`${API_URL}/subscriptions/subscribe`, {
+        const response = await fetch(`${API_URL}/api/subscriptions/subscribe`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ email })

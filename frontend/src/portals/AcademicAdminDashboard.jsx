@@ -3,8 +3,8 @@
   import Swal from 'sweetalert2';
   import io from 'socket.io-client';
 
-  const API_URL = 'http://localhost:5000/api';
-  const SOCKET_URL = 'http://localhost:5000';
+  const API_URL = import.meta.env.VITE_API_URL;
+  const SOCKET_URL = API_URL;
   const getToken = () => localStorage.getItem('portalToken');
   const authHeaders = () => ({ 'Content-Type': 'application/json', Authorization: `Bearer ${getToken()}` });
 
@@ -193,7 +193,7 @@
 
     // ─── API ──────────────────────────────────────────────────────────
     const api = useCallback(async (path, opts = {}) => {
-      const res = await fetch(`${API_URL}${path}`, { headers: authHeaders(), ...opts });
+      const res = await fetch(`${API_URL}/api${path}`, { headers: authHeaders(), ...opts });
       if (!res.ok) return Promise.reject(await res.json());
       return res.json();
     }, []);
@@ -296,7 +296,7 @@
         const fd = new FormData();
         Object.entries(newsForm).forEach(([k, v]) => fd.append(k, v));
         if (newsImageFile) fd.append('image', newsImageFile);
-        const res = await fetch(`${API_URL}/academic-admin/news`, { method: 'POST', headers: { Authorization: `Bearer ${token}` }, body: fd });
+        const res = await fetch(`${API_URL}/api/academic-admin/news`, { method: 'POST', headers: { Authorization: `Bearer ${token}` }, body: fd });
         if (!res.ok) throw await res.json();
         Swal.fire('✅ Published!', 'News posted successfully', 'success');
         setNewsModal(false); setNewsForm({ title: '', summary: '', content: '', category: 'news', tags: '' }); setNewsImageFile(null);
@@ -320,7 +320,7 @@
         const fd = new FormData();
         Object.entries(galleryForm).forEach(([k, v]) => fd.append(k, v));
         fd.append('image', galleryImageFile);
-        const res = await fetch(`${API_URL}/academic-admin/gallery`, { method: 'POST', headers: { Authorization: `Bearer ${token}` }, body: fd });
+        const res = await fetch(`${API_URL}/api/academic-admin/gallery`, { method: 'POST', headers: { Authorization: `Bearer ${token}` }, body: fd });
         if (!res.ok) throw await res.json();
         Swal.fire('✅ Added!', 'Image added to gallery', 'success');
         setGalleryModal(false); setGalleryForm({ title: '', category: 'events', description: '' }); setGalleryImageFile(null);

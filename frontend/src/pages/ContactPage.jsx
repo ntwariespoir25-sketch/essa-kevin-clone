@@ -9,7 +9,7 @@ import heroBg from '../assets/hero-bg.jpg';
 import campusImage from '../assets/campus.png';
 
 // API Base URL
-const API_URL = 'http://localhost:5000/api';
+const API_URL = import.meta.env.VITE_API_URL;
 
 const ContactPage = () => {
   const [formData, setFormData] = useState({
@@ -66,7 +66,7 @@ const ContactPage = () => {
     setIsSubmitting(true);
 
     try {
-      const response = await fetch(`${API_URL}/contact/submit`, {
+      const response = await fetch(`${API_URL}/api/contact/submit`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(formData)
@@ -170,7 +170,7 @@ const ContactPage = () => {
     if (!email) return;
     
     try {
-      const response = await fetch(`${API_URL}/subscriptions/subscribe`, {
+      const response = await fetch(`${API_URL}/api/subscriptions/subscribe`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email })

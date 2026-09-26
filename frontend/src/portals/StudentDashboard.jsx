@@ -4,7 +4,7 @@ import Swal from 'sweetalert2';
 import io from 'socket.io-client';
 import ChatModal from "../components/ChatModal";
 
-const API_URL = 'http://localhost:5000/api';
+const API_URL = import.meta.env.VITE_API_URL;
 
 const StudentDashboard = () => {
   const [userName, setUserName] = useState('');
@@ -42,7 +42,7 @@ const StudentDashboard = () => {
   }, []);
 
   useEffect(() => {
-    const newSocket = io('http://localhost:5000');
+    const newSocket = io(API_URL);
     setSocket(newSocket);
     const userId = localStorage.getItem('userId');
     if (userId) newSocket.emit('join', userId);
@@ -68,7 +68,7 @@ const StudentDashboard = () => {
     const token = getToken();
     const headers = { 'Content-Type': 'application/json', ...options.headers };
     if (token) headers['Authorization'] = `Bearer ${token}`;
-    const response = await fetch(`${API_URL}${endpoint}`, { ...options, headers });
+    const response = await fetch(`${API_URL}/api${endpoint}`, { ...options, headers });
     const data = await response.json();
     if (!response.ok) throw new Error(data.message || 'Something went wrong');
     return data;

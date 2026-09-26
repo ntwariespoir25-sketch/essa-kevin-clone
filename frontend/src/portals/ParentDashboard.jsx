@@ -4,8 +4,8 @@ import Swal from 'sweetalert2';
 import io from 'socket.io-client';
 import ChatModal from '../components/ChatModal';
 
-const API_URL = 'http://localhost:5000/api';
-const SOCKET_URL = 'http://localhost:5000';
+const API_URL = import.meta.env.VITE_API_URL;
+const SOCKET_URL = API_URL;
 const getToken = () => localStorage.getItem('portalToken');
 const authHeaders = () => ({ 'Content-Type': 'application/json', Authorization: `Bearer ${getToken()}` });
 
@@ -155,7 +155,7 @@ const ParentDashboard = () => {
 
   // ─── API helper ──────────────────────────────────────────────────────────
   const api = async (endpoint, options = {}) => {
-    const res = await fetch(`${API_URL}${endpoint}`, { headers: { ...authHeaders(), ...options.headers }, ...options });
+    const res = await fetch(`${API_URL}/api${endpoint}`, { headers: { ...authHeaders(), ...options.headers }, ...options });
     let data;
     try { data = await res.json(); } catch { data = { message: `HTTP ${res.status}` }; }
     if (!res.ok) throw new Error(data.message || `Request failed (${res.status})`);

@@ -3,8 +3,8 @@ import { useNavigate } from 'react-router-dom';
 import Swal from 'sweetalert2';
 import io from 'socket.io-client';
 
-const API_URL = 'http://localhost:5000/api';
-const SOCKET_URL = 'http://localhost:5000';
+const API_URL = import.meta.env.VITE_API_URL;
+const SOCKET_URL = API_URL;
 const getToken = () => localStorage.getItem('portalToken');
 const authHeaders = () => ({ 
   'Content-Type': 'application/json', 
@@ -251,7 +251,7 @@ const TeacherDashboard = () => {
 
   // ─── API ──────────────────────────────────────────────────────────
   const api = useCallback(async (path, opts = {}) => {
-    const res = await fetch(`${API_URL}${path}`, { headers: authHeaders(), ...opts });
+    const res = await fetch(`${API_URL}/api${path}`, { headers: authHeaders(), ...opts });
     if (!res.ok) return Promise.reject(await res.json());
     return res.json();
   }, []);
@@ -309,7 +309,7 @@ const TeacherDashboard = () => {
       }
       
       const token = getToken();
-      const response = await fetch(`${API_URL}/teacher/assignments`, {
+      const response = await fetch(`${API_URL}/api/teacher/assignments`, {
         method: 'POST',
         headers: { 'Authorization': `Bearer ${token}` },
         body: formData
@@ -378,7 +378,7 @@ const TeacherDashboard = () => {
       }
       
       const token = getToken();
-      const response = await fetch(`${API_URL}/teacher/lesson-plans`, {
+      const response = await fetch(`${API_URL}/api/teacher/lesson-plans`, {
         method: 'POST',
         headers: { 'Authorization': `Bearer ${token}` },
         body: formData

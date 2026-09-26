@@ -17,6 +17,7 @@ const ChatModal = ({ isOpen, onClose, recipient, onMessageSent }) => {
   const [typingUser, setTypingUser] = useState(null);
   const messagesEndRef = useRef(null);
   const typingTimeoutRef = useRef(null);
+  const API_URL = import.meta.env.VITE_API_URL;
 
   const getToken = () => localStorage.getItem('portalToken');
   const currentUserId = localStorage.getItem('userId');
@@ -47,10 +48,11 @@ const ChatModal = ({ isOpen, onClose, recipient, onMessageSent }) => {
   const fetchConversations = async () => {
     const token = getToken();
     try {
-      const response = await fetch('http://localhost:5000/api/messages/conversations', {
-        headers: { 'Authorization': `Bearer ${token}` }
-      });
-      if (response.ok) {
+const response = await fetch(`${API_URL}/api/messages/conversations`, {
+  headers: { 'Authorization': `Bearer ${token}` }
+});
+
+if (response.ok) {
         const data = await response.json();
         setConversations(data);
         
@@ -70,9 +72,9 @@ const ChatModal = ({ isOpen, onClose, recipient, onMessageSent }) => {
   const fetchMessages = async (otherUserId) => {
     const token = getToken();
     try {
-      const response = await fetch(`http://localhost:5000/api/messages/conversation/${otherUserId}`, {
-        headers: { 'Authorization': `Bearer ${token}` }
-      });
+const response = await fetch(`${API_URL}/api/messages/conversation/${otherUserId}`, {
+  headers: { 'Authorization': `Bearer ${token}` }
+});
       if (response.ok) {
         const data = await response.json();
         setMessages(data);
@@ -92,7 +94,7 @@ const ChatModal = ({ isOpen, onClose, recipient, onMessageSent }) => {
   const markConversationAsRead = async (otherUserId) => {
     const token = getToken();
     try {
-      await fetch(`http://localhost:5000/api/messages/mark-read/${otherUserId}`, {
+    await fetch(`${API_URL}/api/messages/mark-read/${otherUserId}`, { {
         method: 'PUT',
         headers: { 'Authorization': `Bearer ${token}` }
       });
@@ -118,7 +120,7 @@ const ChatModal = ({ isOpen, onClose, recipient, onMessageSent }) => {
     const token = getToken();
 
     try {
-      const response = await fetch('http://localhost:5000/api/messages/send', {
+    const response = await fetch(`${API_URL}/api/messages/send`,  {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -165,7 +167,7 @@ const ChatModal = ({ isOpen, onClose, recipient, onMessageSent }) => {
 
     const token = getToken();
     try {
-      const response = await fetch('http://localhost:5000/api/messages/send', {
+      const response = await fetch(`${API_URL}/api/messages/send`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

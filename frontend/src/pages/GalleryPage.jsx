@@ -8,7 +8,7 @@ import { Link } from 'react-router-dom';
 import heroBg from '../assets/hero-bg.jpg';
 
 // API Base URL
-const API_URL = 'http://localhost:5000/api';
+const API_URL = import.meta.env.VITE_API_URL;
 
 const GalleryPage = () => {
   const [activeFilter, setActiveFilter] = useState('all');
@@ -36,7 +36,7 @@ const GalleryPage = () => {
   const fetchGallery = async () => {
     setLoading(true);
     try {
-      const response = await fetch(`${API_URL}/gallery/public`);
+      const response = await fetch(`${API_URL}/api/gallery/public`);
       const data = await response.json();
       
       if (data.success) {
@@ -94,7 +94,7 @@ const GalleryPage = () => {
     }).then(async (result) => {
       if (result.isConfirmed) {
         try {
-          await fetch(`${API_URL}/gallery/${image._id}/download`, { method: 'POST' });
+          await fetch(`${API_URL}/api/gallery/${image._id}/download`, { method: 'POST' });
         } catch (e) {
           console.error('Download tracking error:', e);
         }

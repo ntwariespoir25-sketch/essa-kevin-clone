@@ -3,8 +3,8 @@ import { useNavigate } from 'react-router-dom';
 import Swal from 'sweetalert2';
 import io from 'socket.io-client';
 
-const API_URL = 'http://localhost:5000/api';
-const SOCKET_URL = 'http://localhost:5000';
+const API_URL = import.meta.env.VITE_API_URL;
+const SOCKET_URL = API_URL;
 const getToken = () => localStorage.getItem('portalToken');
 const authHeaders = () => ({ 'Content-Type': 'application/json', Authorization: `Bearer ${getToken()}` });
 
@@ -181,7 +181,7 @@ const AccountsAdminDashboard = () => {
   useEffect(() => { messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' }); }, [messages]);
 
   const api = useCallback(async (path, opts = {}) => {
-    const res = await fetch(`${API_URL}${path}`, { headers: authHeaders(), ...opts });
+    const res = await fetch(`${API_URL}/api${path}`, { headers: authHeaders(), ...opts });
     if (!res.ok) {
       let err;
       try { err = await res.json(); } catch { err = { message: `HTTP ${res.status}` }; }

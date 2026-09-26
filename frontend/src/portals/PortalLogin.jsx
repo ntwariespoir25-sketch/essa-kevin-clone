@@ -15,7 +15,7 @@ const PortalLogin = () => {
   const [otpSent, setOtpSent] = useState(false);
   const navigate = useNavigate();
 
-  const API_URL = 'http://localhost:5000/api';
+  const API_URL = import.meta.env.VITE_API_URL;
 
   useEffect(() => {
     const rememberedEmail = localStorage.getItem('rememberedEmail');
@@ -41,7 +41,7 @@ const PortalLogin = () => {
     setIsLoading(true);
 
     try {
-      const response = await fetch(`${API_URL}/auth/login`, {
+      const response = await fetch(`${API_URL}/api/auth/login`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email, password }),
@@ -112,7 +112,7 @@ const PortalLogin = () => {
     }
     setIsLoading(true);
     try {
-      const response = await fetch(`${API_URL}/parent/request-otp`, {
+      const response = await fetch(`${API_URL}/api/parent/request-otp`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ phone: otpPhone }),
@@ -145,7 +145,7 @@ const PortalLogin = () => {
     }
     setIsLoading(true);
     try {
-      const response = await fetch(`${API_URL}/parent/verify-otp`, {
+      const response = await fetch(`${API_URL}/api/parent/verify-otp`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ phone: otpPhone, otp: otpCode }),

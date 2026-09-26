@@ -3,7 +3,7 @@ import { useNavigate, useSearchParams } from 'react-router-dom';
 import Swal from 'sweetalert2';
 import campusBg from '../assets/campus.png';
 
-const API_URL = 'http://localhost:5000/api';
+const API_URL = import.meta.env.VITE_API_URL;
 
 const SetPasswordPage = () => {
   const [searchParams] = useSearchParams();
@@ -49,7 +49,7 @@ const SetPasswordPage = () => {
 
     setIsLoading(true);
     try {
-      const response = await fetch(`${API_URL}/auth/set-password`, {
+      const response = await fetch(`${API_URL}/api/auth/set-password`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ token, password }),
