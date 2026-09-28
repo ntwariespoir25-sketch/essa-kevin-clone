@@ -60,6 +60,7 @@ app.use('/api', require('./routes/accountsRoutes'));
 app.use('/api', require('./routes/messageRoutes'));
 app.use('/api', require('./routes/calendarRoutes'));
 app.use('/api', require('./routes/subjectRoutes'));
+app.use('/api', require('./routes/timetableRoutes'));
 
 // ==================== ERROR HANDLER ====================
 app.use(errorHandler);
