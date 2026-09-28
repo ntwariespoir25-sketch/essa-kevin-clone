@@ -42,11 +42,11 @@ const StudentDashboard = () => {
   }, []);
 
   useEffect(() => {
-    const newSocket = io(API_URL);
+    const newSocket = io(API_URL, { auth: { token: getToken() } });
     setSocket(newSocket);
     const userId = localStorage.getItem('userId');
     if (userId) newSocket.emit('join', userId);
-    newSocket.on('newMessage', () => fetchUnreadCount());
+    newSocket.on('new_message', () => fetchUnreadCount());
     return () => newSocket.disconnect();
   }, []);
 
