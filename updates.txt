@@ -1,111 +1,39 @@
-Updates on Portal Role Based Access
-1.Super Admin 
-a.manages sub admins 
-b.view the school overview 
-c.announces to school users in categories
-d.manages permission requests by admins
-e.manages school discipline cases
+ESSA NYARUGUNGA — School Management System
+Master Feature & Role Document (Updated)
+School: ESSA Nyarugunga
+Location: Indatwa Village, Kamashashi Cell, Nyarugunga Sector, Kicukiro District, Kigali, Rwanda
+Type: TVET (Technical and Vocational Education and Training) School
 
-2.academic admins
-a.manages teachers 
-b.manages teacher class student assignment
-c.manages student with sdms code and parent number 
-d.overview school perfomance
-e.manages teachers permission requests
-f.requests permission to super admins
-g.Receives Application forms (as form please) from admission page
-h.manages news and galleries to website
-g.announces in categories  and view announcements 
-
-3.Discipline admins
-a.overview school behaviour status 
-b.manages discipline cases
-c.announces to school users in categories and view the announcements
-d.report students to parents
-e.manages student and parent permission requests
-f.request permission to super admin
-
-4.Accounts admin
-a.manges school Accounts
-b.manages school budget income and expenses
-c.Manages school employees salaries and their Accounts in CRUD table
-d.assign school fees per class
-e.overview students payment status per class
-f.announces parents to pay 
-g.manages stock in CRUD table
-
-5.teacher Portal
-
-a.overview assigned class perfomance
-b.manages subjects and modules 
-c.manages assessments to class
-d.manages class attendance in table
-e.manages assessments grading
-f.report student incidents indiscipline cases to discipline admin
-g.request permission to academic admin
-
-6.students Portal
-
-a.overview discipline status and history
-b.overview payment status and history
-c.overview assessments assigned
-d.view the announcements from admins
-e.request permission to Discipline admin
-
-7.parent Portal
-a.OTP login
-b.link to student
-c.overview students behaviour status and history
-d.overview students payment status and history
-e.view the school announcements
-f. request permission for student to discipline admin
-g.pays school fees (urubuto payment api)
-
-8.Overal Portal Updates
-
-a.Dark Mode 
-b.Modal Change Password on the first log in 
-c.Profile Settings:
--Profile Picture
--Name 
--Email
--Phone Number 
--Password Reset 
-d.Advanced Messaging System:
--Typing indications
--CRUD messages
--Message by categories(student,parent,admin,teacher etc) selecting 
--Unread messages auto update and also more
--Real Time Chatting Features
-
-f.Logout Warning Sweet2Alert Notifications Moadal 
-g.Portal Tabs Mobile Freindly Design (Responsiveness) improvements
-
-Additional Features & Updates for my School Management System
-Since my 7 portals (Super Admin, Academic Admin, Discipline Admin, Accounts Admin, Teacher, Student, Parent) already cover the core structure, here's what you can add within existing portals or as cross-cutting system updates — no new portals needed.
-
-1. Super Admin — Additional Features
+1. SUPER ADMIN
+Core Role
+#	Feature
+a	Manages sub-admins
+b	Views the school overview
+c	Announces to school users in categories
+d	Manages permission requests by admins
+e	Manages school discipline cases
+Additional Features
 Audit Logs / Activity Trail — track every action (who did what, when)
 
 System Analytics Dashboard — total users, active sessions, login trends, portal usage heatmaps
 
 Bulk User Import/Export — CSV/Excel for students, teachers, parents
 
-Academic Year & Term Management — set current term, archive old years, promote students
+
 
 School Settings — logo, motto, grading system, fee currency, timezone
 
-Role & Permission Matrix Editor — granular toggle per role (beyond default RBAC)
+Role & Permission Matrix Editor — granular toggle per role
 
 Backup & Restore — manual/auto DB snapshots
 
 Maintenance Mode — lock portal during updates with custom message
 
-Multi-School Support (if scaling) — switch between branches
+
 
 Announcement Scheduling — post later, auto-expire
 
-SMS/Email Gateway Settings — configure providers (Twilio, SendGrid, etc.)
+SMS/Email Gateway Settings — configure providers (Twilio)
 
 Two-Factor Authentication (2FA) enforcement for admins
 
@@ -113,7 +41,19 @@ Session Management — force logout users, view active devices
 
 Data Retention & Privacy Controls — GDPR-style export/delete requests
 
-2. Academic Admin — Additional Features
+2. ACADEMIC ADMIN
+Core Role
+#	Feature
+a	Manages teachers
+b	Manages teacher-class-student assignment
+c	Manages students with SDMS(student to log in it requires SDMS code then after first log in password change modal ) code and parent number otp
+d	Overviews school performance
+e	Manages teachers' permission requests
+f	Requests permission to Super Admin
+g	Receives application forms from admission page
+h	Manages news and galleries to website
+i	Announces in categories and views announcements
+Additional Features
 Timetable / Class Scheduler — drag-and-drop periods, teacher clash detection
 
 Exam Management — create exam types (CAT, Midterm, Final), weightings
@@ -138,7 +78,16 @@ Bulk Announcements with Attachments — PDFs, images, links
 
 Performance Comparison — class vs class, term vs term charts
 
-3. Discipline Admin — Additional Features
+3. DISCIPLINE ADMIN
+Core Role
+#	Feature
+a	Overviews school behaviour status
+b	Manages discipline cases
+c	Announces to school users in categories and views announcements
+d	Reports students to parents
+e	Manages student and parent permission requests
+f	Requests permission to Super Admin
+Additional Features
 Incident Categories & Severity Levels — minor, major, critical
 
 Behavior Points System — merit/demerit points, auto-thresholds for action
@@ -159,7 +108,17 @@ Confidential Notes — admin-only internal remarks
 
 Discipline Analytics — trends by class, gender, term
 
-4. Accounts Admin — Additional Features
+4. ACCOUNTS ADMIN
+Core Role
+#	Feature
+a	Manages school accounts
+b	Manages school budget, income, and expenses
+c	Manages school employees' salaries and their accounts in CRUD table
+d	Assigns school fees per class
+e	Overviews students' payment status per class
+f	Announces parents to pay
+g	Manages stock in CRUD table
+Additional Features
 Invoice Generator — auto-generate fee invoices per student/class
 
 Receipt Printing / PDF — auto-send after payment
@@ -186,7 +145,17 @@ Debtors List — auto-generate list of unpaid students
 
 Fee Structure Versioning — keep history per academic year
 
-5. Teacher Portal — Additional Features
+5. TEACHER PORTAL
+Core Role
+#	Feature
+a	Overviews assigned class performance
+b	Manages subjects and modules
+c	Manages assessments to class
+d	Manages class attendance in table
+e	Manages assessments grading
+f	Reports student incidents / indiscipline cases to Discipline Admin
+g	Requests permission to Academic Admin
+Additional Features
 Lesson Plan Submission — upload weekly plans
 
 Resource Library — upload notes, slides, videos for students
@@ -209,11 +178,19 @@ Behavior Notes — positive/negative remarks (feeds to Discipline Admin)
 
 Substitute Request — mark absence, request substitute
 
-Exam Marks Entry — bulk upload via Excel
+Exam Marks Entry — bulk upload via Urubuto Education api
 
 Announcement to Class — class-only announcements
 
-6. Student Portal — Additional Features
+6. STUDENT PORTAL
+Core Role
+#	Feature
+a	Overviews discipline status and history
+b	Overviews payment status and history
+c	Overviews assessments assigned
+d	Views announcements from admins
+e	Requests permission to Discipline Admin
+Additional Features
 Timetable View — daily/weekly schedule
 
 Assignment Submission — upload files, see feedback
@@ -234,12 +211,23 @@ Profile Self-Service — update photo, phone (with OTP verify)
 
 Notification Center — push/in-app alerts
 
-7. Parent Portal — Additional Features
+7. PARENT PORTAL
+Core Role
+#	Feature
+a	OTP login
+b	Link to student
+c	Overviews student's behaviour status and history
+d	Overviews student's payment status and history
+e	Views school announcements
+f	Requests permission for student to Discipline Admin
+g	Pays school fees (Urubuto Payment API)
+Additional Features
 Multi-Child Support — switch between children in one account
 
 Real-Time Fee Balance — per child, per term
 
 Payment History & Receipts — download PDF receipts
+Pay Schol Fees with Urubuto API 
 
 Attendance Alerts — SMS/push when child absent
 
@@ -259,13 +247,13 @@ Feedback / Survey — rate school services
 
 Emergency Contacts — manage pickup list
 
-8. Overall Portal Updates (Cross-Cutting)
-UI/UX
-Dark Mode ✅ (already listed)
+8. OVERALL PORTAL UPDATES (Cross-Cutting)
+8.1 UI/UX
+Dark Mode ✅
 
 Light/Dark Auto-Switch based on system
 
-Multi-Language Support — English, Kinyarwanda, French
+Multi-Language Support — English, Kinyarwanda, French(react-i18next)
 
 Breadcrumb Navigation
 
@@ -275,7 +263,15 @@ Keyboard Shortcuts for power users
 
 Onboarding Tour — first-time walkthrough per role
 
-Security
+Portal Tabs Mobile-Friendly Design (Responsiveness) improvements ✅
+
+Modal Change Password on first login ✅
+
+Profile Settings: Profile Picture, Name, Email, Phone Number, Password Reset ✅
+
+Logout Warning SweetAlert2 Notification Modal ✅
+
+8.2 Security
 2FA (TOTP / SMS)
 
 Login History & Device Management
@@ -292,18 +288,16 @@ Encrypted File Storage
 
 Role-Based API Rate Limiting
 
-Communication
-Advanced Messaging System ✅ (already listed)
+8.3 Communication — Advanced Messaging System
+Typing indicators ✅
 
-Typing indicators
+CRUD messages ✅
 
-CRUD messages
+Category-based messaging (student, parent, admin, teacher, etc.) ✅
 
-Category-based messaging
+Unread messages auto-update ✅
 
-Unread auto-update
-
-Real-time chat
+Real-time chat ✅
 
 Push Notifications (web + mobile)
 
@@ -321,9 +315,9 @@ File Sharing in Chat — images, PDFs, docs
 
 Message Reactions & Replies
 
-Voice Notes (optional)
+Voice Notes and voice/video calls
 
-System
+8.4 System
 Offline Mode (PWA) — cached data, sync when online
 
 Progressive Web App — installable on phone
@@ -344,20 +338,18 @@ Feature Flags — toggle features without deploy
 
 Version History / Changelog in portal
 
-Integrations
-Urubuto Payment API ✅ (already for parent)
+8.5 Integrations
+Urubuto Payment API ✅ (Parent Portal and Education)
 
-MoMo / Airtel Money
+
 
 Bank Integration for fee reconciliation
 
-vidante.ai   for online classes
-
-Zoom / Google Meet for online classes
 
 
+Zoom / Google Meet — for online classes
 
-Analytics & Reporting
+8.6 Analytics & Reporting
 Custom Report Builder — drag fields, filter, export
 
 Dashboard Widgets — customizable per role
@@ -370,7 +362,7 @@ Predictive Insights — at-risk students (low attendance + low grades)
 
 Scheduled Reports — auto-email weekly/monthly
 
-Accessibility
+8.7 Accessibility
 Screen Reader Support
 
 High Contrast Mode
