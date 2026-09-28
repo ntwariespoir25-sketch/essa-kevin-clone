@@ -8,8 +8,7 @@ const { getJWTSecret } = require('../utils/jwt');
 // school never chose.
 const ALLOWED_WHILE_PASSWORD_PENDING = [
   '/auth/change-password',
-  '/auth/student/login',
-  '/auth/me'
+  '/user/profile'
 ];
 
 const authMiddleware = async (req, res, next) => {

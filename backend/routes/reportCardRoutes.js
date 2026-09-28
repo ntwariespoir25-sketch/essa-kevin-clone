@@ -6,10 +6,56 @@ const Student = require('../models/Student');
 const Class = require('../models/Class');
 const Attendance = require('../models/Attendance');
 const SubjectAllocation = require('../models/SubjectAllocation');
+const Subject = require('../models/Subject');
 const authMiddleware = require('../middleware/auth');
 const requireRole = require('../middleware/roleCheck');
 
 const router = express.Router();
+
+const escapeHtml = (value) =>
+  String(value ?? '')
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
+
+// A report card is one student's grades, so access has to follow the
+// relationship rather than mere authentication: a student sees their own, a
+// parent only their own child, a teacher only classes they are allocated to.
+// Without this any logged-in account could read any child's record.
+const authorizeStudentAccess = async (req, student) => {
+  const { userId, userRole } = req;
+
+  if (userRole === 'super_admin' || userRole === 'academic_admin') return true;
+
+  if (userRole === 'student') {
+    const own = await Student.findOne({ userId }).select('_id');
+    return !!own && String(own._id) === String(student._id);
+  }
+
+  if (userRole === 'parent') {
+    return student.parentPhone
+      ? !!(await Student.exists({ _id: student._id, parentPhone: student.parentPhone }))
+          || (await require('../models/ParentProfile').exists({ userId, children: student._id }))
+      : false;
+  }
+
+  if (userRole === 'teacher') {
+    if (student.teacherId && String(student.teacherId) === String(userId)) return true;
+    if (!student.classId) return false;
+    const [classTeacher, allocation] = await Promise.all([
+      Class.findById(student.classId).select('teacherId'),
+      SubjectAllocation.exists({ classId: student.classId, teacherId: userId })
+    ]);
+    return (
+      (classTeacher?.teacherId && String(classTeacher.teacherId) === String(userId)) ||
+      !!allocation
+    );
+  }
+
+  return false;
+};
 
 const letterGrade = (pct) => {
   if (pct >= 80) return 'A';
