@@ -2,6 +2,10 @@
   import { useNavigate } from 'react-router-dom';
   import Swal from 'sweetalert2';
   import io from 'socket.io-client';
+  import {
+    TimetablePanel, SubjectAllocationPanel, ExamsPanel, ReportCardsPanel,
+    PromotionPanel, AnalyticsPanel, LessonReviewPanel, SdmsPanel
+  } from './AcademicPanels';
 
   const API_URL = import.meta.env.VITE_API_URL;
   const SOCKET_URL = API_URL;
@@ -273,8 +277,12 @@
       if (!studentForm.fullName) { Swal.fire('Missing Fields', 'Student name required', 'warning'); return; }
       setSaving(true);
       try {
-        await api('/academic-admin/students', { method: 'POST', body: JSON.stringify(studentForm) });
-        Swal.fire('✅ Student Added!', '', 'success');
+        const d = await api('/academic-admin/students', { method: 'POST', body: JSON.stringify(studentForm) });
+        Swal.fire({
+          title: 'Student Added',
+          html: `<b>${studentForm.fullName}</b> signs in with their SDMS code:<br><code style="font-size:1.1rem;letter-spacing:2px">${d.sdmsCode}</code><br><small>They set a password on first login.</small>`,
+          icon: 'success'
+        });
         setStudentModal(false); setStudentForm({ fullName: '', email: '', classId: '', parentName: '', parentPhone: '' });
         fetchStudents();
       } catch (e) { Swal.fire('Error', e.message || 'Failed', 'error'); }
@@ -359,6 +367,14 @@
       { id: 'teachers', label: 'Teachers', icon: 'fas fa-chalkboard-user' },
       { id: 'classes', label: 'Classes', icon: 'fas fa-school' },
       { id: 'students', label: 'Students', icon: 'fas fa-user-graduate' },
+      { id: 'subjects', label: 'Subject Allocation', icon: 'fas fa-book-open' },
+      { id: 'timetable', label: 'Timetable', icon: 'fas fa-calendar-alt' },
+      { id: 'exams', label: 'Exams', icon: 'fas fa-pen-square' },
+      { id: 'reportcards', label: 'Report Cards', icon: 'fas fa-award' },
+      { id: 'promotion', label: 'Promotion', icon: 'fas fa-sort-numeric-up' },
+      { id: 'analytics', label: 'Analytics', icon: 'fas fa-chart-line' },
+      { id: 'lessonreview', label: 'Lesson Review', icon: 'fas fa-clipboard-check' },
+      { id: 'sdms', label: 'SDMS Codes', icon: 'fas fa-id-card' },
       { id: 'news', label: 'News & Events', icon: 'fas fa-newspaper' },
       { id: 'gallery', label: 'Gallery', icon: 'fas fa-images' },
       { id: 'applications', label: 'Applications', icon: 'fas fa-file-alt', badge: applications.filter(a => a.status === 'pending').length },
@@ -689,6 +705,16 @@
                 </div>
               </div>
             )}
+
+            {/* ══ ACADEMIC OPS PANELS ══ */}
+            {activeTab === 'subjects' && <SubjectAllocationPanel classes={classes} teachers={teachers} />}
+            {activeTab === 'timetable' && <TimetablePanel classes={classes} teachers={teachers} />}
+            {activeTab === 'exams' && <ExamsPanel classes={classes} />}
+            {activeTab === 'reportcards' && <ReportCardsPanel classes={classes} />}
+            {activeTab === 'promotion' && <PromotionPanel classes={classes} />}
+            {activeTab === 'analytics' && <AnalyticsPanel classes={classes} />}
+            {activeTab === 'lessonreview' && <LessonReviewPanel />}
+            {activeTab === 'sdms' && <SdmsPanel classes={classes} />}
 
             {/* ══ ANNOUNCEMENTS ══ */}
             {activeTab === 'announcements' && (
