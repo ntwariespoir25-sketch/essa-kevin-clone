@@ -8,6 +8,7 @@ const Assignment = require('../models/Assignment');
 const Grade = require('../models/Grade');
 const Attendance = require('../models/Attendance');
 const LessonPlan = require('../models/LessonPlan');
+const Exam = require('../models/Exam');
 const authMiddleware = require('../middleware/auth');
 const requireRole = require('../middleware/roleCheck');
 const { uploadAssignment, uploadLesson } = require('../config/upload');
@@ -43,7 +44,28 @@ router.get('/teacher/grades', authMiddleware, async (req, res) => {
 
 router.post('/teacher/grades', authMiddleware, requireRole('teacher', 'academic_admin', 'super_admin'), async (req, res) => {
   try {
-    const grade = await Grade.create({ ...req.body, teacherId: req.userId });
+    const { studentId, subject, score, term, year, assessmentId } = req.body;
+    if (!studentId || !subject || score === undefined || !term || !year) {
+      return res.status(400).json({ message: 'studentId, subject, score, term and year are required' });
+    }
+
+    // Derive the assessment type from the exam rather than trusting the client,
+    // because report cards weight each score by the weight of its exam type. A
+    // mismatched or missing type silently drops the score out of the weighting.
+    let assessmentType = 'Other';
+    if (assessmentId) {
+      const exam = await Exam.findById(assessmentId).select('type');
+      if (!exam) return res.status(404).json({ message: 'Exam not found' });
+      assessmentType = exam.type;
+    } else if (req.body.assessmentType) {
+      assessmentType = req.body.assessmentType;
+    }
+
+    const grade = await Grade.create({
+      studentId, subject, score, term, year: Number(year),
+      assessmentType, assessmentId: assessmentId || undefined,
+      teacherId: req.userId
+    });
     res.json({ success: true, grade });
   } catch (error) {
     res.status(500).json({ message: error.message });

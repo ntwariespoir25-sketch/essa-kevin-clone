@@ -6,6 +6,7 @@
     TimetablePanel, SubjectAllocationPanel, ExamsPanel, ReportCardsPanel,
     PromotionPanel, AnalyticsPanel, LessonReviewPanel, SdmsPanel
   } from './AcademicPanels';
+  import { CalendarPanel } from './CalendarPanel';
 
   const API_URL = import.meta.env.VITE_API_URL;
   const SOCKET_URL = API_URL;
@@ -375,6 +376,7 @@
       { id: 'analytics', label: 'Analytics', icon: 'fas fa-chart-line' },
       { id: 'lessonreview', label: 'Lesson Review', icon: 'fas fa-clipboard-check' },
       { id: 'sdms', label: 'SDMS Codes', icon: 'fas fa-id-card' },
+      { id: 'calendar', label: 'Calendar', icon: 'fas fa-calendar-days' },
       { id: 'news', label: 'News & Events', icon: 'fas fa-newspaper' },
       { id: 'gallery', label: 'Gallery', icon: 'fas fa-images' },
       { id: 'applications', label: 'Applications', icon: 'fas fa-file-alt', badge: applications.filter(a => a.status === 'pending').length },
@@ -715,6 +717,7 @@
             {activeTab === 'analytics' && <AnalyticsPanel classes={classes} />}
             {activeTab === 'lessonreview' && <LessonReviewPanel />}
             {activeTab === 'sdms' && <SdmsPanel classes={classes} />}
+            {activeTab === 'calendar' && <CalendarPanel />}
 
             {/* ══ ANNOUNCEMENTS ══ */}
             {activeTab === 'announcements' && (
