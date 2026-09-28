@@ -20,6 +20,14 @@ import debateClubImg from '../assets/debate-club.png';
 import musicClubImg from '../assets/music-club.png';
 import sportsClubImg from '../assets/sports-club.png';
 
+// Program card images (replaced)
+import sodEssa from '../assets/sod essa.png';
+import accEssa from '../assets/acc essa.png';
+import torEssa from '../assets/tor essa.png';
+import bdcEssa from '../assets/bdc essa.png';
+import fboEssa from '../assets/fbo essa.png';
+import csaEssa from '../assets/csa essa.png';
+
 // Hero slider images (only images, no captions)
 const heroSliderImages = [
   heroBg,
@@ -244,32 +252,34 @@ const HomePage = () => {
     <div className="cards">
       <div className="card">
         <div className="card-icon"><i className="fas fa-code"></i></div>
-        <img src={scienceLabImg} alt="Software Development" className="card-image" />
+        <img src={sodEssa} alt="Software Development" className="card-image" />
         <h3>SOFTWARE DEVELOPMENT</h3>
         <p>A software development class teaches how to design, build, test, and maintain computer programs using programming languages and tools.</p>
         <Link to="/academics" className="card-link">Learn More <i className="fas fa-arrow-right"></i></Link>
       </div>
       <div className="card">
         <div className="card-icon"><i className="fas fa-calculator"></i></div>
-        <img src={classroomImg} alt="Accounting" className="card-image" />
+        <img src={accEssa} alt="Accounting" className="card-image" />
         <h3>ACCOUNTING</h3>
         <p>An accounting class teaches how to record, organize, and analyze financial transactions for individuals or businesses.</p>
         <Link to="/academics" className="card-link">Learn More <i className="fas fa-arrow-right"></i></Link>
       </div>
       <div className="card">
         <div className="card-icon"><i className="fas fa-microchip"></i></div>
-        <img src={libraryImg} alt="Computer Systems" className="card-image" />
+        <img src={csaEssa} alt="Computer Systems" className="card-image" />
         <h3>COMPUTER SYSTEMS</h3>
         <p>A computer systems and architecture class explains how computer hardware and software interact.</p>
         <Link to="/academics" className="card-link">Learn More <i className="fas fa-arrow-right"></i></Link>
       </div>
       <div className="card">
         <div className="card-icon"><i className="fas fa-hotel"></i></div>
-        <img src={campusImage} alt="Tourism" className="card-image" />
+        <img src={torEssa} alt="Tourism" className="card-image" />
         <h3>TOURISM</h3>
         <p>Learn about the travel and hospitality industry, customer service, and cultural awareness.</p>
         <Link to="/academics" className="card-link">Learn More <i className="fas fa-arrow-right"></i></Link>
       </div>
+     
+     
     </div>
     <div className="trades-btn-container">
       <Link to="/academics" className="btn-trades"><i className="fas fa-th-large"></i> View All Trades & Programs <i className="fas fa-arrow-right"></i></Link>

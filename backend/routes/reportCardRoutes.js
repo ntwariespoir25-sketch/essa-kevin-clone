@@ -9,6 +9,7 @@ const SubjectAllocation = require('../models/SubjectAllocation');
 const authMiddleware = require('../middleware/auth');
 const requireRole = require('../middleware/roleCheck');
 const { authorizeStudentAccess } = require('../utils/access');
+const { buildWeightIndex, averageFor, letterFor } = require('../utils/grading');
 
 const router = express.Router();
 
@@ -20,13 +21,7 @@ const escapeHtml = (value) =>
     .replace(/"/g, '&quot;')
     .replace(/'/g, '&#39;');
 
-const letterGrade = (pct) => {
-  if (pct >= 80) return 'A';
-  if (pct >= 70) return 'B';
-  if (pct >= 60) return 'C';
-  if (pct >= 50) return 'D';
-  return 'F';
-};
+const letterGrade = letterFor;
 
 const GRADE_POINTS = { A: 5, B: 4, C: 3, D: 2, E: 1, F: 0 };
 
@@ -57,8 +52,8 @@ const buildTermResults = async ({ classId, term, year }) => {
     SubjectAllocation.find({ classId: { $in: classIds } }).select('classId subject')
   ]);
 
-  const weightByType = new Map(exams.map(e => [e.type, e.weight || 0]));
-  const hasWeights = [...weightByType.values()].some(w => w > 0);
+  const weightIndex = buildWeightIndex(exams);
+  const { hasWeights } = weightIndex;
 
   const subjectsByClass = new Map();
   allocations.forEach(a => {
@@ -94,21 +89,13 @@ const buildTermResults = async ({ classId, term, year }) => {
     const bySubject = {};
     list.forEach(g => {
       const key = g.subject || 'General';
-      bySubject[key] = bySubject[key] || { subject: key, total: 0, count: 0, weightedSum: 0, weightTotal: 0 };
-      bySubject[key].count += 1;
-      bySubject[key].total += g.score || 0;
-      if (hasWeights) {
-        const w = weightByType.get(g.assessmentType || 'Other') || 0;
-        bySubject[key].weightedSum += (g.score || 0) * w;
-        bySubject[key].weightTotal += w;
-      }
+      if (!bySubject[key]) bySubject[key] = [];
+      bySubject[key].push(g);
     });
 
     const subjects = Object.values(bySubject).map(sub => {
-      const average = hasWeights && sub.weightTotal > 0
-        ? Math.round(sub.weightedSum / sub.weightTotal)
-        : Math.round(sub.total / sub.count);
-      return { subject: sub.subject, average, grade: letterGrade(average) };
+      const { average, count } = averageFor(sub, weightIndex);
+      return { subject: sub[0].subject, average: average ?? 0, grade: letterFor(average), count };
     }).sort((a, b) => a.subject.localeCompare(b.subject));
 
     const sum = subjects.reduce((a, b) => a + b.average, 0);

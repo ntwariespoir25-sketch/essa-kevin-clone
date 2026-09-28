@@ -121,16 +121,24 @@ const AdmissionsPage = () => {
     if (currentStep === 1) isValid = validateStep1();
     else if (currentStep === 2) isValid = validateStep2();
     else if (currentStep === 3) isValid = validateStep3();
-    
+
     if (isValid) {
       setCurrentStep(prev => prev + 1);
-      window.scrollTo({ top: 0, behavior: 'smooth' });
+      // Scroll only the form section into view (not the whole page to top)
+      document.getElementById('application-form')?.scrollIntoView({
+        behavior: 'smooth',
+        block: 'start'
+      });
     }
   };
 
   const prevStep = () => {
     setCurrentStep(prev => prev - 1);
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+    // Scroll only the form section into view (not the whole page to top)
+    document.getElementById('application-form')?.scrollIntoView({
+      behavior: 'smooth',
+      block: 'start'
+    });
   };
 
   const handleSubmit = async (e) => {
@@ -239,15 +247,31 @@ const AdmissionsPage = () => {
   return (
     <>
       <Navbar />
-      
-      {/* Hero Section */}
-      <section className="admissions-hero" style={{ backgroundImage: `url(${heroBg})` }}>
-        <div className="admissions-hero-overlay"></div>
-        <div className="container admissions-hero-content">
+
+      {/* Hero Section - matches Home page style (static background) */}
+      <section className="hero" style={{ backgroundImage: `url(${heroBg})` }}>
+        <div className="hero-overlay"></div>
+
+        <div className="container hero-content">
           <div className="hero-badge">
             <i className="fas fa-door-open"></i> BEGIN YOUR JOURNEY
           </div>
-          <h1>Begin Your Journey to <span className="highlight">Excellence</span> at ESSA Nyarugunga</h1>
+          <h1>
+            Begin Your Journey to <span className="highlight">Excellence</span> at ESSA Nyarugunga
+          </h1>
+          <p>
+            Join a community of learners shaping the future of Rwanda. Applications are open
+            for the 2026–2027 academic year — limited seats available.
+          </p>
+          <div className="hero-buttons">
+            <a href="#application-form" className="btn btn-primary">
+              <i className="fas fa-user-graduate"></i> Apply Now
+            </a>
+            <Link to="/contact" className="btn btn-secondary">
+              <i className="fas fa-phone-alt"></i> Contact Admissions
+            </Link>
+          </div>
+
           <div className="hero-notice">
             <i className="fas fa-exclamation-triangle"></i> Limited Seats Available - Apply Early!
           </div>
@@ -415,28 +439,44 @@ const AdmissionsPage = () => {
             <div className="underline"></div>
             <p className="section-subtitle">Complete the multi-step form below to apply for admission</p>
           </div>
-          
+
           <div className="application-form-container">
-            {/* Progress Bar */}
-            <div className="progress-container">
-              <div className="progress-bar" style={{ width: `${getStepProgress()}%` }}></div>
+            {/* Sticky Progress Header */}
+            <div className="progress-card">
+              <div className="progress-top">
+                <div className="progress-meta">
+                  <span className="progress-eyebrow">Step {currentStep} of 4</span>
+                  <h3 className="progress-title">
+                    {currentStep === 1 && 'Student Information'}
+                    {currentStep === 2 && 'Academic Information'}
+                    {currentStep === 3 && 'Parent / Guardian Information'}
+                    {currentStep === 4 && 'Review & Submit'}
+                  </h3>
+                </div>
+                <span className="progress-percent">{Math.round(getStepProgress())}%</span>
+              </div>
+
+              <div className="progress-track">
+                <div className="progress-fill" style={{ width: `${getStepProgress()}%` }} />
+              </div>
+
               <div className="progress-steps">
-                <div className={`progress-step ${currentStep >= 1 ? 'active' : ''} ${currentStep > 1 ? 'completed' : ''}`}>
-                  <div className="step-icon">1</div>
-                  <span>Student Info</span>
-                </div>
-                <div className={`progress-step ${currentStep >= 2 ? 'active' : ''} ${currentStep > 2 ? 'completed' : ''}`}>
-                  <div className="step-icon">2</div>
-                  <span>Academic Info</span>
-                </div>
-                <div className={`progress-step ${currentStep >= 3 ? 'active' : ''} ${currentStep > 3 ? 'completed' : ''}`}>
-                  <div className="step-icon">3</div>
-                  <span>Parent Info</span>
-                </div>
-                <div className={`progress-step ${currentStep >= 4 ? 'active' : ''} ${currentStep > 4 ? 'completed' : ''}`}>
-                  <div className="step-icon">4</div>
-                  <span>Review & Submit</span>
-                </div>
+                {[
+                  { n: 1, label: 'Student', icon: 'fa-user-graduate' },
+                  { n: 2, label: 'Academic', icon: 'fa-graduation-cap' },
+                  { n: 3, label: 'Parent', icon: 'fa-users' },
+                  { n: 4, label: 'Review', icon: 'fa-clipboard-check' },
+                ].map(({ n, label, icon }) => (
+                  <div
+                    key={n}
+                    className={`progress-step ${currentStep >= n ? 'active' : ''} ${currentStep > n ? 'completed' : ''}`}
+                  >
+                    <div className="step-icon">
+                      {currentStep > n ? <i className="fas fa-check" /> : <i className={`fas ${icon}`} />}
+                    </div>
+                    <span>{label}</span>
+                  </div>
+                ))}
               </div>
             </div>
 
@@ -445,38 +485,30 @@ const AdmissionsPage = () => {
               <div className={`form-step ${currentStep === 1 ? 'active' : ''}`}>
                 <div className="form-section">
                   <div className="section-header">
-                    <i className="fas fa-user-graduate"></i>
-                    <h3>Student Information</h3>
-                    <span className="required-badge">All fields with * are required</span>
+                    <div className="header-icon"><i className="fas fa-user-graduate" /></div>
+                    <div className="header-text">
+                      <h3>Student Information</h3>
+                      <p>Tell us about the applicant</p>
+                    </div>
+                    <span className="required-badge">* Required fields</span>
                   </div>
-                  
+
                   <div className="form-row">
                     <div className="form-group">
                       <label>Full Name <span className="required">*</span></label>
                       <div className="input-wrapper">
                         <i className="fas fa-user input-icon"></i>
-                        <input 
-                          type="text" 
-                          name="fullName" 
-                          value={formData.fullName} 
-                          onChange={handleInputChange} 
-                          placeholder="Enter full name"
-                        />
+                        <input type="text" name="fullName" value={formData.fullName} onChange={handleInputChange} placeholder="e.g. Mugisha Jean Claude" />
                       </div>
-                      {errors.fullName && <span className="error-text">{errors.fullName}</span>}
+                      {errors.fullName && <span className="error-text"><i className="fas fa-exclamation-circle"></i> {errors.fullName}</span>}
                     </div>
                     <div className="form-group">
                       <label>Date of Birth <span className="required">*</span></label>
                       <div className="input-wrapper">
                         <i className="fas fa-calendar-alt input-icon"></i>
-                        <input 
-                          type="date" 
-                          name="dateOfBirth" 
-                          value={formData.dateOfBirth} 
-                          onChange={handleInputChange}
-                        />
+                        <input type="date" name="dateOfBirth" value={formData.dateOfBirth} onChange={handleInputChange} />
                       </div>
-                      {errors.dateOfBirth && <span className="error-text">{errors.dateOfBirth}</span>}
+                      {errors.dateOfBirth && <span className="error-text"><i className="fas fa-exclamation-circle"></i> {errors.dateOfBirth}</span>}
                     </div>
                   </div>
 
@@ -492,16 +524,10 @@ const AdmissionsPage = () => {
                       </div>
                     </div>
                     <div className="form-group">
-                      <label>National ID</label>
+                      <label>National ID <span className="optional">(optional)</span></label>
                       <div className="input-wrapper">
                         <i className="fas fa-id-card input-icon"></i>
-                        <input 
-                          type="text" 
-                          name="nationalId" 
-                          value={formData.nationalId} 
-                          onChange={handleInputChange} 
-                          placeholder="Optional"
-                        />
+                        <input type="text" name="nationalId" value={formData.nationalId} onChange={handleInputChange} placeholder="1 XXXX X XXXXXXX X XX" />
                       </div>
                     </div>
                   </div>
@@ -511,29 +537,17 @@ const AdmissionsPage = () => {
                       <label>Email Address <span className="required">*</span></label>
                       <div className="input-wrapper">
                         <i className="fas fa-envelope input-icon"></i>
-                        <input 
-                          type="email" 
-                          name="email" 
-                          value={formData.email} 
-                          onChange={handleInputChange} 
-                          placeholder="student@example.com"
-                        />
+                        <input type="email" name="email" value={formData.email} onChange={handleInputChange} placeholder="student@example.com" />
                       </div>
-                      {errors.email && <span className="error-text">{errors.email}</span>}
+                      {errors.email && <span className="error-text"><i className="fas fa-exclamation-circle"></i> {errors.email}</span>}
                     </div>
                     <div className="form-group">
                       <label>Phone Number <span className="required">*</span></label>
                       <div className="input-wrapper">
                         <i className="fas fa-phone input-icon"></i>
-                        <input 
-                          type="tel" 
-                          name="phone" 
-                          value={formData.phone} 
-                          onChange={handleInputChange} 
-                          placeholder="0788 123 456"
-                        />
+                        <input type="tel" name="phone" value={formData.phone} onChange={handleInputChange} placeholder="0788 123 456" />
                       </div>
-                      {errors.phone && <span className="error-text">{errors.phone}</span>}
+                      {errors.phone && <span className="error-text"><i className="fas fa-exclamation-circle"></i> {errors.phone}</span>}
                     </div>
                   </div>
 
@@ -541,15 +555,9 @@ const AdmissionsPage = () => {
                     <label>Current Address <span className="required">*</span></label>
                     <div className="input-wrapper">
                       <i className="fas fa-map-marker-alt input-icon"></i>
-                      <input 
-                        type="text" 
-                        name="address" 
-                        value={formData.address} 
-                        onChange={handleInputChange} 
-                        placeholder="Full address"
-                      />
+                      <input type="text" name="address" value={formData.address} onChange={handleInputChange} placeholder="Sector, Cell, Village, District" />
                     </div>
-                    {errors.address && <span className="error-text">{errors.address}</span>}
+                    {errors.address && <span className="error-text"><i className="fas fa-exclamation-circle"></i> {errors.address}</span>}
                   </div>
                 </div>
               </div>
@@ -558,8 +566,11 @@ const AdmissionsPage = () => {
               <div className={`form-step ${currentStep === 2 ? 'active' : ''}`}>
                 <div className="form-section">
                   <div className="section-header">
-                    <i className="fas fa-graduation-cap"></i>
-                    <h3>Academic Information</h3>
+                    <div className="header-icon"><i className="fas fa-graduation-cap" /></div>
+                    <div className="header-text">
+                      <h3>Academic Information</h3>
+                      <p>Your educational background</p>
+                    </div>
                   </div>
 
                   <div className="form-row">
@@ -576,21 +587,15 @@ const AdmissionsPage = () => {
                           <option>Advanced Level - Tourism</option>
                         </select>
                       </div>
-                      {errors.level && <span className="error-text">{errors.level}</span>}
+                      {errors.level && <span className="error-text"><i className="fas fa-exclamation-circle"></i> {errors.level}</span>}
                     </div>
                     <div className="form-group">
                       <label>Previous School <span className="required">*</span></label>
                       <div className="input-wrapper">
                         <i className="fas fa-school input-icon"></i>
-                        <input 
-                          type="text" 
-                          name="previousSchool" 
-                          value={formData.previousSchool} 
-                          onChange={handleInputChange} 
-                          placeholder="Name of previous school"
-                        />
+                        <input type="text" name="previousSchool" value={formData.previousSchool} onChange={handleInputChange} placeholder="Name of previous school" />
                       </div>
-                      {errors.previousSchool && <span className="error-text">{errors.previousSchool}</span>}
+                      {errors.previousSchool && <span className="error-text"><i className="fas fa-exclamation-circle"></i> {errors.previousSchool}</span>}
                     </div>
                   </div>
 
@@ -599,30 +604,15 @@ const AdmissionsPage = () => {
                       <label>Last Year Average (%) <span className="required">*</span></label>
                       <div className="input-wrapper">
                         <i className="fas fa-chart-line input-icon"></i>
-                        <input 
-                          type="number" 
-                          name="lastAverage" 
-                          value={formData.lastAverage} 
-                          onChange={handleInputChange} 
-                          step="0.1" 
-                          min="0" 
-                          max="100" 
-                          placeholder="e.g., 85.5"
-                        />
+                        <input type="number" name="lastAverage" value={formData.lastAverage} onChange={handleInputChange} step="0.1" min="0" max="100" placeholder="e.g. 85.5" />
                       </div>
-                      {errors.lastAverage && <span className="error-text">{errors.lastAverage}</span>}
+                      {errors.lastAverage && <span className="error-text"><i className="fas fa-exclamation-circle"></i> {errors.lastAverage}</span>}
                     </div>
                     <div className="form-group">
-                      <label>Achievements/Awards</label>
+                      <label>Achievements <span className="optional">(optional)</span></label>
                       <div className="input-wrapper">
                         <i className="fas fa-trophy input-icon"></i>
-                        <textarea 
-                          name="achievements" 
-                          value={formData.achievements} 
-                          onChange={handleInputChange} 
-                          rows="2" 
-                          placeholder="List any academic, sports, or other achievements (optional)"
-                        ></textarea>
+                        <textarea name="achievements" value={formData.achievements} onChange={handleInputChange} rows="2" placeholder="Academic, sports, or other achievements" />
                       </div>
                     </div>
                   </div>
@@ -633,66 +623,45 @@ const AdmissionsPage = () => {
               <div className={`form-step ${currentStep === 3 ? 'active' : ''}`}>
                 <div className="form-section">
                   <div className="section-header">
-                    <i className="fas fa-users"></i>
-                    <h3>Parent/Guardian Information</h3>
+                    <div className="header-icon"><i className="fas fa-users" /></div>
+                    <div className="header-text">
+                      <h3>Parent / Guardian Information</h3>
+                      <p>Emergency contact details</p>
+                    </div>
                   </div>
 
                   <div className="form-row">
                     <div className="form-group">
-                      <label>Parent/Guardian Name <span className="required">*</span></label>
+                      <label>Parent / Guardian Name <span className="required">*</span></label>
                       <div className="input-wrapper">
                         <i className="fas fa-user-friends input-icon"></i>
-                        <input 
-                          type="text" 
-                          name="parentName" 
-                          value={formData.parentName} 
-                          onChange={handleInputChange} 
-                          placeholder="Full name"
-                        />
+                        <input type="text" name="parentName" value={formData.parentName} onChange={handleInputChange} placeholder="Full name" />
                       </div>
-                      {errors.parentName && <span className="error-text">{errors.parentName}</span>}
+                      {errors.parentName && <span className="error-text"><i className="fas fa-exclamation-circle"></i> {errors.parentName}</span>}
                     </div>
                     <div className="form-group">
                       <label>Parent Phone <span className="required">*</span></label>
                       <div className="input-wrapper">
                         <i className="fas fa-phone-alt input-icon"></i>
-                        <input 
-                          type="tel" 
-                          name="parentPhone" 
-                          value={formData.parentPhone} 
-                          onChange={handleInputChange} 
-                          placeholder="0788 123 456"
-                        />
+                        <input type="tel" name="parentPhone" value={formData.parentPhone} onChange={handleInputChange} placeholder="0788 123 456" />
                       </div>
-                      {errors.parentPhone && <span className="error-text">{errors.parentPhone}</span>}
+                      {errors.parentPhone && <span className="error-text"><i className="fas fa-exclamation-circle"></i> {errors.parentPhone}</span>}
                     </div>
                   </div>
 
                   <div className="form-row">
                     <div className="form-group">
-                      <label>Parent Email</label>
+                      <label>Parent Email <span className="optional">(optional)</span></label>
                       <div className="input-wrapper">
                         <i className="fas fa-envelope input-icon"></i>
-                        <input 
-                          type="email" 
-                          name="parentEmail" 
-                          value={formData.parentEmail} 
-                          onChange={handleInputChange} 
-                          placeholder="parent@example.com"
-                        />
+                        <input type="email" name="parentEmail" value={formData.parentEmail} onChange={handleInputChange} placeholder="parent@example.com" />
                       </div>
                     </div>
                     <div className="form-group">
-                      <label>Parent Occupation</label>
+                      <label>Parent Occupation <span className="optional">(optional)</span></label>
                       <div className="input-wrapper">
                         <i className="fas fa-briefcase input-icon"></i>
-                        <input 
-                          type="text" 
-                          name="parentOccupation" 
-                          value={formData.parentOccupation} 
-                          onChange={handleInputChange} 
-                          placeholder="Occupation"
-                        />
+                        <input type="text" name="parentOccupation" value={formData.parentOccupation} onChange={handleInputChange} placeholder="Occupation" />
                       </div>
                     </div>
                   </div>
@@ -703,36 +672,58 @@ const AdmissionsPage = () => {
               <div className={`form-step ${currentStep === 4 ? 'active' : ''}`}>
                 <div className="form-section">
                   <div className="section-header">
-                    <i className="fas fa-clipboard-list"></i>
-                    <h3>Review Your Application</h3>
-                    <span className="required-badge">Please review before submitting</span>
+                    <div className="header-icon"><i className="fas fa-clipboard-check" /></div>
+                    <div className="header-text">
+                      <h3>Review Your Application</h3>
+                      <p>Double-check before submitting</p>
+                    </div>
+                    <span className="required-badge">Please review</span>
                   </div>
 
-                  <div className="review-section">
-                    <h4>Student Information</h4>
-                    <div className="review-grid">
-                      <div className="review-item"><strong>Full Name:</strong> {formData.fullName || 'Not provided'}</div>
-                      <div className="review-item"><strong>Date of Birth:</strong> {formData.dateOfBirth || 'Not provided'}</div>
-                      <div className="review-item"><strong>Nationality:</strong> {formData.nationality}</div>
-                      <div className="review-item"><strong>Email:</strong> {formData.email || 'Not provided'}</div>
-                      <div className="review-item"><strong>Phone:</strong> {formData.phone || 'Not provided'}</div>
-                      <div className="review-item"><strong>Address:</strong> {formData.address || 'Not provided'}</div>
+                  <div className="review-block">
+                    <div className="review-block-head">
+                      <h4><i className="fas fa-user-graduate"></i> Student Information</h4>
+                      <button type="button" className="edit-link" onClick={() => setCurrentStep(1)}>
+                        <i className="fas fa-pen"></i> Edit
+                      </button>
                     </div>
-                    
-                    <h4>Academic Information</h4>
                     <div className="review-grid">
-                      <div className="review-item"><strong>Level:</strong> {formData.level || 'Not selected'}</div>
-                      <div className="review-item"><strong>Previous School:</strong> {formData.previousSchool || 'Not provided'}</div>
-                      <div className="review-item"><strong>Last Average:</strong> {formData.lastAverage ? `${formData.lastAverage}%` : 'Not provided'}</div>
-                      <div className="review-item"><strong>Achievements:</strong> {formData.achievements || 'None'}</div>
+                      <div className="review-item"><span>Full Name</span><strong>{formData.fullName || '—'}</strong></div>
+                      <div className="review-item"><span>Date of Birth</span><strong>{formData.dateOfBirth || '—'}</strong></div>
+                      <div className="review-item"><span>Nationality</span><strong>{formData.nationality || '—'}</strong></div>
+                      <div className="review-item"><span>Email</span><strong>{formData.email || '—'}</strong></div>
+                      <div className="review-item"><span>Phone</span><strong>{formData.phone || '—'}</strong></div>
+                      <div className="review-item"><span>Address</span><strong>{formData.address || '—'}</strong></div>
                     </div>
-                    
-                    <h4>Parent/Guardian Information</h4>
+                  </div>
+
+                  <div className="review-block">
+                    <div className="review-block-head">
+                      <h4><i className="fas fa-graduation-cap"></i> Academic Information</h4>
+                      <button type="button" className="edit-link" onClick={() => setCurrentStep(2)}>
+                        <i className="fas fa-pen"></i> Edit
+                      </button>
+                    </div>
                     <div className="review-grid">
-                      <div className="review-item"><strong>Parent Name:</strong> {formData.parentName || 'Not provided'}</div>
-                      <div className="review-item"><strong>Parent Phone:</strong> {formData.parentPhone || 'Not provided'}</div>
-                      <div className="review-item"><strong>Parent Email:</strong> {formData.parentEmail || 'Not provided'}</div>
-                      <div className="review-item"><strong>Parent Occupation:</strong> {formData.parentOccupation || 'Not provided'}</div>
+                      <div className="review-item"><span>Level</span><strong>{formData.level || '—'}</strong></div>
+                      <div className="review-item"><span>Previous School</span><strong>{formData.previousSchool || '—'}</strong></div>
+                      <div className="review-item"><span>Last Average</span><strong>{formData.lastAverage ? `${formData.lastAverage}%` : '—'}</strong></div>
+                      <div className="review-item"><span>Achievements</span><strong>{formData.achievements || '—'}</strong></div>
+                    </div>
+                  </div>
+
+                  <div className="review-block">
+                    <div className="review-block-head">
+                      <h4><i className="fas fa-users"></i> Parent / Guardian</h4>
+                      <button type="button" className="edit-link" onClick={() => setCurrentStep(3)}>
+                        <i className="fas fa-pen"></i> Edit
+                      </button>
+                    </div>
+                    <div className="review-grid">
+                      <div className="review-item"><span>Parent Name</span><strong>{formData.parentName || '—'}</strong></div>
+                      <div className="review-item"><span>Parent Phone</span><strong>{formData.parentPhone || '—'}</strong></div>
+                      <div className="review-item"><span>Parent Email</span><strong>{formData.parentEmail || '—'}</strong></div>
+                      <div className="review-item"><span>Parent Occupation</span><strong>{formData.parentOccupation || '—'}</strong></div>
                     </div>
                   </div>
 
@@ -740,55 +731,61 @@ const AdmissionsPage = () => {
                     <label className="checkbox-label">
                       <input type="checkbox" name="applyScholarship" checked={formData.applyScholarship} onChange={handleInputChange} />
                       <span className="checkbox-custom"></span>
-                      <span className="checkbox-text">I wish to apply for a scholarship</span>
+                      <span className="checkbox-text"><strong>I wish to apply for a scholarship</strong><br /><small>Merit, need-based, or talent-based</small></span>
                     </label>
-                    
+
                     <div className="form-group">
                       <label>How did you hear about us?</label>
-                      <select name="hearAboutUs" value={formData.hearAboutUs} onChange={handleInputChange}>
-                        <option value="">Select an option</option>
-                        {hearAboutOptions.map(option => (
-                          <option key={option} value={option}>{option}</option>
-                        ))}
-                      </select>
+                      <div className="input-wrapper">
+                        <i className="fas fa-bullhorn input-icon"></i>
+                        <select name="hearAboutUs" value={formData.hearAboutUs} onChange={handleInputChange}>
+                          <option value="">Select an option</option>
+                          {hearAboutOptions.map(option => (
+                            <option key={option} value={option}>{option}</option>
+                          ))}
+                        </select>
+                      </div>
                     </div>
-                    
+
                     <label className="checkbox-label">
                       <input type="checkbox" name="agreeTerms" checked={formData.agreeTerms} onChange={handleInputChange} />
                       <span className="checkbox-custom"></span>
-                      <span className="checkbox-text">I confirm that the information provided is accurate and I agree to the <Link to="/terms">terms and conditions</Link>. <span className="required">*</span></span>
+                      <span className="checkbox-text">
+                        I confirm that the information provided is accurate and I agree to the <Link to="/terms">terms and conditions</Link>. <span className="required">*</span>
+                      </span>
                     </label>
-                    {errors.agreeTerms && <span className="error-text">{errors.agreeTerms}</span>}
+                    {errors.agreeTerms && <span className="error-text"><i className="fas fa-exclamation-circle"></i> {errors.agreeTerms}</span>}
                   </div>
                 </div>
               </div>
 
               {/* Navigation Buttons */}
               <div className="form-navigation">
-                {currentStep > 1 && (
+                {currentStep > 1 ? (
                   <button type="button" className="btn-prev" onClick={prevStep}>
-                    <i className="fas fa-chevron-left"></i> Previous
+                    <i className="fas fa-arrow-left"></i> Previous
                   </button>
-                )}
+                ) : <span />}
+
                 {currentStep < 4 && (
                   <button type="button" className="btn-next" onClick={nextStep}>
-                    Next <i className="fas fa-chevron-right"></i>
+                    Continue <i className="fas fa-arrow-right"></i>
                   </button>
                 )}
                 {currentStep === 4 && (
                   <button type="submit" className="submit-btn" disabled={isSubmitting}>
                     {isSubmitting ? (
-                      <>
-                        <i className="fas fa-spinner fa-spin"></i> Submitting Application...
-                      </>
+                      <><i className="fas fa-spinner fa-spin"></i> Submitting...</>
                     ) : (
-                      <>
-                        <i className="fas fa-paper-plane"></i> Submit Application
-                      </>
+                      <><i className="fas fa-paper-plane"></i> Submit Application</>
                     )}
                   </button>
                 )}
               </div>
+
+              <p className="form-footnote">
+                <i className="fas fa-lock"></i> Your information is secure and will only be used for admission purposes.
+              </p>
             </form>
           </div>
         </div>
@@ -837,366 +834,727 @@ const AdmissionsPage = () => {
       <Footer />
 
       <style>{`
-        /* Multi-Step Wizard Styles */
-        .progress-container {
-          margin-bottom: 2rem;
-          padding: 0 1rem;
+        /* ========== HERO STYLES (matches Home) ========== */
+        .hero {
+          position: relative;
+          min-height: 90vh;
+          display: flex;
+          align-items: center;
+          overflow: hidden;
+          background-size: cover;
+          background-position: center;
+          background-repeat: no-repeat;
         }
-        
-        .progress-bar {
-          height: 4px;
-          background: linear-gradient(90deg, #1a3a5c, #ffc107);
-          border-radius: 2px;
-          transition: width 0.3s ease;
+
+        .hero-overlay {
+          position: absolute;
+          top: 0;
+          left: 0;
+          width: 100%;
+          height: 100%;
+          background: linear-gradient(
+            135deg,
+            hsla(220, 60%, 18%, 0.80) 0%,
+            hsla(45, 90%, 70%, 0.45) 100%
+          );
+          z-index: 2;
+        }
+
+        .hero-content {
+          position: relative;
+          z-index: 3;
+          text-align: center;
+          color: white;
+          width: 100%;
+        }
+
+        .hero-badge {
+          display: inline-block;
+          background: rgba(255,193,7,0.2);
+          color: #ffc107;
+          padding: 8px 20px;
+          border-radius: 30px;
+          font-size: 0.85rem;
+          margin-bottom: 1rem;
+          backdrop-filter: blur(5px);
+        }
+
+        .hero-content h1 {
+          font-size: 3rem;
           margin-bottom: 1rem;
         }
-        
-        .progress-steps {
-          display: flex;
-          justify-content: space-between;
+
+        .hero-content .highlight {
+          color: #ffc107;
         }
-        
+
+        .hero-content p {
+          font-size: 1.2rem;
+          opacity: 0.95;
+          margin-bottom: 2rem;
+          max-width: 700px;
+          margin-left: auto;
+          margin-right: auto;
+        }
+
+        .hero-buttons {
+          display: flex;
+          gap: 1rem;
+          justify-content: center;
+          flex-wrap: wrap;
+        }
+
+        .btn-primary {
+          background: #ffc107;
+          color: #1e3c72;
+          padding: 12px 28px;
+          border-radius: 30px;
+          text-decoration: none;
+          font-weight: 600;
+          transition: all 0.3s ease;
+          display: inline-flex;
+          align-items: center;
+          gap: 8px;
+          border: none;
+          cursor: pointer;
+        }
+
+        .btn-primary:hover {
+          background: #e0a800;
+          transform: translateY(-2px);
+        }
+
+        .btn-secondary {
+          background: transparent;
+          color: white;
+          padding: 12px 28px;
+          border-radius: 30px;
+          text-decoration: none;
+          font-weight: 600;
+          border: 2px solid white;
+          transition: all 0.3s ease;
+          display: inline-flex;
+          align-items: center;
+          gap: 8px;
+        }
+
+        .btn-secondary:hover {
+          background: white;
+          color: #1e3c72;
+          transform: translateY(-2px);
+        }
+
+        .hero-notice {
+          display: inline-flex;
+          align-items: center;
+          gap: 8px;
+          margin-top: 1.5rem;
+          background: rgba(255,193,7,0.2);
+          color: #ffc107;
+          padding: 10px 20px;
+          border-radius: 30px;
+          font-size: 0.85rem;
+          font-weight: 600;
+          backdrop-filter: blur(5px);
+          border: 1px solid rgba(255,193,7,0.4);
+        }
+
+        /* ========== FORM ANCHOR OFFSET ========== */
+        #application-form {
+          scroll-margin-top: 90px;
+        }
+
+        /* ========== ONLINE APPLICATION WRAPPER ========== */
+        .online-application {
+          padding: 4rem 0 5rem;
+          background: linear-gradient(180deg, #f7f9fc 0%, #eef2f8 100%);
+        }
+
+        .application-form-container {
+          max-width: 980px;
+          margin: 0 auto;
+          position: relative;
+        }
+
+        /* ========== STICKY PROGRESS CARD ========== */
+        .progress-card {
+          background: rgba(255, 255, 255, 0.92);
+          backdrop-filter: blur(12px);
+          border: 1px solid rgba(26, 58, 92, 0.08);
+          border-radius: 20px;
+          padding: 1.4rem 1.6rem 1.6rem;
+          margin-bottom: 1.8rem;
+          box-shadow: 0 10px 30px rgba(26, 58, 92, 0.08);
+        }
+
+        .progress-top {
+          display: flex;
+          align-items: flex-end;
+          justify-content: space-between;
+          margin-bottom: 1rem;
+          gap: 1rem;
+          flex-wrap: wrap;
+        }
+
+        .progress-eyebrow {
+          display: inline-block;
+          font-size: 0.72rem;
+          font-weight: 700;
+          letter-spacing: 0.12em;
+          text-transform: uppercase;
+          color: #ffc107;
+          background: rgba(255, 193, 7, 0.12);
+          padding: 4px 10px;
+          border-radius: 20px;
+          margin-bottom: 0.5rem;
+        }
+
+        .progress-title {
+          margin: 0;
+          font-size: 1.15rem;
+          color: #1a3a5c;
+          font-weight: 700;
+        }
+
+        .progress-percent {
+          font-size: 1.6rem;
+          font-weight: 800;
+          color: #1a3a5c;
+          line-height: 1;
+        }
+
+        .progress-track {
+          height: 8px;
+          background: #e8ecf3;
+          border-radius: 999px;
+          overflow: hidden;
+          margin-bottom: 1.2rem;
+        }
+
+        .progress-fill {
+          height: 100%;
+          background: linear-gradient(90deg, #1a3a5c 0%, #ffc107 100%);
+          border-radius: 999px;
+          transition: width 0.45s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .progress-steps {
+          display: grid;
+          grid-template-columns: repeat(4, 1fr);
+          gap: 0.5rem;
+        }
+
         .progress-step {
           display: flex;
           flex-direction: column;
           align-items: center;
-          flex: 1;
+          gap: 0.5rem;
+          opacity: 0.5;
+          transition: all 0.3s ease;
         }
-        
-        .step-icon {
-          width: 40px;
-          height: 40px;
-          background: #e0e0e0;
+
+        .progress-step.active,
+        .progress-step.completed {
+          opacity: 1;
+        }
+
+        .progress-step .step-icon {
+          width: 42px;
+          height: 42px;
           border-radius: 50%;
+          background: #eef2f8;
+          color: #94a3b8;
           display: flex;
           align-items: center;
           justify-content: center;
-          font-weight: bold;
-          color: #666;
-          transition: all 0.3s ease;
-          margin-bottom: 0.5rem;
+          font-size: 0.95rem;
+          transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+          border: 2px solid transparent;
         }
-        
+
         .progress-step.active .step-icon {
           background: #1a3a5c;
-          color: white;
-          transform: scale(1.1);
+          color: #ffc107;
+          border-color: #1a3a5c;
+          box-shadow: 0 0 0 6px rgba(26, 58, 92, 0.1);
+          transform: translateY(-2px);
         }
-        
+
         .progress-step.completed .step-icon {
-          background: #4caf50;
-          color: white;
-        }
-        
-        .progress-step span {
-          font-size: 0.75rem;
-          color: #666;
-        }
-        
-        .progress-step.active span {
-          color: #1a3a5c;
-          font-weight: bold;
-        }
-        
-        /* Form Steps */
-        .form-step {
-          display: none;
-          animation: fadeIn 0.4s ease;
-        }
-        
-        .form-step.active {
-          display: block;
-        }
-        
-        @keyframes fadeIn {
-          from {
-            opacity: 0;
-            transform: translateX(20px);
-          }
-          to {
-            opacity: 1;
-            transform: translateX(0);
-          }
-        }
-        
-        /* Form Navigation */
-        .form-navigation {
-          display: flex;
-          justify-content: space-between;
-          margin-top: 2rem;
-          gap: 1rem;
-        }
-        
-        .btn-prev, .btn-next {
-          padding: 12px 28px;
-          border-radius: 30px;
-          font-size: 1rem;
-          font-weight: 600;
-          cursor: pointer;
-          transition: all 0.3s ease;
-          border: none;
-        }
-        
-        .btn-prev {
-          background: #f0f2f5;
-          color: #666;
-        }
-        
-        .btn-prev:hover {
-          background: #e0e0e0;
-          transform: translateX(-2px);
-        }
-        
-        .btn-next {
-          background: #1a3a5c;
-          color: white;
-          margin-left: auto;
-        }
-        
-        .btn-next:hover {
           background: #ffc107;
           color: #1a3a5c;
-          transform: translateX(2px);
+          border-color: #ffc107;
         }
-        
-        /* Review Section */
-        .review-section {
-          background: #f8f9fa;
-          border-radius: 12px;
-          padding: 1.5rem;
-          margin-bottom: 1.5rem;
+
+        .progress-step span {
+          font-size: 0.78rem;
+          font-weight: 600;
+          color: #64748b;
         }
-        
-        .review-section h4 {
-          color: #1a3a5c;
-          margin: 1rem 0 0.5rem;
-          padding-bottom: 0.5rem;
-          border-bottom: 2px solid #ffc107;
-          display: inline-block;
+
+        .progress-step.active span { color: #1a3a5c; }
+        .progress-step.completed span { color: #1a3a5c; }
+
+        /* ========== FORM CARD ========== */
+        .application-form {
+          background: #ffffff;
+          border-radius: 22px;
+          padding: 2rem;
+          box-shadow: 0 20px 50px rgba(26, 58, 92, 0.10);
+          border: 1px solid rgba(26, 58, 92, 0.05);
         }
-        
-        .review-section h4:first-child {
-          margin-top: 0;
+
+        .form-step {
+          display: none;
         }
-        
-        .review-grid {
-          display: grid;
-          grid-template-columns: repeat(2, 1fr);
-          gap: 0.8rem;
-          margin-bottom: 1rem;
-        }
-        
-        .review-item {
-          font-size: 0.85rem;
-          padding: 0.5rem;
-          background: white;
-          border-radius: 8px;
-        }
-        
-        /* Error Styles */
-        .error-text {
-          color: #dc2626;
-          font-size: 0.7rem;
-          margin-top: 5px;
+
+        .form-step.active {
           display: block;
+          animation: stepIn 0.45s cubic-bezier(0.4, 0, 0.2, 1);
         }
-        
-        .input-wrapper input.error,
-        .input-wrapper select.error {
-          border-color: #dc2626;
+
+        @keyframes stepIn {
+          from { opacity: 0; transform: translateY(14px); }
+          to   { opacity: 1; transform: translateY(0); }
         }
-        
-        /* Required Field */
-        .required {
-          color: #dc2626;
-        }
-        
-        /* Form Section Styles */
-        .form-section {
-          background: white;
-          border-radius: 16px;
-          padding: 1.5rem;
-          margin-bottom: 1.5rem;
-          box-shadow: 0 2px 8px rgba(0,0,0,0.05);
-        }
-        
+
+        /* ========== SECTION HEADER ========== */
         .section-header {
           display: flex;
           align-items: center;
-          gap: 10px;
-          margin-bottom: 1.5rem;
-          padding-bottom: 0.8rem;
-          border-bottom: 2px solid #f0f0f0;
+          gap: 14px;
+          margin-bottom: 1.8rem;
+          padding-bottom: 1.2rem;
+          border-bottom: 1px solid #eef2f8;
           flex-wrap: wrap;
         }
-        
-        .section-header i {
-          font-size: 1.3rem;
+
+        .header-icon {
+          width: 52px;
+          height: 52px;
+          border-radius: 14px;
+          background: linear-gradient(135deg, #1a3a5c 0%, #2a5298 100%);
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          flex-shrink: 0;
+          box-shadow: 0 6px 14px rgba(26, 58, 92, 0.25);
+        }
+
+        .header-icon i {
           color: #ffc107;
+          font-size: 1.35rem;
         }
-        
-        .section-header h3 {
+
+        .header-text { flex: 1; min-width: 160px; }
+
+        .header-text h3 {
+          margin: 0 0 2px;
+          font-size: 1.25rem;
+          color: #1a3a5c;
+          font-weight: 700;
+        }
+
+        .header-text p {
           margin: 0;
-          color: rgb(6, 33, 62);
+          font-size: 0.82rem;
+          color: #94a3b8;
         }
-        
-        .required-badge, .info-text {
+
+        .required-badge {
           font-size: 0.7rem;
-          color: #999;
-          margin-left: auto;
+          font-weight: 600;
+          color: #1a3a5c;
+          background: rgba(255, 193, 7, 0.18);
+          padding: 5px 12px;
+          border-radius: 20px;
         }
-        
-        .input-wrapper {
-          position: relative;
-        }
-        
-        .input-icon {
-          position: absolute;
-          left: 12px;
-          top: 50%;
-          transform: translateY(-50%);
-          color: #999;
-        }
-        
-        .input-wrapper input, .input-wrapper select, .input-wrapper textarea {
-          width: 100%;
-          padding: 12px 12px 12px 40px;
-          border: 1px solid #e0e0e0;
-          border-radius: 10px;
-          font-size: 0.9rem;
-          transition: all 0.3s;
-        }
-        
-        .input-wrapper input:focus, .input-wrapper select:focus, .input-wrapper textarea:focus {
-          outline: none;
-          border-color: #1a3a5c;
-          box-shadow: 0 0 0 3px rgba(26,58,92,0.1);
-        }
-        
-        .input-wrapper textarea {
-          padding: 12px 12px 12px 40px;
-          resize: vertical;
-        }
-        
+
+        /* ========== FORM ROWS & GROUPS ========== */
         .form-row {
           display: grid;
           grid-template-columns: 1fr 1fr;
-          gap: 1rem;
-          margin-bottom: 1rem;
+          gap: 1.2rem;
+          margin-bottom: 1.1rem;
         }
-        
+
         .form-group {
-          margin-bottom: 1rem;
+          display: flex;
+          flex-direction: column;
         }
-        
+
+        .form-group.full-width { grid-column: span 2; }
+
         .form-group label {
           display: block;
           margin-bottom: 0.5rem;
+          font-weight: 600;
+          font-size: 0.82rem;
+          color: #334155;
+          letter-spacing: 0.01em;
+        }
+
+        .form-group .optional {
+          font-weight: 400;
+          color: #94a3b8;
+          font-size: 0.75rem;
+        }
+
+        .required { color: #dc2626; }
+
+        /* ========== INPUTS ========== */
+        .input-wrapper {
+          position: relative;
+        }
+
+        .input-icon {
+          position: absolute;
+          left: 14px;
+          top: 50%;
+          transform: translateY(-50%);
+          color: #94a3b8;
+          font-size: 0.9rem;
+          pointer-events: none;
+          transition: color 0.25s ease;
+          z-index: 1;
+        }
+
+        .input-wrapper:focus-within .input-icon {
+          color: #1a3a5c;
+        }
+
+        .input-wrapper input,
+        .input-wrapper select,
+        .input-wrapper textarea {
+          width: 100%;
+          padding: 13px 14px 13px 42px;
+          border: 1.5px solid #e2e8f0;
+          border-radius: 12px;
+          font-size: 0.92rem;
+          color: #1e293b;
+          background: #fbfcfe;
+          transition: all 0.25s ease;
+          font-family: inherit;
+        }
+
+        .input-wrapper textarea {
+          resize: vertical;
+          min-height: 60px;
+          padding-top: 14px;
+        }
+
+        .input-wrapper input::placeholder,
+        .input-wrapper textarea::placeholder {
+          color: #b0bac7;
+        }
+
+        .input-wrapper input:hover,
+        .input-wrapper select:hover,
+        .input-wrapper textarea:hover {
+          border-color: #cbd5e1;
+          background: #ffffff;
+        }
+
+        .input-wrapper input:focus,
+        .input-wrapper select:focus,
+        .input-wrapper textarea:focus {
+          outline: none;
+          border-color: #1a3a5c;
+          background: #ffffff;
+          box-shadow: 0 0 0 4px rgba(26, 58, 92, 0.12);
+        }
+
+        .input-wrapper select {
+          appearance: none;
+          background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2394a3b8' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'/%3e%3c/svg%3e");
+          background-repeat: no-repeat;
+          background-position: right 14px center;
+          background-size: 16px;
+          padding-right: 40px;
+        }
+
+        /* ========== ERROR / HELP ========== */
+        .error-text {
+          display: inline-flex;
+          align-items: center;
+          gap: 5px;
+          color: #dc2626;
+          font-size: 0.75rem;
+          margin-top: 6px;
           font-weight: 500;
-          font-size: 0.85rem;
         }
-        
-        .full-width {
-          grid-column: span 2;
-        }
-        
+
+        /* ========== CHECKBOXES ========== */
         .form-checkboxes {
-          margin: 1rem 0;
+          margin-top: 1rem;
+          display: flex;
+          flex-direction: column;
+          gap: 0.9rem;
         }
-        
+
         .checkbox-label {
           display: flex;
-          align-items: center;
-          gap: 10px;
-          margin-bottom: 1rem;
+          align-items: flex-start;
+          gap: 12px;
           cursor: pointer;
+          padding: 14px 16px;
+          border: 1.5px solid #e2e8f0;
+          border-radius: 12px;
+          background: #fbfcfe;
+          transition: all 0.25s ease;
         }
-        
-        .checkbox-label input {
-          display: none;
+
+        .checkbox-label:hover {
+          border-color: #cbd5e1;
+          background: #ffffff;
         }
-        
+
+        .checkbox-label input { display: none; }
+
         .checkbox-custom {
-          width: 20px;
-          height: 20px;
-          border: 2px solid #ddd;
-          border-radius: 4px;
+          width: 22px;
+          height: 22px;
+          border: 2px solid #cbd5e1;
+          border-radius: 6px;
           position: relative;
-          transition: all 0.3s;
+          transition: all 0.2s ease;
+          flex-shrink: 0;
+          margin-top: 1px;
+          background: #ffffff;
         }
-        
+
         .checkbox-label input:checked + .checkbox-custom {
-          background: #1a3a5c;
+          background: linear-gradient(135deg, #1a3a5c 0%, #2a5298 100%);
           border-color: #1a3a5c;
         }
-        
+
         .checkbox-label input:checked + .checkbox-custom::after {
-          content: '✓';
+          content: '';
           position: absolute;
-          top: 50%;
-          left: 50%;
-          transform: translate(-50%, -50%);
-          color: white;
-          font-size: 12px;
+          top: 3px;
+          left: 6px;
+          width: 5px;
+          height: 10px;
+          border: solid #ffc107;
+          border-width: 0 2.5px 2.5px 0;
+          transform: rotate(45deg);
         }
-        
+
+        .checkbox-label:has(input:checked) {
+          border-color: #1a3a5c;
+          background: rgba(26, 58, 92, 0.04);
+        }
+
         .checkbox-text {
-          font-size: 0.85rem;
-          color: #555;
+          font-size: 0.88rem;
+          color: #334155;
+          line-height: 1.45;
         }
-        
-        .submit-btn {
-          width: 100%;
-          background: #1a3a5c;
-          color: white;
+
+        .checkbox-text strong { color: #1a3a5c; }
+        .checkbox-text small { color: #94a3b8; font-size: 0.75rem; }
+        .checkbox-text a { color: #1a3a5c; font-weight: 600; text-decoration: underline; }
+
+        /* ========== REVIEW BLOCKS ========== */
+        .review-block {
+          background: #fbfcfe;
+          border: 1px solid #eef2f8;
+          border-radius: 14px;
+          padding: 1.2rem 1.3rem;
+          margin-bottom: 1rem;
+        }
+
+        .review-block-head {
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          margin-bottom: 1rem;
+          gap: 1rem;
+          flex-wrap: wrap;
+        }
+
+        .review-block-head h4 {
+          margin: 0;
+          font-size: 0.95rem;
+          color: #1a3a5c;
+          font-weight: 700;
+          display: inline-flex;
+          align-items: center;
+          gap: 8px;
+        }
+
+        .review-block-head h4 i { color: #ffc107; }
+
+        .edit-link {
+          background: rgba(26, 58, 92, 0.06);
           border: none;
-          padding: 15px;
-          border-radius: 12px;
-          font-size: 1rem;
+          color: #1a3a5c;
+          font-size: 0.78rem;
           font-weight: 600;
+          padding: 6px 12px;
+          border-radius: 20px;
           cursor: pointer;
-          transition: all 0.3s;
+          display: inline-flex;
+          align-items: center;
+          gap: 6px;
+          transition: all 0.2s ease;
         }
-        
-        .submit-btn:hover:not(:disabled) {
-          background: #ffc107;
+
+        .edit-link:hover {
+          background: #1a3a5c;
+          color: #ffc107;
+        }
+
+        .review-grid {
+          display: grid;
+          grid-template-columns: repeat(2, 1fr);
+          gap: 0.7rem;
+        }
+
+        .review-item {
+          display: flex;
+          flex-direction: column;
+          gap: 2px;
+          padding: 8px 12px;
+          background: #ffffff;
+          border-radius: 10px;
+          border: 1px solid #eef2f8;
+        }
+
+        .review-item span {
+          font-size: 0.7rem;
+          color: #94a3b8;
+          text-transform: uppercase;
+          letter-spacing: 0.06em;
+          font-weight: 600;
+        }
+
+        .review-item strong {
+          font-size: 0.87rem;
+          color: #1e293b;
+          font-weight: 600;
+          word-break: break-word;
+        }
+
+        /* ========== NAV BUTTONS ========== */
+        .form-navigation {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          margin-top: 2rem;
+          gap: 1rem;
+        }
+
+        .btn-prev,
+        .btn-next,
+        .submit-btn {
+          padding: 14px 30px;
+          border-radius: 999px;
+          font-size: 0.92rem;
+          font-weight: 700;
+          cursor: pointer;
+          transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+          border: none;
+          display: inline-flex;
+          align-items: center;
+          gap: 9px;
+          letter-spacing: 0.02em;
+        }
+
+        .btn-prev {
+          background: transparent;
+          color: #64748b;
+          border: 1.5px solid #e2e8f0;
+        }
+
+        .btn-prev:hover {
+          background: #f1f5f9;
+          color: #1a3a5c;
+          border-color: #cbd5e1;
+        }
+
+        .btn-prev i { transition: transform 0.3s ease; }
+        .btn-prev:hover i { transform: translateX(-4px); }
+
+        .btn-next {
+          background: linear-gradient(135deg, #1a3a5c 0%, #2a5298 100%);
+          color: #ffffff;
+          margin-left: auto;
+          box-shadow: 0 8px 20px rgba(26, 58, 92, 0.25);
+        }
+
+        .btn-next:hover {
+          background: linear-gradient(135deg, #ffc107 0%, #e0a800 100%);
           color: #1a3a5c;
           transform: translateY(-2px);
+          box-shadow: 0 12px 26px rgba(255, 193, 7, 0.4);
         }
-        
+
+        .btn-next i { transition: transform 0.3s ease; }
+        .btn-next:hover i { transform: translateX(4px); }
+
+        .submit-btn {
+          background: linear-gradient(135deg, #1a3a5c 0%, #2a5298 100%);
+          color: #ffffff;
+          margin-left: auto;
+          box-shadow: 0 10px 24px rgba(26, 58, 92, 0.28);
+        }
+
+        .submit-btn:hover:not(:disabled) {
+          background: linear-gradient(135deg, #ffc107 0%, #e0a800 100%);
+          color: #1a3a5c;
+          transform: translateY(-2px);
+          box-shadow: 0 14px 30px rgba(255, 193, 7, 0.45);
+        }
+
         .submit-btn:disabled {
-          opacity: 0.7;
+          opacity: 0.65;
           cursor: not-allowed;
         }
-        
+
+        .form-footnote {
+          margin-top: 1.2rem;
+          text-align: center;
+          font-size: 0.78rem;
+          color: #94a3b8;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          gap: 6px;
+        }
+
+        .form-footnote i { color: #ffc107; }
+
+        /* ========== RESPONSIVE ========== */
         @media (max-width: 768px) {
-          .form-row {
-            grid-template-columns: 1fr;
-            gap: 0;
-          }
-          
-          .full-width {
-            grid-column: span 1;
-          }
-          
-          .review-grid {
-            grid-template-columns: 1fr;
-          }
-          
-          .progress-step span {
-            font-size: 0.6rem;
-          }
-          
-          .step-icon {
-            width: 30px;
-            height: 30px;
-            font-size: 0.8rem;
-          }
-          
-          .btn-prev, .btn-next {
-            padding: 10px 20px;
+          .hero { min-height: 70vh; }
+          .hero-content h1 { font-size: 1.8rem; }
+          .hero-content p { font-size: 0.9rem; }
+
+          .online-application { padding: 3rem 0 4rem; }
+          .application-form { padding: 1.4rem; border-radius: 18px; }
+          .progress-card { padding: 1.1rem 1rem 1.2rem; border-radius: 16px; }
+          .progress-percent { font-size: 1.3rem; }
+
+          .progress-step .step-icon { width: 34px; height: 34px; font-size: 0.8rem; }
+          .progress-step span { font-size: 0.68rem; }
+
+          .form-row { grid-template-columns: 1fr; gap: 0.9rem; }
+          .form-group.full-width { grid-column: span 1; }
+          .review-grid { grid-template-columns: 1fr; }
+
+          .header-icon { width: 44px; height: 44px; border-radius: 12px; }
+          .header-icon i { font-size: 1.15rem; }
+          .header-text h3 { font-size: 1.05rem; }
+
+          .btn-prev, .btn-next, .submit-btn {
+            padding: 12px 22px;
             font-size: 0.85rem;
+            flex: 1;
+            justify-content: center;
           }
+
+          .form-navigation { gap: 0.6rem; }
         }
       `}</style>
     </>

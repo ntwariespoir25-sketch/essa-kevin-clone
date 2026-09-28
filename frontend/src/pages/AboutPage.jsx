@@ -74,7 +74,7 @@ const AboutPage = () => {
     { number: '2006', label: 'Year Founded', icon: 'fas fa-calendar-alt' },
     { number: '800+', label: 'Current Students', icon: 'fas fa-user-graduate' },
     { number: '20+', label: 'Qualified Teachers', icon: 'fas fa-chalkboard-user' },
-    { number: '8  5%', label: 'Pass Rate', icon: 'fas fa-chart-line' }
+    { number: '85%', label: 'Pass Rate', icon: 'fas fa-chart-line' }
   ];
 
   const facilities = [
@@ -134,23 +134,32 @@ const AboutPage = () => {
   return (
     <>
       <Navbar />
-      
-      {/* Hero Section - Centered */}
-      <section className="about-hero" style={{ backgroundImage: `url(${heroBg})` }}>
-       
-        <div className="about-hero-overlay"></div>
-        <div className="container about-hero-content">
+
+      {/* Hero Section - Static background image (no slider) */}
+      <section className="hero" style={{ backgroundImage: `url(${heroBg})` }}>
+        <div className="hero-overlay"></div>
+
+        <div className="container hero-content">
           <div className="hero-badge">
             <i className="fas fa-info-circle"></i> ABOUT OUR SCHOOL
           </div>
-          <h1>Excellence in <span className="highlight">Technology & Administrative</span> Education</h1>
-          <p>For over 20 years, we have been shaping the future leaders of Rwanda through quality education, discipline, and holistic development.</p>
+          <h1>
+            Excellence in{' '}
+            <span className="highlight">Technology & Administrative</span> Education
+          </h1>
+          <p>
+            For over 20 years, we have been shaping the future leaders of Rwanda through
+            quality education, discipline, and holistic development.
+          </p>
           <div className="hero-buttons">
-            <button onClick={handleContactClick} className="btn btn-primary"><i className="fas fa-phone-alt"></i> Contact Admissions</button>
-            <Link to="/admissions" className="btn btn-secondary"><i className="fas fa-user-graduate"></i> Apply Now</Link>
+            <button onClick={handleContactClick} className="btn btn-primary">
+              <i className="fas fa-phone-alt"></i> Contact Admissions
+            </button>
+            <Link to="/admissions" className="btn btn-secondary">
+              <i className="fas fa-user-graduate"></i> Apply Now
+            </Link>
           </div>
         </div>
-        
       </section>
 
       {/* Stats Bar Section */}
@@ -168,7 +177,7 @@ const AboutPage = () => {
         </div>
       </section>
 
-      {/* Our Story Section - Left aligned text, right aligned image */}
+      {/* Our Story Section */}
       <section className="our-story">
         <div className="container">
           <div className="section-title">
@@ -244,7 +253,7 @@ const AboutPage = () => {
         </div>
       </section>
 
-      {/* Facilities Section - Grid layout */}
+      {/* Facilities Section */}
       <section className="facilities">
         <div className="container">
           <div className="section-title">
@@ -297,7 +306,7 @@ const AboutPage = () => {
         </div>
       </section>
 
-      {/* Student Life Section - Left aligned */}
+      {/* Student Life Section */}
       <section className="student-life-preview">
         <div className="container">
           <div className="student-life-grid">
@@ -350,7 +359,7 @@ const AboutPage = () => {
         </div>
       </section>
 
-      {/* Call to Action Section - Centered */}
+      {/* Call to Action Section */}
       <section className="cta-section">
         <div className="container">
           <div className="cta-content">
@@ -366,60 +375,33 @@ const AboutPage = () => {
 
       <Footer />
 
-      {/* Styles for alignment */}
       <style>{`
-    
-      
-       /* ========== HERO SLIDER STYLES ========== */
+        /* ========== HERO STYLES (static background, no slider) ========== */
         .hero {
           position: relative;
           min-height: 90vh;
           display: flex;
           align-items: center;
           overflow: hidden;
-        }
-        
-        .hero-slider {
-          position: absolute;
-          top: 0;
-          left: 0;
-          width: 100%;
-          height: 100%;
-          z-index: 0;
-        }
-        
-        .hero-slide {
-          position: absolute;
-          top: 0;
-          left: 0;
-          width: 100%;
-          height: 100%;
           background-size: cover;
           background-position: center;
           background-repeat: no-repeat;
-          opacity: 0;
-          transition: opacity 1.2s ease-in-out;
         }
-        
-        .hero-slide.active {
-          opacity: 1;
-          z-index: 1;
-        }
-        
+
         .hero-overlay {
           position: absolute;
           top: 0;
           left: 0;
           width: 100%;
           height: 100%;
-    background: linear-gradient(
-  135deg,
-  hsla(220, 60%, 18%, 0.80) 0%,
-  hsla(45, 90%, 70%, 0.45) 100%
-);
+          background: linear-gradient(
+            135deg,
+            hsla(220, 60%, 18%, 0.80) 0%,
+            hsla(45, 90%, 70%, 0.45) 100%
+          );
           z-index: 2;
         }
-        
+
         .hero-content {
           position: relative;
           z-index: 3;
@@ -427,7 +409,7 @@ const AboutPage = () => {
           color: white;
           width: 100%;
         }
-        
+
         .hero-badge {
           display: inline-block;
           background: rgba(255,193,7,0.2);
@@ -438,16 +420,16 @@ const AboutPage = () => {
           margin-bottom: 1rem;
           backdrop-filter: blur(5px);
         }
-        
+
         .hero-content h1 {
           font-size: 3rem;
           margin-bottom: 1rem;
         }
-        
+
         .hero-content .highlight {
           color: #ffc107;
         }
-        
+
         .hero-content p {
           font-size: 1.2rem;
           opacity: 0.95;
@@ -456,14 +438,14 @@ const AboutPage = () => {
           margin-left: auto;
           margin-right: auto;
         }
-        
+
         .hero-buttons {
           display: flex;
           gap: 1rem;
           justify-content: center;
           flex-wrap: wrap;
         }
-        
+
         .btn-primary {
           background: #ffc107;
           color: #1e3c72;
@@ -475,13 +457,15 @@ const AboutPage = () => {
           display: inline-flex;
           align-items: center;
           gap: 8px;
+          border: none;
+          cursor: pointer;
         }
-        
+
         .btn-primary:hover {
           background: #e0a800;
           transform: translateY(-2px);
         }
-        
+
         .btn-secondary {
           background: transparent;
           color: white;
@@ -495,45 +479,45 @@ const AboutPage = () => {
           align-items: center;
           gap: 8px;
         }
-        
+
         .btn-secondary:hover {
           background: white;
           color: #1e3c72;
           transform: translateY(-2px);
         }
+
         /* Stats Bar Section */
         .stats-bar {
           background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
           color: white;
           padding: 3rem 0;
         }
-        
+
         .stats-grid {
           display: grid;
           grid-template-columns: repeat(4, 1fr);
           gap: 2rem;
           text-align: center;
         }
-          
-        
+
         .stat-item i {
           font-size: 2rem;
           color: #ffc107;
           margin-bottom: 0.5rem;
           display: inline-block;
         }
-        
+
         .stat-number {
           font-size: 2rem;
           font-weight: 700;
           margin: 0.5rem 0;
         }
-        
+
         .stat-label {
           font-size: 0.85rem;
           opacity: 0.9;
         }
-        
+
         /* Story Grid */
         .story-grid {
           display: grid;
@@ -541,21 +525,21 @@ const AboutPage = () => {
           gap: 3rem;
           align-items: center;
         }
-        
+
         .story-text {
           text-align: left;
         }
-        
+
         .story-text p {
           margin-bottom: 1rem;
           line-height: 1.6;
           color: #555;
         }
-        
+
         .story-highlights {
           margin-top: 1.5rem;
         }
-        
+
         .highlight-item {
           display: flex;
           gap: 1rem;
@@ -564,32 +548,32 @@ const AboutPage = () => {
           background: #f8f9fa;
           border-radius: 12px;
         }
-        
+
         .highlight-item i {
           font-size: 1.8rem;
           color: #ffc107;
         }
-        
+
         .highlight-item h4 {
           margin-bottom: 0.3rem;
           color: #1e3c72;
         }
-        
+
         .highlight-item p {
           font-size: 0.85rem;
           margin: 0;
         }
-        
+
         .story-image {
           position: relative;
         }
-        
+
         .story-image img {
           width: 100%;
           border-radius: 16px;
           box-shadow: 0 10px 30px rgba(0,0,0,0.1);
         }
-        
+
         .experience-badge {
           position: absolute;
           bottom: -20px;
@@ -606,25 +590,25 @@ const AboutPage = () => {
           justify-content: center;
           box-shadow: 0 5px 15px rgba(0,0,0,0.2);
         }
-        
+
         .experience-badge span {
           font-size: 1.8rem;
           font-weight: 700;
         }
-        
+
         .experience-badge p {
           font-size: 0.7rem;
           text-align: center;
           margin: 0;
         }
-        
+
         /* Mission Vision Grid */
         .mvv-grid {
           display: grid;
           grid-template-columns: repeat(3, 1fr);
           gap: 2rem;
         }
-        
+
         .mvv-card {
           background: white;
           padding: 2rem;
@@ -633,11 +617,11 @@ const AboutPage = () => {
           box-shadow: 0 5px 20px rgba(0,0,0,0.05);
           transition: transform 0.3s;
         }
-        
+
         .mvv-card:hover {
           transform: translateY(-5px);
         }
-        
+
         .mvv-icon {
           width: 70px;
           height: 70px;
@@ -648,45 +632,45 @@ const AboutPage = () => {
           justify-content: center;
           margin: 0 auto 1rem;
         }
-        
+
         .mvv-icon i {
           font-size: 1.8rem;
           color: #ffc107;
         }
-        
+
         .mvv-card h3 {
           margin-bottom: 1rem;
           color: #1e3c72;
         }
-        
+
         .mvv-card p {
           color: #666;
           line-height: 1.6;
         }
-        
+
         .mvv-card ul {
           text-align: left;
           list-style: none;
           padding: 0;
         }
-        
+
         .mvv-card ul li {
           margin: 0.5rem 0;
           font-size: 0.85rem;
         }
-        
+
         .mvv-card ul li i {
           color: #ffc107;
           margin-right: 8px;
         }
-        
+
         /* Facilities Grid */
         .facilities-grid {
           display: grid;
           grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
           gap: 1.5rem;
         }
-        
+
         .facility-card {
           background: white;
           border-radius: 12px;
@@ -694,28 +678,28 @@ const AboutPage = () => {
           box-shadow: 0 3px 10px rgba(0,0,0,0.05);
           transition: transform 0.3s;
         }
-        
+
         .facility-card:hover {
           transform: translateY(-3px);
         }
-        
+
         .facility-image {
           position: relative;
           height: 200px;
           overflow: hidden;
         }
-        
+
         .facility-image img {
           width: 100%;
           height: 100%;
           object-fit: cover;
           transition: transform 0.3s;
         }
-        
+
         .facility-card:hover .facility-image img {
           transform: scale(1.05);
         }
-        
+
         .facility-overlay {
           position: absolute;
           top: 0;
@@ -729,44 +713,44 @@ const AboutPage = () => {
           opacity: 0;
           transition: opacity 0.3s;
         }
-        
+
         .facility-card:hover .facility-overlay {
           opacity: 1;
         }
-        
+
         .facility-overlay i {
           font-size: 2rem;
           color: #ffc107;
         }
-        
+
         .facility-info {
           padding: 1rem;
           text-align: left;
         }
-        
+
         .facility-info h4 {
           margin-bottom: 0.5rem;
           color: #1e3c72;
         }
-        
+
         .facility-info h4 i {
           margin-right: 8px;
           color: #ffc107;
         }
-        
+
         .facility-info p {
           font-size: 0.85rem;
           color: #666;
           line-height: 1.5;
         }
-        
+
         /* Leadership Grid */
         .leadership-grid {
           display: grid;
           grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
           gap: 2rem;
         }
-        
+
         .leader-card {
           background: white;
           border-radius: 16px;
@@ -776,40 +760,40 @@ const AboutPage = () => {
           transition: transform 0.3s;
           box-shadow: 0 3px 10px rgba(0,0,0,0.05);
         }
-        
+
         .leader-card:hover {
           transform: translateY(-5px);
         }
-        
+
         .leader-image {
           height: 250px;
           overflow: hidden;
         }
-        
+
         .leader-image img {
           width: 100%;
           height: 100%;
           object-fit: cover;
         }
-        
+
         .leader-card h4 {
           margin: 1rem 0 0.3rem;
           color: #1e3c72;
         }
-        
+
         .leader-title {
           color: #ffc107;
           font-weight: 600;
           font-size: 0.85rem;
           margin-bottom: 0.5rem;
         }
-        
+
         .leader-details {
           padding: 0 1rem;
           font-size: 0.75rem;
           color: #666;
         }
-        
+
         .read-more-btn {
           margin: 1rem;
           background: #f0f2f5;
@@ -820,12 +804,12 @@ const AboutPage = () => {
           font-size: 0.8rem;
           transition: 0.3s;
         }
-        
+
         .read-more-btn:hover {
           background: #1e3c72;
           color: white;
         }
-        
+
         /* Student Life Grid */
         .student-life-grid {
           display: grid;
@@ -833,23 +817,23 @@ const AboutPage = () => {
           gap: 3rem;
           align-items: center;
         }
-        
+
         .student-life-content {
           text-align: left;
         }
-        
+
         .section-title.left {
           text-align: left;
         }
-        
+
         .left-underline {
           margin: 10px 0 0 0;
         }
-        
+
         .activities-list {
           margin: 1.5rem 0;
         }
-        
+
         .activity-item {
           display: flex;
           gap: 1rem;
@@ -858,32 +842,32 @@ const AboutPage = () => {
           background: #f8f9fa;
           border-radius: 10px;
         }
-        
+
         .activity-item i {
           font-size: 1.3rem;
           color: #ffc107;
         }
-        
+
         .activity-item h4 {
           margin-bottom: 0.2rem;
           color: #1e3c72;
         }
-        
+
         .activity-item p {
           font-size: 0.8rem;
           color: #666;
           margin: 0;
         }
-        
+
         .student-life-image {
           position: relative;
         }
-        
+
         .student-life-image img {
           width: 100%;
           border-radius: 16px;
         }
-        
+
         .floating-card {
           position: absolute;
           bottom: -20px;
@@ -897,16 +881,16 @@ const AboutPage = () => {
           gap: 10px;
           box-shadow: 0 5px 15px rgba(0,0,0,0.1);
         }
-        
+
         .floating-card i {
           font-size: 1.5rem;
         }
-        
+
         .floating-card p {
           margin: 0;
           font-weight: 600;
         }
-        
+
         /* CTA Section */
         .cta-section {
           background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
@@ -914,71 +898,83 @@ const AboutPage = () => {
           padding: 4rem 0;
           text-align: center;
         }
-        
+
         .cta-content h2 {
           font-size: 2rem;
           margin-bottom: 1rem;
         }
-        
+
         .cta-content p {
           margin-bottom: 1.5rem;
           opacity: 0.9;
         }
-        
+
         .cta-buttons {
           display: flex;
           gap: 1rem;
           justify-content: center;
           flex-wrap: wrap;
         }
-        
+
         /* Section spacing */
         .our-story, .mission-vision, .facilities, .leadership, .student-life-preview {
           padding: 4rem 0;
         }
-        
+
         .mission-vision {
           background: #f8f9fa;
         }
-        
+
         /* Responsive */
         @media (max-width: 768px) {
+          .hero {
+            min-height: 70vh;
+          }
+
+          .hero-content h1 {
+            font-size: 1.8rem;
+          }
+
+          .hero-content p {
+            font-size: 0.9rem;
+          }
+
           .stats-grid {
             grid-template-columns: repeat(2, 1fr);
             gap: 1rem;
           }
-          
+
           .story-grid,
           .mvv-grid,
           .student-life-grid {
             grid-template-columns: 1fr;
           }
-          
+
           .story-image {
             order: -1;
           }
-          
+
           .experience-badge {
             width: 80px;
             height: 80px;
             bottom: -10px;
             right: -10px;
           }
-          
+
           .experience-badge span {
             font-size: 1.2rem;
           }
-          
+
           .floating-card {
             bottom: -10px;
             left: -10px;
             padding: 0.5rem;
           }
-          
+
           .cta-content h2 {
             font-size: 1.5rem;
           }
-          
+
           .facilities-grid {
             grid-template-columns: 1fr;
           }
