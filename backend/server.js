@@ -74,6 +74,19 @@ app.use(errorHandler);
 // ==================== DATABASE CONNECTION & START ====================
 const PORT = process.env.PORT || 5000;
 
+// Without this a port clash surfaces as an unhandled 'error' event: a stack
+// trace with no hint that the cause is another app already on the port.
+server.on('error', (err) => {
+  if (err.code === 'EADDRINUSE') {
+    console.error(`\n❌ Port ${PORT} is already in use.`);
+    console.error('   Another process is listening there. Either stop it, or set a');
+    console.error(`   different PORT in backend/.env (currently ${PORT}).\n`);
+  } else {
+    console.error('❌ Server error:', err.message);
+  }
+  process.exit(1);
+});
+
 connectDB()
   .then(async () => {
     console.log('✅ MongoDB Connected');
@@ -82,9 +95,9 @@ connectDB()
       await seedDatabase();
     }
     server.listen(PORT, () => {
-      console.log(`\n🚀 Server running on http://localhost:${PORT}`);
-
-      console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n');
+      const target = process.env.FRONTEND_URL || 'http://localhost:5173';
+      console.log(`\n🚀 API      http://localhost:${PORT}`);
+      console.log(`🚀 Frontend ${target}\n`);
     });
   })
   .catch(err => {
