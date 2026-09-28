@@ -7,6 +7,7 @@ const Student = require('../models/Student');
 const SubjectAllocation = require('../models/SubjectAllocation');
 const authMiddleware = require('../middleware/auth');
 const requireRole = require('../middleware/roleCheck');
+const { authorizeStudentAccess } = require('../utils/access');
 
 const router = express.Router();
 
@@ -30,8 +31,10 @@ router.get('/exams', authMiddleware, async (req, res) => {
     let exams = await Exam.find(query).populate('classIds', 'grade className').sort({ createdAt: -1 });
 
     if (req.userRole === 'teacher') {
-      const allocations = await SubjectAllocation.find({ teacherId: req.userId }).distinct('classId');
-      exams = exams.filter(e => e.classIds.some(c => allocations.includes(String(c._id))));
+      // distinct() hands back ObjectIds, so compare as strings or the filter
+      // silently matches nothing and a teacher sees an empty exam list.
+      const allocations = (await SubjectAllocation.find({ teacherId: req.userId }).distinct('classId')).map(String);
+      exams = exams.filter(e => (e.classIds || []).some(c => allocations.includes(String(c._id))));
     }
 
     res.json({ success: true, exams });
@@ -140,6 +143,10 @@ router.get('/exams/results/:studentId', authMiddleware, async (req, res) => {
 
     const student = await Student.findById(req.params.studentId).populate('classId', 'grade className');
     if (!student) return res.status(404).json({ success: false, message: 'Student not found' });
+
+    if (!(await authorizeStudentAccess(req, student))) {
+      return res.status(403).json({ success: false, message: 'You are not allowed to view this student\'s results' });
+    }
 
     const [grades, exams] = await Promise.all([
       Grade.find({ studentId: student._id, term, year: Number(year) }).sort({ subject: 1 }),

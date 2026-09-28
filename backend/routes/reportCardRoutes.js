@@ -6,9 +6,9 @@ const Student = require('../models/Student');
 const Class = require('../models/Class');
 const Attendance = require('../models/Attendance');
 const SubjectAllocation = require('../models/SubjectAllocation');
-const Subject = require('../models/Subject');
 const authMiddleware = require('../middleware/auth');
 const requireRole = require('../middleware/roleCheck');
+const { authorizeStudentAccess } = require('../utils/access');
 
 const router = express.Router();
 
@@ -19,43 +19,6 @@ const escapeHtml = (value) =>
     .replace(/>/g, '&gt;')
     .replace(/"/g, '&quot;')
     .replace(/'/g, '&#39;');
-
-// A report card is one student's grades, so access has to follow the
-// relationship rather than mere authentication: a student sees their own, a
-// parent only their own child, a teacher only classes they are allocated to.
-// Without this any logged-in account could read any child's record.
-const authorizeStudentAccess = async (req, student) => {
-  const { userId, userRole } = req;
-
-  if (userRole === 'super_admin' || userRole === 'academic_admin') return true;
-
-  if (userRole === 'student') {
-    const own = await Student.findOne({ userId }).select('_id');
-    return !!own && String(own._id) === String(student._id);
-  }
-
-  if (userRole === 'parent') {
-    return student.parentPhone
-      ? !!(await Student.exists({ _id: student._id, parentPhone: student.parentPhone }))
-          || (await require('../models/ParentProfile').exists({ userId, children: student._id }))
-      : false;
-  }
-
-  if (userRole === 'teacher') {
-    if (student.teacherId && String(student.teacherId) === String(userId)) return true;
-    if (!student.classId) return false;
-    const [classTeacher, allocation] = await Promise.all([
-      Class.findById(student.classId).select('teacherId'),
-      SubjectAllocation.exists({ classId: student.classId, teacherId: userId })
-    ]);
-    return (
-      (classTeacher?.teacherId && String(classTeacher.teacherId) === String(userId)) ||
-      !!allocation
-    );
-  }
-
-  return false;
-};
 
 const letterGrade = (pct) => {
   if (pct >= 80) return 'A';
@@ -219,11 +182,8 @@ router.get('/report-cards/:studentId', authMiddleware, async (req, res) => {
     const student = await Student.findById(req.params.studentId).populate('classId', 'grade className');
     if (!student) return res.status(404).json({ message: 'Student not found' });
 
-    if (req.userRole === 'student') {
-      const own = await Student.findOne({ userId: req.userId }).select('_id');
-      if (!own || String(own._id) !== String(student._id)) {
-        return res.status(403).json({ message: 'You can only view your own report card' });
-      }
+    if (!(await authorizeStudentAccess(req, student))) {
+      return res.status(403).json({ message: 'You are not allowed to view this student\'s report card' });
     }
 
     const { rows } = await buildTermResults({ classId: student.classId, term, year });
@@ -257,16 +217,13 @@ router.get('/report-cards/:studentId/print', authMiddleware, async (req, res) =>
     const student = await Student.findById(req.params.studentId).populate('classId', 'grade className');
     if (!student) return res.status(404).json({ message: 'Student not found' });
 
-    if (req.userRole === 'student') {
-      const own = await Student.findOne({ userId: req.userId }).select('_id');
-      if (!own || String(own._id) !== String(student._id)) {
-        return res.status(403).json({ message: 'You can only view your own report card' });
-      }
+    if (!(await authorizeStudentAccess(req, student))) {
+      return res.status(403).json({ type: 'text/html', message: 'You are not allowed to view this student\'s report card' });
     }
 
     const { rows } = await buildTermResults({ classId: student.classId, term, year });
     const card = rows.find(r => String(r.studentId) === String(student._id));
-    if (!card) return res.status(404).json({ message: 'No results for this term' });
+    if (!card) return res.status(404).json({ type: 'text/html', message: 'No results for this term' });
 
     const classSize = rows.length;
     const subjectNames = card.subjects.map(s => s.subject);
@@ -275,8 +232,11 @@ router.get('/report-cards/:studentId/print', authMiddleware, async (req, res) =>
 
     const row = (label, value) => `<tr><td style="padding:4px 8px;border:1px solid #333">${label}</td><td style="padding:4px 8px;border:1px solid #333;text-align:center;font-weight:700">${value}</td></tr>`;
 
+    const name = escapeHtml(student.fullName);
+    const className = student.classId ? escapeHtml(`${student.classId.grade} ${student.classId.className}`) : 'Not Assigned';
+
     const html = `<!DOCTYPE html>
-<html><head><meta charset="utf-8"><title>Report Card — ${student.fullName}</title>
+<html><head><meta charset="utf-8"><title>Report Card — ${name}</title>
 <style>
   body { font-family: Georgia, 'Times New Roman', serif; color: #000; margin: 0; padding: 24px; }
   .sheet { max-width: 760px; margin: 0 auto; }
@@ -293,17 +253,17 @@ router.get('/report-cards/:studentId/print', authMiddleware, async (req, res) =>
 <div class="sheet">
   <h1>ESSA NYARUGUNGA</h1>
   <p class="sub">Ecole Secondaire des Science et Administrative &middot; Indatwa Village, Kamashashi Cell, Nyarugunga Sector, Kicukiro District, Kigali, Rwanda</p>
-  <p class="sub"><strong>REPORT CARD — ${term} ${year}</strong></p>
+  <p class="sub"><strong>REPORT CARD — ${escapeHtml(term)} ${escapeHtml(year)}</strong></p>
   <table class="grid" style="margin-bottom:12px">
-    ${row('Student', student.fullName)}
-    ${row('Student Number', student.studentId || '—')}
-    ${row('Class', student.classId ? `${student.classId.grade} ${student.classId.className}` : 'Not Assigned')}
-    ${row('Academic Year', student.classId?.academicYear || year)}
+    ${row('Student', name)}
+    ${row('Student Number', escapeHtml(student.studentId || '—'))}
+    ${row('Class', className)}
+    ${row('Academic Year', escapeHtml(student.classId?.academicYear || year))}
   </table>
   <table>
     <thead><tr><th>Subject</th><th>Score (%)</th><th>Grade</th></tr></thead>
     <tbody>
-      ${card.subjects.map(s => `<tr><td>${s.subject}</td><td style="text-align:center">${s.average}</td><td style="text-align:center;font-weight:700">${s.grade}</td></tr>`).join('')}
+      ${card.subjects.map(s => `<tr><td>${escapeHtml(s.subject)}</td><td style="text-align:center">${s.average}</td><td style="text-align:center;font-weight:700">${s.grade}</td></tr>`).join('')}
       ${subjectMax === 0 ? '<tr><td colspan="3" style="text-align:center">No results recorded for this term</td></tr>' : ''}
     </tbody>
     <tfoot>
