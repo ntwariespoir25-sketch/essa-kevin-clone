@@ -59,6 +59,7 @@ app.use('/api', require('./routes/permissionRoutes'));
 app.use('/api', require('./routes/accountsRoutes'));
 app.use('/api', require('./routes/messageRoutes'));
 app.use('/api', require('./routes/calendarRoutes'));
+app.use('/api', require('./routes/subjectRoutes'));
 
 // ==================== ERROR HANDLER ====================
 app.use(errorHandler);
