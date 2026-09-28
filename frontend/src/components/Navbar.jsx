@@ -30,7 +30,10 @@ const Navbar = () => {
       case 'student': return '/portal/student';
       case 'teacher': return '/portal/teacher';
       case 'parent': return '/portal/parent';
-      case 'admin': return '/portal/admin';
+      case 'super_admin': return '/portal/super-admin';
+      case 'academic_admin': return '/portal/academic-admin';
+      case 'accounts_admin': return '/portal/accounts-admin';
+      case 'discipline_admin': return '/portal/discipline-admin';
       default: return '/portal/login';
     }
   };
