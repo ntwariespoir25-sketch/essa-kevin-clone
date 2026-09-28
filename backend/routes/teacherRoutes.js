@@ -110,13 +110,12 @@ router.post('/teacher/assignments', authMiddleware, requireRole('teacher', 'acad
     const assignment = await Assignment.create({
       title: req.body.title,
       description: req.body.description || '',
+      subject: req.body.subject || '',
       classId: req.body.classId,
-      type: req.body.type || 'homework',
-      dueDate: new Date(req.body.dueDate),
+      dueDate: req.body.dueDate ? new Date(req.body.dueDate) : null,
       totalPoints: parseInt(req.body.totalPoints) || 100,
       fileUrl,
-      teacherId: req.userId,
-      status: 'published'
+      teacherId: req.userId
     });
 
     res.json({ success: true, assignment });

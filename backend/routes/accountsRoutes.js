@@ -15,9 +15,11 @@ const requireRole = require('../middleware/roleCheck');
 const router = express.Router();
 
 const resolveInvoiceStatus = (inv) => {
+  if (inv.status === 'canceled') return 'canceled';
   if (inv.paidTotal >= inv.total && inv.total > 0) return 'paid';
   if (inv.paidTotal > 0) return 'partial';
-  if (inv.dueDate && new Date(inv.dueDate) < new Date()) return 'overdue';
+  const dueDate = inv.dueDate || (inv.items && inv.items.length ? inv.items[0].dueDate : null);
+  if (dueDate && new Date(dueDate) < new Date()) return 'overdue';
   return inv.status === 'issued' ? 'issued' : 'draft';
 };
 
@@ -158,7 +160,7 @@ router.get('/accounts/invoices/:id', authMiddleware, requireRole('accounts_admin
 router.put('/accounts/invoices/:id/status', authMiddleware, requireRole('accounts_admin', 'super_admin'), async (req, res) => {
   try {
     const { status } = req.body;
-    if (!['draft', 'issued', 'paid', 'canceled'].includes(status)) return res.status(400).json({ message: 'Invalid status' });
+    if (!['draft', 'issued', 'partial', 'paid', 'overdue', 'canceled'].includes(status)) return res.status(400).json({ message: 'Invalid status' });
     const invoice = await Invoice.findByIdAndUpdate(
       req.params.id,
       { status, issuedAt: status === 'issued' ? new Date() : undefined },
@@ -246,7 +248,7 @@ router.get('/accounts/fee-analytics', authMiddleware, requireRole('accounts_admi
     });
     const monthlyTrend = monthLabels.map(({ key, label }) => ({ label, amount: trendMap[key]?.amount || 0, count: trendMap[key]?.count || 0 }));
 
-    const statusCount = { paid: 0, partial: 0, issued: 0, draft: 0, overdue: 0 };
+    const statusCount = { paid: 0, partial: 0, issued: 0, draft: 0, overdue: 0, canceled: 0 };
     invoices.forEach(inv => { statusCount[resolveInvoiceStatus(inv)]++; });
 
     res.json({
