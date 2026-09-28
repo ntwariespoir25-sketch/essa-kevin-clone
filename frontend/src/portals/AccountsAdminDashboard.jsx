@@ -119,6 +119,11 @@ const AccountsAdminDashboard = () => {
   const [salaries, setSalaries] = useState([]);
   const [classes, setClasses] = useState([]);
   const [students, setStudents] = useState([]);
+  const [invoices, setInvoices] = useState([]);
+  const [analytics, setAnalytics] = useState(null);
+  const [financialSummary, setFinancialSummary] = useState(null);
+  const [invoiceTerm, setInvoiceTerm] = useState('Term 1');
+  const [invoiceYear, setInvoiceYear] = useState(new Date().getFullYear());
 
   // announcements
   const [announcements, setAnnouncements] = useState([]);
@@ -194,6 +199,7 @@ const AccountsAdminDashboard = () => {
     fetchBudget(), fetchIncome(), fetchExpenses(), fetchFees(),
     fetchPayments(), fetchSalaries(), fetchClasses(), fetchStudents(),
     fetchUnread(), fetchMsgUsers(), fetchAnnouncements(),
+    fetchInvoices(), fetchAnalytics(), fetchFinancialSummary(),
   ]).finally(() => setLoading(false));
 
   // ─── fetchers ─────────────────────────────────────────────────
@@ -207,6 +213,17 @@ const AccountsAdminDashboard = () => {
   const fetchStudents = () => api('/academic-admin/students').then(d => setStudents(Array.isArray(d) ? d : [])).catch(() => {});
   const fetchAnnouncements = () => {
     api('/announcements').then(d => setAnnouncements(Array.isArray(d) ? d : [])).catch(() => setAnnouncements([]));
+  };
+  const fetchInvoices = () => {
+    api(`/accounts/invoices?term=${encodeURIComponent(invoiceTerm)}&year=${invoiceYear}`)
+      .then(d => setInvoices(Array.isArray(d) ? d : []))
+      .catch(() => setInvoices([]));
+  };
+  const fetchAnalytics = () => {
+    api(`/accounts/fee-analytics?year=${invoiceYear}`).then(setAnalytics).catch(() => setAnalytics(null));
+  };
+  const fetchFinancialSummary = () => {
+    api('/accounts/financial-summary').then(d => setFinancialSummary(d || null)).catch(() => setFinancialSummary(null));
   };
 
   const fetchUnread = () => {
@@ -329,6 +346,103 @@ const AccountsAdminDashboard = () => {
     Swal.fire('✅ Budget Updated!', '', 'success'); setBudgetModal(false); fetchBudget();
   };
 
+  // ══ invoice actions ══
+  const generateInvoices = async () => {
+    setSaving(true);
+    try {
+      const res = await api('/accounts/invoices/generate', {
+        method: 'POST',
+        body: JSON.stringify({ term: invoiceTerm, year: invoiceYear })
+      });
+      await Swal.fire({
+        title: 'Invoices Generated',
+        html: `${res.created || 0} new invoice(s) created.<br/>${res.updated || 0} existing invoice(s) refreshed from current fee structures.`,
+        icon: 'success'
+      });
+      fetchInvoices(); fetchAnalytics();
+    } catch (e) { Swal.fire('Error', e.message || 'Failed to generate', 'error'); }
+    finally { setSaving(false); }
+  };
+
+  const updateInvoiceStatus = async (invoice, status) => {
+    try {
+      await api(`/accounts/invoices/${invoice._id}/status`, { method: 'PUT', body: JSON.stringify({ status }) });
+      fetchInvoices(); fetchAnalytics();
+    } catch (e) { Swal.fire('Error', e.message || 'Failed to update status', 'error'); }
+  };
+
+  const viewInvoice = async (invoice) => {
+    try {
+      const d = await api(`/accounts/invoices/${invoice._id}`);
+      const inv = d.invoice || d;
+      const payments = Array.isArray(d.payments) ? d.payments : [];
+      await Swal.fire({
+        title: `Invoice — ${inv.term || ''} ${inv.year || ''}`.trim(),
+        html: `
+          <div style="text-align:left;font-size:13px">
+            <p><strong>Student:</strong> ${inv.studentId?.fullName || '—'}<br/>
+               <strong>Class:</strong> ${inv.className || '—'}</p>
+            <table style="width:100%;border-collapse:collapse;margin:10px 0">
+              <thead><tr style="background:#f7f9fb">
+                <th style="text-align:left;padding:6px;border-bottom:1px solid #eee">Item</th>
+                <th style="text-align:right;padding:6px;border-bottom:1px solid #eee">Amount</th>
+              </tr></thead>
+              <tbody>${(inv.items || []).map(it => `
+                <tr><td style="padding:6px;border-bottom:1px solid #f5f5f5">${it.feeType}</td>
+                <td style="padding:6px;border-bottom:1px solid #f5f5f5;text-align:right">${Number(it.amount || 0).toLocaleString()}</td></tr>`).join('')}
+              </tbody>
+            </table>
+            <p><strong>Total:</strong> ${Number(inv.total || 0).toLocaleString()} RWF<br/>
+               <strong>Paid:</strong> ${Number(inv.paidTotal || 0).toLocaleString()} RWF<br/>
+               <strong>Balance:</strong> ${Number(inv.balance ?? ((inv.total || 0) - (inv.paidTotal || 0))).toLocaleString()} RWF<br/>
+               <strong>Status:</strong> ${String(inv.status || '').toUpperCase()}</p>
+            ${payments.length ? `<p style="margin-top:10px"><strong>Payments:</strong><br/>${payments.map(p => `${p.receiptNo || '—'} · ${Number(p.amount || 0).toLocaleString()} RWF · ${fmt(p.paymentDate)}`).join('<br/>')}</p>` : ''}
+          </div>`,
+        width: '560px'
+      });
+    } catch (e) { Swal.fire('Error', e.message || 'Failed to load invoice', 'error'); }
+  };
+
+  const showReceipt = async (receiptNo) => {
+    try {
+      const d = await api(`/accounts/receipts/${encodeURIComponent(receiptNo)}`);
+      const p = d.payment || d;
+      await Swal.fire({
+        title: `Receipt ${p.receiptNo}`,
+        html: `<div style="text-align:left;font-size:13px">
+          <p><strong>Student:</strong> ${p.studentName || p.studentId?.fullName || '—'}<br/>
+             <strong>Fee type:</strong> ${p.feeType || '—'}<br/>
+             <strong>Method:</strong> ${p.paymentMethod || '—'}<br/>
+             <strong>Date:</strong> ${fmt(p.paymentDate)}<br/>
+             <strong>Reference:</strong> ${p.reference || '—'}</p>
+          <p style="font-size:20px;font-weight:700;color:#27ae60;text-align:center;margin-top:14px">${Number(p.amount || 0).toLocaleString()} RWF</p>
+        </div>`,
+        width: '480px'
+      });
+    } catch (e) { Swal.fire('Error', e.message || 'Receipt not found', 'error'); }
+  };
+
+  const invoiceFilter = (inv, key) => {
+    const v = String(inv?.[key] ?? '').toLowerCase();
+    return !recordSearch || v.includes(recordSearch.toLowerCase())
+      || String(inv?.studentId?.fullName || '').toLowerCase().includes(recordSearch.toLowerCase());
+  };
+  const visibleInvoices = invoices.filter(inv => invoiceFilter(inv, 'status'));
+  const invoiceTotals = visibleInvoices.reduce((acc, inv) => {
+    acc.total += inv.total || 0;
+    acc.paid += inv.paidTotal || 0;
+    return acc;
+  }, { total: 0, paid: 0 });
+
+  const statusColor = (status) => ({
+    paid: { color: '#27ae60', bg: '#e8f5e9' },
+    partial: { color: '#f39c12', bg: '#fff3e0' },
+    issued: { color: '#3498db', bg: '#e3f2fd' },
+    draft: { color: '#888', bg: '#f0f0f0' },
+    overdue: { color: '#e74c3c', bg: '#fdecea' },
+    canceled: { color: '#999', bg: '#eee' }
+  }[status] || { color: '#666', bg: '#f0f0f0' });
+
   const totalIncome = income.reduce((s, i) => s + (i.amount || 0), 0);
   const totalExpenses = expenses.reduce((s, e) => s + (e.amount || 0), 0);
   const pendingSalaries = salaries.filter(s => s.status === 'pending').length;
@@ -346,6 +460,7 @@ const AccountsAdminDashboard = () => {
     { id: 'overview', label: 'Dashboard', icon: 'fas fa-chart-line' },
     { id: 'budget', label: 'Budget', icon: 'fas fa-chart-pie' },
     { id: 'fees', label: 'Fee Management', icon: 'fas fa-money-bill-wave' },
+    { id: 'invoices', label: 'Invoices & Analytics', icon: 'fas fa-file-invoice-dollar' },
     { id: 'salaries', label: 'Salaries', icon: 'fas fa-wallet', badge: pendingSalaries },
     { id: 'records', label: 'Financial Records', icon: 'fas fa-book' },
     { id: 'announcements', label: 'Announcements', icon: 'fas fa-bullhorn' },
@@ -603,9 +718,173 @@ const AccountsAdminDashboard = () => {
                       <TD><div style={{ fontWeight: 600, fontSize: 13 }}>{p.studentName || p.studentId?.fullName || '—'}</div></TD>
                       <TD style={{ fontSize: 12 }}>{p.feeType}</TD>
                       <TD><span style={{ fontWeight: 700, color: '#27ae60' }}>{fmtAmt(p.amount)}</span></TD>
-                      <TD style={{ fontSize: 12, color: '#3498db' }}>{p.receiptNo || '—'}</TD>
+                      <TD style={{ fontSize: 12, color: '#3498db' }}>
+                        {p.receiptNo
+                          ? <button onClick={() => showReceipt(p.receiptNo)} style={{ background: 'none', border: 'none', color: '#3498db', cursor: 'pointer', fontSize: 12, fontWeight: 600, padding: 0, textDecoration: 'underline' }}>{p.receiptNo}</button>
+                          : '—'}
+                      </TD>
                     </React.Fragment>
                   ))}
+                />
+              </div>
+            </div>
+          )}
+
+          {/* ══ INVOICES & ANALYTICS ══ */}
+          {activeTab === 'invoices' && (
+            <div>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 18, flexWrap: 'wrap', gap: 10 }}>
+                <div>
+                  <h2 style={{ margin: 0, fontSize: 19, color: '#1a3a5c', fontFamily: 'Georgia, serif' }}>Invoices & Fee Analytics</h2>
+                  <p style={{ margin: '3px 0 0', fontSize: 12, color: '#888' }}>
+                    {visibleInvoices.length} invoice(s) · collected {fmtAmt(invoiceTotals.paid)} of {fmtAmt(invoiceTotals.total)}
+                  </p>
+                </div>
+                <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap', alignItems: 'center' }}>
+                  <Sel value={invoiceTerm} onChange={e => setInvoiceTerm(e.target.value)} style={{ width: 130 }}>
+                    {['Term 1', 'Term 2', 'Term 3'].map(t => <option key={t} value={t}>{t}</option>)}
+                  </Sel>
+                  <Sel value={invoiceYear} onChange={e => setInvoiceYear(Number(e.target.value))} style={{ width: 110 }}>
+                    {[new Date().getFullYear() - 1, new Date().getFullYear(), new Date().getFullYear() + 1].map(y => <option key={y} value={y}>{y}</option>)}
+                  </Sel>
+                  <Btn small onClick={() => { fetchInvoices(); fetchAnalytics(); }} icon="fas fa-sync" color="#1a3a5c">Refresh</Btn>
+                  <Btn small onClick={generateInvoices} disabled={saving} icon="fas fa-file-invoice" color="#27ae60">Generate Invoices</Btn>
+                </div>
+              </div>
+
+              {analytics?.summary && (
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(170px,1fr))', gap: 14, marginBottom: 20 }}>
+                  {[
+                    { label: 'Expected', value: fmtAmt(analytics.summary.totalExpected), accent: '#1a3a5c', bg: '#e8f0fb' },
+                    { label: 'Collected', value: fmtAmt(analytics.summary.totalCollected), accent: '#27ae60', bg: '#e8f5e9' },
+                    { label: 'Outstanding', value: fmtAmt(analytics.summary.balance), accent: '#e74c3c', bg: '#fdecea' },
+                    { label: 'Collection Rate', value: `${analytics.summary.collectionRate}%`, accent: '#3498db', bg: '#e3f2fd' },
+                    { label: 'Overdue', value: analytics.summary.overdue || 0, accent: '#e74c3c', bg: '#fdecea' },
+                    { label: 'Paid Invoices', value: analytics.summary.paid || 0, accent: '#27ae60', bg: '#e8f5e9' },
+                  ].map((s, i) => (
+                    <div key={i} style={{ background: 'white', borderRadius: 14, padding: '16px 18px', display: 'flex', alignItems: 'center', gap: 12, boxShadow: '0 2px 10px rgba(0,0,0,.05)', border: '1px solid #f0f0f0' }}>
+                      <div style={{ width: 40, height: 40, borderRadius: 12, background: s.bg, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                        <i className="fas fa-coins" style={{ fontSize: 16, color: s.accent }} />
+                      </div>
+                      <div>
+                        <div style={{ fontSize: 16, fontWeight: 700, color: '#1a3a5c', lineHeight: 1, fontFamily: 'Georgia, serif' }}>{s.value}</div>
+                        <div style={{ fontSize: 11, color: '#888', marginTop: 3 }}>{s.label}</div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+
+              {financialSummary && (
+                <div style={{ background: 'white', borderRadius: 14, padding: 18, marginBottom: 20, boxShadow: '0 2px 10px rgba(0,0,0,.05)' }}>
+                  <h3 style={{ margin: '0 0 12px', fontSize: 14, color: '#1a3a5c', fontWeight: 600 }}>
+                    <i className="fas fa-scale-balanced" style={{ marginRight: 7, color: '#3498db' }} />Financial Summary
+                  </h3>
+                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(150px,1fr))', gap: 12, fontSize: 13 }}>
+                    {[
+                      ['Total Income', fmtAmt(financialSummary.totalIncome)],
+                      ['Total Expenses', fmtAmt(financialSummary.totalExpenses)],
+                      ['Net Balance', fmtAmt(financialSummary.netBalance)],
+                      ['Completed Payments', financialSummary.completedPayments ?? '—'],
+                    ].map(([k, v]) => (
+                      <div key={k}>
+                        <div style={{ fontSize: 11, color: '#888' }}>{k}</div>
+                        <div style={{ fontWeight: 700, color: '#1a3a5c' }}>{v}</div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {analytics?.monthlyTrend?.length > 0 && (
+                <div style={{ background: 'white', borderRadius: 14, padding: 18, marginBottom: 20, boxShadow: '0 2px 10px rgba(0,0,0,.05)' }}>
+                  <h3 style={{ margin: '0 0 14px', fontSize: 14, color: '#1a3a5c', fontWeight: 600 }}>
+                    <i className="fas fa-chart-bar" style={{ marginRight: 7, color: '#27ae60' }} />Collection Trend (6 months)
+                  </h3>
+                  <div style={{ display: 'flex', alignItems: 'flex-end', gap: 12, height: 140 }}>
+                    {(() => {
+                      const max = Math.max(1, ...analytics.monthlyTrend.map(m => m.amount));
+                      return analytics.monthlyTrend.map(m => (
+                        <div key={m.label} style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 6 }}>
+                          <div style={{ fontSize: 10, color: '#888' }}>{(m.amount / 1000).toFixed(0)}k</div>
+                          <div title={fmtAmt(m.amount)} style={{ width: '100%', maxWidth: 54, height: `${Math.max(4, Math.round((m.amount / max) * 100))}%`, background: 'linear-gradient(180deg,#27ae60,#1e8449)', borderRadius: '6px 6px 0 0' }} />
+                          <div style={{ fontSize: 11, color: '#666' }}>{m.label}</div>
+                        </div>
+                      ));
+                    })()}
+                  </div>
+                </div>
+              )}
+
+              <div style={{ background: 'white', borderRadius: 14, padding: 18, marginBottom: 20, boxShadow: '0 2px 10px rgba(0,0,0,.05)' }}>
+                <h3 style={{ margin: '0 0 14px', fontSize: 14, color: '#1a3a5c', fontWeight: 600 }}>
+                  <i className="fas fa-chalkboard" style={{ marginRight: 7, color: '#9b59b6' }} />Collection by Class
+                </h3>
+                <Table cols={['Class', 'Invoices', 'Expected', 'Collected', 'Balance', 'Rate']} emptyMsg="No invoice data for this year"
+                  rows={(analytics?.byClass || []).map(c => (
+                    <React.Fragment key={c.className}>
+                      <TD><div style={{ fontWeight: 600, fontSize: 13 }}>{c.className}</div></TD>
+                      <TD style={{ fontSize: 12 }}>{c.students}</TD>
+                      <TD style={{ fontSize: 12 }}>{fmtAmt(c.expected)}</TD>
+                      <TD><span style={{ fontWeight: 700, color: '#27ae60' }}>{fmtAmt(c.collected)}</span></TD>
+                      <TD><span style={{ fontWeight: 700, color: c.balance > 0 ? '#e74c3c' : '#27ae60' }}>{fmtAmt(c.balance)}</span></TD>
+                      <TD><Badge text={`${c.rate}%`} color={c.rate >= 70 ? '#27ae60' : '#e74c3c'} bg={c.rate >= 70 ? '#e8f5e9' : '#fdecea'} /></TD>
+                    </React.Fragment>
+                  ))}
+                />
+              </div>
+
+              {analytics?.arrears?.length > 0 && (
+                <div style={{ background: 'white', borderRadius: 14, padding: 18, marginBottom: 20, boxShadow: '0 2px 10px rgba(0,0,0,.05)' }}>
+                  <h3 style={{ margin: '0 0 14px', fontSize: 14, color: '#1a3a5c', fontWeight: 600 }}>
+                    <i className="fas fa-exclamation-triangle" style={{ marginRight: 7, color: '#e74c3c' }} />Top Debtors
+                  </h3>
+                  <Table cols={['Student', 'Class', 'Term', 'Balance']} emptyMsg="No outstanding balances"
+                    rows={analytics.arrears.map(a => (
+                      <React.Fragment key={a.invoice._id}>
+                        <TD><div style={{ fontWeight: 600, fontSize: 13 }}>{a.student?.fullName || '—'}</div></TD>
+                        <TD style={{ fontSize: 12 }}>{a.student?.classId ? `${a.student.classId.grade || ''} ${a.student.classId.className || ''}` : '—'}</TD>
+                        <TD style={{ fontSize: 12 }}>{a.invoice.term} {a.invoice.year}</TD>
+                        <TD><span style={{ fontWeight: 700, color: '#e74c3c' }}>{fmtAmt(a.balance)}</span></TD>
+                      </React.Fragment>
+                    ))}
+                  />
+                </div>
+              )}
+
+              <div style={{ background: 'white', borderRadius: 14, padding: 18, boxShadow: '0 2px 10px rgba(0,0,0,.05)' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 14, flexWrap: 'wrap', gap: 10 }}>
+                  <h3 style={{ margin: 0, fontSize: 14, color: '#1a3a5c', fontWeight: 600 }}>
+                    <i className="fas fa-file-invoice" style={{ marginRight: 7, color: '#1a3a5c' }} />Invoices — {invoiceTerm} {invoiceYear}
+                  </h3>
+                  <input value={recordSearch} onChange={e => setRecordSearch(e.target.value)} placeholder="Filter by student or status..."
+                    style={{ padding: '8px 12px', border: '1.5px solid #e0e0e0', borderRadius: 8, fontSize: 13, outline: 'none' }} />
+                </div>
+                <Table cols={['Student', 'Class', 'Total', 'Paid', 'Balance', 'Status', 'Actions']}
+                  emptyMsg={`No invoices for ${invoiceTerm} ${invoiceYear}. Use "Generate Invoices" to create them from the fee structures.`}
+                  rows={visibleInvoices.map(inv => {
+                    const sc = statusColor(inv.status);
+                    const balance = inv.balance ?? ((inv.total || 0) - (inv.paidTotal || 0));
+                    return (
+                      <React.Fragment key={inv._id}>
+                        <TD><div style={{ fontWeight: 600, fontSize: 13 }}>{inv.studentId?.fullName || '—'}</div></TD>
+                        <TD style={{ fontSize: 12 }}>{inv.className || '—'}</TD>
+                        <TD style={{ fontSize: 12 }}>{fmtAmt(inv.total)}</TD>
+                        <TD><span style={{ fontWeight: 700, color: '#27ae60' }}>{fmtAmt(inv.paidTotal)}</span></TD>
+                        <TD><span style={{ fontWeight: 700, color: balance > 0 ? '#e74c3c' : '#27ae60' }}>{fmtAmt(balance)}</span></TD>
+                        <TD><Badge text={inv.status} color={sc.color} bg={sc.bg} /></TD>
+                        <TD>
+                          <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
+                            <Btn small onClick={() => viewInvoice(inv)} icon="fas fa-eye" color="#3498db">View</Btn>
+                            {inv.status === 'draft' && <Btn small onClick={() => updateInvoiceStatus(inv, 'issued')} icon="fas fa-paper-plane" color="#27ae60">Issue</Btn>}
+                            {inv.status !== 'paid' && inv.status !== 'canceled' && (
+                              <Btn small onClick={() => updateInvoiceStatus(inv, 'canceled')} icon="fas fa-ban" color="#999" danger>Void</Btn>
+                            )}
+                          </div>
+                        </TD>
+                      </React.Fragment>
+                    );
+                  })}
                 />
               </div>
             </div>
