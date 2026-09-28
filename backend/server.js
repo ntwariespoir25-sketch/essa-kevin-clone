@@ -65,6 +65,7 @@ app.use('/api', require('./routes/examRoutes'));
 app.use('/api', require('./routes/reportCardRoutes'));
 app.use('/api', require('./routes/enrollmentRoutes'));
 app.use('/api', require('./routes/lessonPlanRoutes'));
+app.use('/api', require('./routes/analyticsRoutes'));
 
 // ==================== ERROR HANDLER ====================
 app.use(errorHandler);
