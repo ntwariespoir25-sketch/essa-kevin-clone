@@ -15,6 +15,7 @@ const authMiddleware = require('../middleware/auth');
 const requireRole = require('../middleware/roleCheck');
 const { sendWelcomeEmail } = require('../utils/emailService');
 const { paginate, respondList } = require('../utils/paginate');
+const { issueCode } = require('../utils/sdms');
 
 const router = express.Router();
 
@@ -135,20 +136,23 @@ router.post('/academic-admin/students', authMiddleware, requireRole('academic_ad
       await Class.findByIdAndUpdate(req.body.classId, { $addToSet: { students: student._id } });
     }
 
-    const hashedPassword = await bcrypt.hash(req.body.password || 'student123', 10);
+    // Students authenticate with an SDMS code, not a shared default password,
+    // so the account is created with an unguessable placeholder that only the
+    // code can get past. mustChangePassword forces the modal on first login.
     const studentUser = await User.create({
       fullName: req.body.fullName,
       email: req.body.email || `${req.body.fullName.replace(/\s/g, '').toLowerCase()}@student.essa.rw`,
-      password: hashedPassword,
+      password: await bcrypt.hash(crypto.randomBytes(32).toString('hex'), 10),
       role: 'student',
       phone: req.body.parentPhone,
+      mustChangePassword: true,
       createdBy: req.userId
     });
 
     student.userId = studentUser._id;
-    await student.save();
+    const sdmsCode = await issueCode(student);
 
-    res.json({ success: true, student, generatedPassword: req.body.password || 'student123' });
+    res.json({ success: true, student, sdmsCode });
   } catch (error) {
     res.status(500).json({ message: error.message });
   }

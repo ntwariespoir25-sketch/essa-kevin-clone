@@ -10,10 +10,14 @@ const studentSchema = new mongoose.Schema({
   parentName: String,
   parentPhone: String,
   isActive: { type: Boolean, default: true },
+  sdmsCode: { type: String, unique: true, sparse: true },
+  sdmsCodeIssuedAt: Date,
+  firstLoginAt: Date,
   enrollmentDate: { type: Date, default: Date.now }
 });
 
 studentSchema.index({ studentId: 1 });
 studentSchema.index({ classId: 1 });
+studentSchema.index({ sdmsCode: 1 }, { unique: true, sparse: true });
 
 module.exports = mongoose.model('Student', studentSchema);
