@@ -64,6 +64,7 @@ app.use('/api', require('./routes/timetableRoutes'));
 app.use('/api', require('./routes/examRoutes'));
 app.use('/api', require('./routes/reportCardRoutes'));
 app.use('/api', require('./routes/enrollmentRoutes'));
+app.use('/api', require('./routes/lessonPlanRoutes'));
 
 // ==================== ERROR HANDLER ====================
 app.use(errorHandler);

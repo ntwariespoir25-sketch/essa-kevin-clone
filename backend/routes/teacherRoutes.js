@@ -175,12 +175,45 @@ router.post('/teacher/lesson-plans', authMiddleware, requireRole('teacher', 'aca
       materials: req.body.materials || '',
       fileUrl,
       shareWithStudents: req.body.shareWithStudents === 'true',
-      teacherId: req.userId
+      teacherId: req.userId,
+      classId: req.body.classId || null,
+      subject: req.body.subject || '',
+      week: req.body.week || '',
+      term: req.body.term || '',
+      year: req.body.year ? Number(req.body.year) : undefined,
+      syllabusProgress: parseInt(req.body.syllabusProgress) || 0,
+      status: req.body.status === 'submitted' ? 'submitted' : 'draft'
     });
 
     res.json({ success: true, lessonPlan });
   } catch (error) {
     console.error('Create lesson plan error:', error);
+    res.status(500).json({ message: error.message });
+  }
+});
+
+// Teacher moves a plan from draft to submitted for academic admin review.
+router.put('/teacher/lesson-plans/:id/submit', authMiddleware, requireRole('teacher', 'academic_admin', 'super_admin'), async (req, res) => {
+  try {
+    const plan = await LessonPlan.findById(req.params.id);
+    if (!plan) return res.status(404).json({ message: 'Lesson plan not found' });
+    if (req.userRole === 'teacher' && String(plan.teacherId) !== String(req.userId)) {
+      return res.status(403).json({ message: 'You can only submit your own lesson plans' });
+    }
+    if (plan.status === 'approved') {
+      return res.status(400).json({ message: 'This plan is already approved' });
+    }
+
+    ['title', 'topic', 'objectives', 'materials', 'classId', 'subject', 'week', 'term'].forEach(k => {
+      if (req.body[k] !== undefined) plan[k] = req.body[k];
+    });
+    if (req.body.year !== undefined) plan.year = Number(req.body.year) || undefined;
+    if (req.body.syllabusProgress !== undefined) plan.syllabusProgress = parseInt(req.body.syllabusProgress) || 0;
+    plan.status = 'submitted';
+    await plan.save();
+
+    res.json({ success: true, lessonPlan: plan });
+  } catch (error) {
     res.status(500).json({ message: error.message });
   }
 });
