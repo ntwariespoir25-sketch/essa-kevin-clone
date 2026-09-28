@@ -54,15 +54,7 @@ const response = await fetch(`${API_URL}/api/messages/conversations`, {
 
 if (response.ok) {
         const data = await response.json();
-        setConversations(data);
-        
-        // Update unread counts
-        const unreadMap = {};
-        data.forEach(conv => {
-          if (conv.unreadCount > 0) {
-            unreadMap[conv.participant.id] = conv.unreadCount;
-          }
-        });
+        setConversations(Array.isArray(data?.conversations) ? data.conversations : []);
       }
     } catch (error) {
       console.error('Error fetching conversations:', error);
@@ -77,7 +69,7 @@ const response = await fetch(`${API_URL}/api/messages/conversation/${otherUserId
 });
       if (response.ok) {
         const data = await response.json();
-        setMessages(data);
+        setMessages(Array.isArray(data?.messages) ? data.messages : []);
       }
     } catch (error) {
       console.error('Error fetching messages:', error);

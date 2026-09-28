@@ -10,10 +10,14 @@ const Otp = require('../models/Otp');
 const Grade = require('../models/Grade');
 const Attendance = require('../models/Attendance');
 const Assignment = require('../models/Assignment');
+const LessonPlan = require('../models/LessonPlan');
+const Invoice = require('../models/Invoice');
+const News = require('../models/News');
 const FeeStructure = require('../models/FeeStructure');
 const FeePayment = require('../models/FeePayment');
 const Discipline = require('../models/Discipline');
 const Announcement = require('../models/Announcement');
+const Event = require('../models/Event');
 const authMiddleware = require('../middleware/auth');
 const { publicFormLimiter } = require('../config/rateLimit');
 const { getJWTSecret } = require('../utils/jwt');
@@ -223,6 +227,63 @@ router.get('/parent/children/:childId/announcements', authMiddleware, async (req
       return aud.some(x => String(x).toLowerCase().includes(String(gradeLabel).toLowerCase()));
     });
     res.json(visible);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+});
+
+router.get('/parent/children/:childId/events', authMiddleware, async (req, res) => {
+  try {
+    const profile = await ParentProfile.findOne({ userId: req.userId });
+    const child = await getChildForParent(profile, req.params.childId);
+    if (!child) return res.status(403).json({ message: 'This child is not linked to your account' });
+
+    const gradeLabel = child.classId?.grade || '';
+    const now = new Date();
+    const events = await Event.find({ isActive: true, date: { $gte: now } }).sort({ date: 1 });
+
+    const visible = events.filter(e => {
+      const aud = Array.isArray(e.audience) ? e.audience : [e.audience];
+      if (aud.some(x => x === 'all' || x === 'parents' || x === 'parent')) return true;
+      if (!gradeLabel) return false;
+      return aud.some(x => String(x).toLowerCase().includes(String(gradeLabel).toLowerCase()));
+    });
+
+    res.json(visible);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+});
+
+router.get('/parent/children/:childId/documents', authMiddleware, async (req, res) => {
+  try {
+    const profile = await ParentProfile.findOne({ userId: req.userId });
+    const child = await getChildForParent(profile, req.params.childId);
+    if (!child) return res.status(403).json({ message: 'This child is not linked to your account' });
+
+    const [invoices, lessonPlans] = await Promise.all([
+      Invoice.find({ studentId: child._id }).sort({ createdAt: -1 }),
+      child.classId ? LessonPlan.find({ classId: child.classId, shareWithStudents: true }).sort({ createdAt: -1 }) : []
+    ]);
+
+    const documents = [
+      ...invoices.map(inv => ({
+        _id: `invoice-${inv._id}`,
+        name: `Fee Invoice - ${inv.term || ''} ${inv.year || ''}`.trim(),
+        type: 'receipt',
+        date: inv.issuedAt || inv.createdAt,
+        url: null
+      })),
+      ...lessonPlans.map(lp => ({
+        _id: `lesson-${lp._id}`,
+        name: lp.title,
+        type: 'report_card',
+        date: lp.createdAt,
+        url: lp.fileUrl || null
+      }))
+    ].sort((a, b) => new Date(b.date || 0) - new Date(a.date || 0));
+
+    res.json(documents);
   } catch (error) {
     res.status(500).json({ message: error.message });
   }

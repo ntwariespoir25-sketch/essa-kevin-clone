@@ -55,6 +55,16 @@ router.post('/academic-admin/news', authMiddleware, requireRole('academic_admin'
   }
 });
 
+router.post('/news/:id/view', async (req, res) => {
+  try {
+    const news = await News.findByIdAndUpdate(req.params.id, { $inc: { views: 1 } }, { new: true });
+    if (!news) return res.status(404).json({ success: false, message: 'Not found' });
+    res.json({ success: true, data: news });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+});
+
 router.put('/academic-admin/news/:id', authMiddleware, requireRole('academic_admin', 'super_admin'), async (req, res) => {
   try {
     const news = await News.findByIdAndUpdate(req.params.id, { ...req.body, updatedAt: new Date() }, { new: true });

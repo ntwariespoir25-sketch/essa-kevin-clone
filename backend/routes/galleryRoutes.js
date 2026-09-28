@@ -19,6 +19,16 @@ router.get('/gallery/public', async (req, res) => {
   }
 });
 
+router.post('/gallery/:id/download', async (req, res) => {
+  try {
+    const item = await Gallery.findByIdAndUpdate(req.params.id, { $inc: { downloads: 1 } }, { new: true });
+    if (!item) return res.status(404).json({ success: false, message: 'Not found' });
+    res.json({ success: true, data: item });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+});
+
 router.get('/academic-admin/gallery', authMiddleware, requireRole('academic_admin', 'super_admin'), async (req, res) => {
   const gallery = await Gallery.find().sort({ date: -1 });
   res.json(gallery);

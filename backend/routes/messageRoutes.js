@@ -34,7 +34,43 @@ router.get('/messages/conversations', authMiddleware, async (req, res) => {
       { $match: { 'participants.userId': userId, isActive: true } },
       { $sort: { lastMessageAt: -1 } }
     ]);
-    res.json({ success: true, conversations });
+
+    const unreadCounts = await Message.aggregate([
+      { $match: { recipientId: userId, isRead: false, isDeleted: false } },
+      { $group: { _id: '$senderId', count: { $sum: 1 } } }
+    ]);
+    const unreadMap = new Map(unreadCounts.map(u => [String(u._id), u.count]));
+
+    const shaped = conversations.map(conv => {
+      const other = (conv.participants || []).find(p => String(p.userId) !== String(userId)) || {};
+      return {
+        ...conv,
+        participant: {
+          id: other.userId || null,
+          name: other.name || 'Unknown',
+          role: other.role || 'user'
+        },
+        lastMessage: {
+          content: conv.lastMessage || '',
+          createdAt: conv.lastMessageAt || conv.createdAt
+        },
+        unreadCount: unreadMap.get(String(other.userId)) || 0
+      };
+    });
+
+    res.json({ success: true, conversations: shaped });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+});
+
+router.put('/messages/mark-read/:userId', authMiddleware, async (req, res) => {
+  try {
+    const result = await Message.updateMany(
+      { senderId: req.params.userId, recipientId: req.userId, isRead: false, isDeleted: false },
+      { isRead: true, readAt: new Date() }
+    );
+    res.json({ success: true, updated: result.modifiedCount });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
   }
