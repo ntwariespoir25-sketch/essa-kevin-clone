@@ -5,7 +5,11 @@ import Swal from 'sweetalert2';
 const ProtectedRoute = ({ children, allowedRoles }) => {
   const token = localStorage.getItem('portalToken');
   const userRole = localStorage.getItem('userRole');
-  
+
+  if (token && (localStorage.getItem('mustChangePassword') === 'true' || localStorage.getItem('mustSetPassword') === 'true')) {
+    return <Navigate to="/portal/change-password" replace />;
+  }
+
   if (!token) {
     Swal.fire({
       title: 'Access Denied',

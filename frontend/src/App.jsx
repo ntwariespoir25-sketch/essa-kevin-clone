@@ -24,6 +24,7 @@ import ParentDashboard from './portals/ParentDashboard';
 import AccountsAdminDashboard from './portals/AccountsAdminDashboard';
 import DisciplineAdminDashboard from './portals/DisciplineAdminDashboard'; 
 import SetPasswordPage from './portals/SetPasswordPage';
+import ChangePasswordPage from './portals/ChangePasswordPage';
 import ProtectedRoute from './components/ProtectedRoute';
 
 function App() {
@@ -46,6 +47,9 @@ function App() {
         
         {/* Portal Login */}
         <Route path="/portal/login" element={<PortalLogin />} />
+
+        {/* Forced password change - reachable while a change is outstanding */}
+        <Route path="/portal/change-password" element={<ChangePasswordPage />} />
         
         {/* Protected Routes - Super Admin */}
         <Route 

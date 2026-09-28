@@ -13,6 +13,8 @@ const PortalLogin = () => {
   const [otpPhone, setOtpPhone] = useState('');
   const [otpCode, setOtpCode] = useState('');
   const [otpSent, setOtpSent] = useState(false);
+  const [sdmsCode, setSdmsCode] = useState('');
+  const [sdmsPassword, setSdmsPassword] = useState('');
   const navigate = useNavigate();
 
   const API_URL = import.meta.env.VITE_API_URL;
@@ -55,6 +57,14 @@ const PortalLogin = () => {
         localStorage.setItem('userName', data.fullName);
         localStorage.setItem('userEmail', data.email);
         localStorage.setItem('userId', data._id);
+        localStorage.setItem('mustChangePassword', data.mustChangePassword ? 'true' : 'false');
+        localStorage.removeItem('mustSetPassword');
+
+        if (data.mustChangePassword) {
+          navigate('/portal/change-password');
+          setIsLoading(false);
+          return;
+        }
 
         if (rememberMe) {
           localStorage.setItem('rememberedEmail', email);
@@ -99,6 +109,53 @@ const PortalLogin = () => {
         icon: 'error',
         confirmButtonColor: '#1a3a5c',
       });
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleSdmsLogin = async (e) => {
+    e.preventDefault();
+    if (!sdmsCode.trim()) {
+      Swal.fire({ title: 'SDMS Code Required', text: 'Enter the code printed on your SDMS card.', icon: 'warning', confirmButtonColor: '#1a3a5c' });
+      return;
+    }
+    setIsLoading(true);
+    try {
+      const response = await fetch(`${API_URL}/api/auth/student/login`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ sdmsCode: sdmsCode.trim(), password: sdmsPassword || undefined })
+      });
+      const data = await response.json();
+
+      if (!response.ok) {
+        Swal.fire({ title: 'Login Failed', text: data.message || 'Invalid SDMS code', icon: 'error', confirmButtonColor: '#1a3a5c' });
+        return;
+      }
+
+      localStorage.setItem('portalToken', data.token);
+      localStorage.setItem('userRole', data.role);
+      localStorage.setItem('userName', data.fullName);
+      localStorage.setItem('userEmail', data.email || '');
+      localStorage.setItem('userId', data._id);
+      localStorage.setItem('mustChangePassword', data.mustChangePassword ? 'true' : 'false');
+      localStorage.setItem('mustSetPassword', data.mustSetPassword ? 'true' : 'false');
+
+      if (data.mustSetPassword) {
+        navigate('/portal/change-password');
+        return;
+      }
+
+      if (data.mustChangePassword) {
+        navigate('/portal/change-password');
+        return;
+      }
+
+      Swal.fire({ title: 'Welcome!', text: `Signed in as ${data.fullName}`, icon: 'success', timer: 1200, showConfirmButton: false });
+      setTimeout(() => navigate('/portal/student'), 1200);
+    } catch {
+      Swal.fire({ title: 'Connection Error', text: 'Please check your internet connection and try again.', icon: 'error', confirmButtonColor: '#1a3a5c' });
     } finally {
       setIsLoading(false);
     }
@@ -207,20 +264,66 @@ const PortalLogin = () => {
       <div className="portal-login-right">
         <div className="login-box">
           <div className="login-header">
-            <h2>{mode === 'email' ? 'Welcome Back!' : 'Parent Access'}</h2>
-            <p>{mode === 'email' ? 'Sign in to access your portal dashboard' : 'Verify with the phone number you registered at school'}</p>
+            <h2>{mode === 'email' ? 'Welcome Back!' : mode === 'sdms' ? 'Student Access' : 'Parent Access'}</h2>
+            <p>
+              {mode === 'email'
+                ? 'Sign in to access your portal dashboard'
+                : mode === 'sdms'
+                  ? 'Use the SDMS code from your student card'
+                  : 'Verify with the phone number you registered at school'}
+            </p>
           </div>
 
           <div className="login-tabs">
             <button type="button" className={`login-tab ${mode === 'email' ? 'active' : ''}`} onClick={() => setMode('email')}>
               <i className="fas fa-envelope" aria-hidden="true" /> Email Login
             </button>
+            <button type="button" className={`login-tab ${mode === 'sdms' ? 'active' : ''}`} onClick={() => setMode('sdms')}>
+              <i className="fas fa-id-card" aria-hidden="true" /> Student SDMS
+            </button>
             <button type="button" className={`login-tab ${mode === 'otp' ? 'active' : ''}`} onClick={() => setMode('otp')}>
               <i className="fas fa-mobile-alt" aria-hidden="true" /> Parent OTP
             </button>
           </div>
 
-          {mode === 'email' ? (
+          {mode === 'sdms' ? (
+          <form onSubmit={handleSdmsLogin} noValidate>
+            <div className="input-field">
+              <i className="fas fa-id-card" aria-hidden="true" />
+              <input
+                type="text"
+                placeholder="SDMS Code (e.g. A3F9-K2M7)"
+                value={sdmsCode}
+                onChange={(e) => setSdmsCode(e.target.value.toUpperCase())}
+                required
+                autoComplete="off"
+                spellCheck="false"
+              />
+            </div>
+
+            <div className="input-field">
+              <i className="fas fa-lock" aria-hidden="true" />
+              <input
+                type="password"
+                placeholder="Password (leave empty on first login)"
+                value={sdmsPassword}
+                onChange={(e) => setSdmsPassword(e.target.value)}
+                autoComplete="current-password"
+              />
+            </div>
+
+            <button type="submit" className="login-button" disabled={isLoading}>
+              {isLoading ? (
+                <i className="fas fa-spinner fa-spin" aria-hidden="true" />
+              ) : (
+                <>
+                  <span>Continue</span>
+                  <i className="fas fa-arrow-right" aria-hidden="true" />
+                </>
+              )}
+            </button>
+          </form>
+          ) : mode === 'email' ? (
           <form onSubmit={handleLogin} noValidate>
             {/* Email */}
             <div className="input-field">
@@ -590,12 +693,12 @@ const PortalLogin = () => {
 
         .login-tab {
           flex: 1;
-          padding: 10px 8px;
+          padding: 10px 6px;
           border: 1.5px solid #e9ecef;
           border-radius: 10px;
           background: #f8f9fc;
           color: #6c757d;
-          font-size: 0.82rem;
+          font-size: 0.78rem;
           font-weight: 600;
           cursor: pointer;
           display: flex;
