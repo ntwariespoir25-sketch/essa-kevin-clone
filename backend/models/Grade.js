@@ -7,6 +7,8 @@ const gradeSchema = new mongoose.Schema({
   grade: String,
   term: String,
   year: Number,
+  assessmentType: { type: String, default: 'Other' },
+  assessmentId: { type: mongoose.Schema.Types.ObjectId, ref: 'Exam' },
   teacherId: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
   createdAt: { type: Date, default: Date.now }
 });

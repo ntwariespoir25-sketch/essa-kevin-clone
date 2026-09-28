@@ -61,6 +61,7 @@ app.use('/api', require('./routes/messageRoutes'));
 app.use('/api', require('./routes/calendarRoutes'));
 app.use('/api', require('./routes/subjectRoutes'));
 app.use('/api', require('./routes/timetableRoutes'));
+app.use('/api', require('./routes/examRoutes'));
 
 // ==================== ERROR HANDLER ====================
 app.use(errorHandler);
