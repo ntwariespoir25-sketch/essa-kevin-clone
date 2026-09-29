@@ -5,13 +5,21 @@ const User = require('../models/User');
 const Message = require('../models/Message');
 const Conversation = require('../models/Conversation');
 const authMiddleware = require('../middleware/auth');
+const { messagingDirectory } = require('../utils/access');
 const { getIO } = require('../socket');
 
 const router = express.Router();
 
 router.get('/messages/users', authMiddleware, async (req, res) => {
   try {
-    const users = await User.find({ _id: { $ne: req.userId }, isActive: true }, 'fullName email role profileImage').sort('fullName');
+    // Scoped to who the caller may legitimately contact - see
+    // messagingDirectory. Email is only returned to staff.
+    const { includeEmail, filter } = await messagingDirectory(req.userId, req.userRole);
+    const projection = includeEmail
+      ? 'fullName email role profileImage'
+      : 'fullName role profileImage';
+
+    const users = await User.find(filter, projection).sort('fullName');
     const grouped = {
       super_admin:      users.filter(u => u.role === 'super_admin'),
       academic_admin:   users.filter(u => u.role === 'academic_admin'),

@@ -127,12 +127,92 @@ const classScopeFilter = async (userId, userRole) => {
   return ids === null ? {} : { _id: { $in: ids } };
 };
 
+// The set of people a caller is allowed to start a conversation with, plus
+// whether their email may be included.
+//
+// /messages/users previously returned every active account - full name, email
+// and role - to anybody who was merely signed in. That let a parent read the
+// name and email of every pupil in the school, and a pupil read every parent,
+// which is not something either role needs in order to message their own
+// teacher. Staff still see everyone, because oversight is their job.
+const messagingDirectory = async (userId, userRole) => {
+  const base = { isActive: true, _id: { $ne: userId } };
+
+  if (isStaff(userRole)) {
+    return { includeEmail: true, filter: base };
+  }
+
+  // Everyone in a leadership role stays reachable from any portal, so a
+  // student or parent can always escalate.
+  const leadership = { role: { $in: STAFF_ROLES } };
+
+  if (userRole === 'teacher') {
+    const ids = await allowedClassIds(userId, userRole);
+    return {
+      includeEmail: false,
+      filter: {
+        ...base,
+        $or: [
+          leadership,
+          { role: 'teacher' },
+          { role: 'student', classId: { $in: ids } }
+        ]
+      }
+    };
+  }
+
+  if (userRole === 'parent') {
+    const profile = await ParentProfile.findOne({ userId }).select('children');
+    const children = (profile && profile.children) || [];
+    const coParents = children.length
+      ? await ParentProfile.find({ children: { $in: children } }).distinct('userId')
+      : [];
+    return {
+      includeEmail: false,
+      filter: {
+        ...base,
+        $or: [
+          leadership,
+          // Every teacher stays reachable. Staff names are not private, and a
+          // parent must be able to ask any of them about their child even when
+          // no class teacher has been assigned yet.
+          { role: 'teacher' },
+          { _id: { $in: coParents } }
+        ]
+      }
+    };
+  }
+
+  if (userRole === 'student') {
+    const own = await Student.findOne({ userId }).select('classId');
+    const classIds = own && own.classId ? [own.classId] : [];
+    const classmates = classIds.length
+      ? await Student.find({ classId: { $in: classIds } }).distinct('userId')
+      : [];
+    return {
+      includeEmail: false,
+      filter: {
+        ...base,
+        $or: [
+          leadership,
+          { role: 'teacher' },
+          { _id: { $in: classmates } }
+        ]
+      }
+    };
+  }
+
+  // Unknown role gets leadership only rather than the whole school.
+  return { includeEmail: false, filter: { ...base, ...leadership } };
+};
+
 module.exports = {
   authorizeStudentAccess,
   teacherOwnsClass,
   studentScopeFilter,
   classScopeFilter,
   allowedClassIds,
+  messagingDirectory,
   STAFF_ROLES,
   isStaff
 };
