@@ -2,6 +2,8 @@ import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Swal from 'sweetalert2';
 import io from 'socket.io-client';
+import PreferencesPanel from '../components/PreferencesPanel';
+import ThemeToggle from '../components/ThemeToggle';
 
 const API_URL = import.meta.env.VITE_API_URL;
 const SOCKET_URL = API_URL;
@@ -724,6 +726,7 @@ const SuperAdminDashboard = () => {
             </div>
           </div>
           <div style={{ display:'flex', alignItems:'center', gap:14 }}>
+            <ThemeToggle color="#1a3a5c" border="#e5e7eb" />
             {unread > 0 && (
               <button onClick={() => setActiveTab('messages')}
                 style={{ position:'relative', background:'none', border:'none', cursor:'pointer', color:'#888', fontSize:18 }}>
@@ -1222,6 +1225,10 @@ const SuperAdminDashboard = () => {
                 <Btn onClick={changePassword} icon="fas fa-key" color="#9b59b6" style={{ marginTop: 4 }}>
                   {saving ? 'Saving…' : 'Update Password'}
                 </Btn>
+              </div>
+
+              <div style={{ marginTop: 16 }}>
+                <PreferencesPanel />
               </div>
             </div>
           )}
