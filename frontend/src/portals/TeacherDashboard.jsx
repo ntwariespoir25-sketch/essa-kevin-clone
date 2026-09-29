@@ -182,8 +182,6 @@ const TeacherDashboard = () => {
   const [attendanceModal, setAttendanceModal] = useState(false);
   const [disciplineModal, setDisciplineModal] = useState(false);
   const [lessonModal, setLessonModal] = useState(false);
-  const [studentModal, setStudentModal] = useState(false);
-  const [selectedClass, setSelectedClass] = useState(null);
   const [gradeModal, setGradeModal] = useState(false);
   const [gradeAssignment, setGradeAssignment] = useState(null);
   const [gradeScores, setGradeScores] = useState({});
@@ -199,9 +197,6 @@ const TeacherDashboard = () => {
   });
   const [lessonForm, setLessonForm] = useState({
     title: '', topic: '', objectives: '', materials: '', shareWithStudents: true
-  });
-  const [studentForm, setStudentForm] = useState({
-    fullName: '', email: '', parentName: '', parentPhone: '', password: ''
   });
   
   // file states
@@ -395,30 +390,6 @@ const TeacherDashboard = () => {
       fetchLessonPlans();
     } catch (e) { 
       Swal.fire('Error', e.message || 'Failed to upload', 'error'); 
-    }
-    finally { setSaving(false); }
-  };
-  
-  // Add Student to Class
-  const addStudent = async () => {
-    if (!studentForm.fullName || !studentForm.parentPhone) {
-      Swal.fire('Missing Fields', 'Student name and parent phone required', 'warning');
-      return;
-    }
-    setSaving(true);
-    try {
-      const studentData = { 
-        ...studentForm, 
-        classId: selectedClass?._id,
-        password: studentForm.password || 'student123'
-      };
-      await api('/academic-admin/students', { method: 'POST', body: JSON.stringify(studentData) });
-      Swal.fire('✅ Student Added!', `Student ${studentForm.fullName} added successfully. Password: ${studentData.password}`, 'success');
-      setStudentModal(false);
-      setStudentForm({ fullName: '', email: '', parentName: '', parentPhone: '', password: '' });
-      fetchStudents();
-    } catch (e) { 
-      Swal.fire('Error', e.message || 'Failed to add student', 'error'); 
     }
     finally { setSaving(false); }
   };
@@ -663,7 +634,6 @@ const TeacherDashboard = () => {
                         <Badge text={`${classStudents.length} students`} color="#3498db" bg="#e3f2fd" />
                       </div>
                       <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', marginTop: 12 }}>
-                        <Btn small onClick={() => { setSelectedClass(cls); setStudentModal(true); }} icon="fas fa-user-plus" color="#27ae60">Add Student</Btn>
                         <Btn small onClick={() => openAttendanceModal(cls)} icon="fas fa-calendar-check" color="#f39c12">Take Attendance</Btn>
                         <Btn small onClick={() => { setAssignmentForm(prev => ({ ...prev, classId: cls._id })); setAssignmentModal(true); }} icon="fas fa-tasks" color="#9b59b6">Create Assignment</Btn>
                       </div>
@@ -990,19 +960,6 @@ const TeacherDashboard = () => {
               </div>
             );
           })}
-      </Modal>
-
-      {/* Add Student Modal */}
-      <Modal open={studentModal} onClose={() => setStudentModal(false)} title={`Add Student to ${selectedClass?.grade || ''} ${selectedClass?.className || ''}`} width={500}>
-        <Field label="Full Name" required><Inp value={studentForm.fullName} placeholder="Student full name" onChange={e => setStudentForm(p => ({ ...p, fullName: e.target.value }))} /></Field>
-        <Field label="Email"><Inp type="email" value={studentForm.email} placeholder="student@essa.rw" onChange={e => setStudentForm(p => ({ ...p, email: e.target.value }))} /></Field>
-        <Field label="Parent/Guardian Name"><Inp value={studentForm.parentName} placeholder="Parent/Guardian name" onChange={e => setStudentForm(p => ({ ...p, parentName: e.target.value }))} /></Field>
-        <Field label="Parent Phone" required><Inp value={studentForm.parentPhone} placeholder="+250 788 000 000" onChange={e => setStudentForm(p => ({ ...p, parentPhone: e.target.value }))} /></Field>
-        <Field label="Password"><Inp type="password" value={studentForm.password} placeholder="Leave blank for auto-generate" onChange={e => setStudentForm(p => ({ ...p, password: e.target.value }))} /></Field>
-        <div style={{ display: 'flex', gap: 10, justifyContent: 'flex-end', marginTop: 8 }}>
-          <Btn onClick={() => setStudentModal(false)} color="#f0f0f0" textColor="#666">Cancel</Btn>
-          <Btn onClick={addStudent} icon="fas fa-user-plus" color="#27ae60" disabled={saving}>{saving ? 'Adding…' : 'Add Student'}</Btn>
-        </div>
       </Modal>
 
       {/* Report Incident Modal */}

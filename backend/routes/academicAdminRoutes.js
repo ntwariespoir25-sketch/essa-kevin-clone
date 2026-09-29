@@ -117,17 +117,21 @@ router.get('/academic-admin/students', authMiddleware, async (req, res) => {
   }
 });
 
-router.post('/academic-admin/students', authMiddleware, requireRole('academic_admin', 'super_admin', 'teacher'), async (req, res) => {
+// Enrolment is an academic admin responsibility. Teachers were previously
+// allowed here, which let any teacher create a student account (and an SDMS
+// code) for a class they taught, bypassing the enrolment and records process.
+router.post('/academic-admin/students', authMiddleware, requireRole('academic_admin', 'super_admin'), async (req, res) => {
   try {
     const count = await Student.countDocuments();
     const studentId = `STU${new Date().getFullYear()}${String(count + 1).padStart(4, '0')}`;
 
+    // An unknown classId would otherwise store a dangling reference on the
+    // student while the $addToSet below silently matched nothing, leaving a
+    // student who belongs to nothing and never appears in a register.
     if (req.body.classId) {
-      const classItem = await Class.findById(req.body.classId);
-      if (req.userRole !== 'super_admin' && req.userRole !== 'academic_admin') {
-        if (classItem.teacherId?.toString() !== req.userId) {
-          return res.status(403).json({ message: 'You can only add students to your assigned classes' });
-        }
+      const classItem = await Class.findById(req.body.classId).select('_id');
+      if (!classItem) {
+        return res.status(400).json({ message: 'The selected class does not exist' });
       }
     }
 
