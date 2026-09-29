@@ -107,7 +107,7 @@ const Footer = () => {
                 <i className="fas fa-phone-alt"></i>
                 <div>
                   <strong>Call Us</strong>
-                  <a href="tel:+250737692152">+250 737 692 152</a>
+                  <a href="tel:+250XXXXXXX">+250 XXX XXX XXX</a>
                 </div>
               </li>
               <li>
@@ -152,7 +152,7 @@ const Footer = () => {
                 <h5>Emergency Contact</h5>
               </div>
               <p className="emergency-phone">
-                <i className="fas fa-phone-volume"></i> +250 737 692 152
+                <i className="fas fa-phone-volume"></i> +250 XXX XXX XXX
               </p>
               <p className="emergency-note">Available 24/7 for urgent matters</p>
             </div>
@@ -168,7 +168,7 @@ const Footer = () => {
               All rights reserved. 
               <span className="separator">|</span>
               Developed with <i className="fas fa-code"></i> by 
-              <a href="http://wa.me/250737692152" target="_blank" rel="noopener noreferrer">    CYBER CODING ARENA </a>
+              <a href="http://wa.me/250XXXXXXX" target="_blank" rel="noopener noreferrer">    CYBER CODING ARENA </a>
             </p>
           </div>
           <div className="footer-bottom-links">

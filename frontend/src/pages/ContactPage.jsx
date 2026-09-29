@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import Swal from 'sweetalert2';
+import { useForm } from '@formspree/react';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 
@@ -8,7 +9,7 @@ import Footer from '../components/Footer';
 import heroBg from '../assets/hero-bg.jpg';
 import campusImage from '../assets/campus.png';
 
-// API Base URL
+// API Base URL (still used by the newsletter form)
 const API_URL = import.meta.env.VITE_API_URL;
 
 const ContactPage = () => {
@@ -19,13 +20,54 @@ const ContactPage = () => {
     subject: '',
     message: ''
   });
-  const [isSubmitting, setIsSubmitting] = useState(false);
   const [mapLoaded, setMapLoaded] = useState(false);
   const [activeFaq, setActiveFaq] = useState(null);
+
+  // Formspree hook
+  const [state, handleSubmit] = useForm('mppzepwk');
 
   useEffect(() => {
     window.scrollTo(0, 0);
   }, []);
+
+  // Handle Formspree success
+  useEffect(() => {
+    if (state.succeeded) {
+      Swal.fire({
+        title: 'Message Sent!',
+        html: `
+          <div style="text-align: left;">
+            <p>Thank you <strong>${formData.fullName}</strong> for contacting us.</p>
+            <p>We have received your message and will respond within 24 hours.</p>
+          </div>
+        `,
+        icon: 'success',
+        confirmButtonText: 'OK',
+        confirmButtonColor: '#1e3c72'
+      });
+
+      setFormData({
+        fullName: '',
+        email: '',
+        phone: '',
+        subject: '',
+        message: ''
+      });
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [state.succeeded]);
+
+  // Handle Formspree errors
+  useEffect(() => {
+    if (state.errors && state.errors.length > 0) {
+      Swal.fire({
+        title: 'Error',
+        text: state.errors[0]?.message || 'Failed to send message. Please try again.',
+        icon: 'error',
+        confirmButtonColor: '#1e3c72'
+      });
+    }
+  }, [state.errors]);
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -37,79 +79,6 @@ const ContactPage = () => {
 
   const toggleFaq = (index) => {
     setActiveFaq(activeFaq === index ? null : index);
-  };
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    
-    if (!formData.fullName || !formData.email || !formData.message) {
-      Swal.fire({
-        title: 'Incomplete Form',
-        text: 'Please fill in all required fields.',
-        icon: 'error',
-        confirmButtonColor: '#1e3c72'
-      });
-      return;
-    }
-
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(formData.email)) {
-      Swal.fire({
-        title: 'Invalid Email',
-        text: 'Please enter a valid email address.',
-        icon: 'error',
-        confirmButtonColor: '#1e3c72'
-      });
-      return;
-    }
-
-    setIsSubmitting(true);
-
-    try {
-      const response = await fetch(`${API_URL}/api/contact/submit`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(formData)
-      });
-      
-      const result = await response.json();
-      
-      if (result.success) {
-        Swal.fire({
-          title: 'Message Sent!',
-          html: `
-            <div style="text-align: left;">
-              <p>Thank you <strong>${formData.fullName}</strong> for contacting us.</p>
-              <p>We have received your message and will respond within 24 hours.</p>
-              <hr>
-              <p><strong>Reference:</strong> ${result.reference || 'CONF-' + Date.now()}</p>
-            </div>
-          `,
-          icon: 'success',
-          confirmButtonText: 'OK',
-          confirmButtonColor: '#1e3c72'
-        });
-        
-        setFormData({
-          fullName: '',
-          email: '',
-          phone: '',
-          subject: '',
-          message: ''
-        });
-      } else {
-        throw new Error(result.message);
-      }
-    } catch (error) {
-      Swal.fire({
-        title: 'Error',
-        text: error.message || 'Failed to send message. Please try again.',
-        icon: 'error',
-        confirmButtonColor: '#1e3c72'
-      });
-    } finally {
-      setIsSubmitting(false);
-    }
   };
 
   const handleCallClick = () => {
@@ -168,7 +137,7 @@ const ContactPage = () => {
     e.preventDefault();
     const email = e.target.email.value;
     if (!email) return;
-    
+
     try {
       const response = await fetch(`${API_URL}/api/subscriptions/subscribe`, {
         method: 'POST',
@@ -176,7 +145,7 @@ const ContactPage = () => {
         body: JSON.stringify({ email })
       });
       const data = await response.json();
-      
+
       Swal.fire({
         title: data.success ? 'Subscribed!' : 'Already Subscribed',
         text: data.message || 'You have successfully subscribed to our newsletter.',
@@ -288,7 +257,7 @@ const ContactPage = () => {
   return (
     <>
       <Navbar />
-      
+
       {/* Hero Section with Gradient */}
       <section className="contact-hero" style={{ backgroundImage: `url(${heroBg})` }}>
         <div className="contact-hero-gradient"></div>
@@ -343,16 +312,31 @@ const ContactPage = () => {
                 <h2><i className="fas fa-paper-plane"></i> Send Us a Message</h2>
                 <p>Fill out the form below and we'll get back to you as soon as possible.</p>
               </div>
-              
+
               <form onSubmit={handleSubmit} className="contact-form">
+                {/* Formspree config fields */}
+                <input
+                  type="hidden"
+                  name="_subject"
+                  value={formData.subject ? `Contact: ${formData.subject}` : 'New Contact Form Submission'}
+                />
+                {/* Honeypot for spam bots */}
+                <input
+                  type="text"
+                  name="_gotcha"
+                  style={{ display: 'none' }}
+                  tabIndex="-1"
+                  autoComplete="off"
+                />
+
                 <div className="form-row">
                   <div className="form-group">
                     <label>Full Name <span className="required">*</span></label>
                     <div className="input-icon">
                       <i className="fas fa-user"></i>
-                      <input 
-                        type="text" 
-                        name="fullName" 
+                      <input
+                        type="text"
+                        name="fullName"
                         value={formData.fullName}
                         onChange={handleInputChange}
                         placeholder="Enter your full name"
@@ -364,9 +348,9 @@ const ContactPage = () => {
                     <label>Email Address <span className="required">*</span></label>
                     <div className="input-icon">
                       <i className="fas fa-envelope"></i>
-                      <input 
-                        type="email" 
-                        name="email" 
+                      <input
+                        type="email"
+                        name="email"
                         value={formData.email}
                         onChange={handleInputChange}
                         placeholder="Enter your email"
@@ -381,9 +365,9 @@ const ContactPage = () => {
                     <label>Phone Number</label>
                     <div className="input-icon">
                       <i className="fas fa-phone"></i>
-                      <input 
-                        type="tel" 
-                        name="phone" 
+                      <input
+                        type="tel"
+                        name="phone"
                         value={formData.phone}
                         onChange={handleInputChange}
                         placeholder="Enter your phone number"
@@ -411,8 +395,8 @@ const ContactPage = () => {
                   <label>Message <span className="required">*</span></label>
                   <div className="input-icon textarea-icon">
                     <i className="fas fa-comment"></i>
-                    <textarea 
-                      name="message" 
+                    <textarea
+                      name="message"
                       value={formData.message}
                       onChange={handleInputChange}
                       rows="5"
@@ -422,8 +406,8 @@ const ContactPage = () => {
                   </div>
                 </div>
 
-                <button type="submit" className="submit-btn" disabled={isSubmitting}>
-                  {isSubmitting ? (
+                <button type="submit" className="submit-btn" disabled={state.submitting}>
+                  {state.submitting ? (
                     <>
                       <i className="fas fa-spinner fa-spin"></i> Sending...
                     </>
@@ -635,7 +619,7 @@ const ContactPage = () => {
           font-size: 0.8rem;
           opacity: 0.8;
         }
-        
+
         /* Contact Info Cards */
         .contact-info-section {
           padding: 3rem 0;
@@ -691,7 +675,7 @@ const ContactPage = () => {
         .info-action-btn:hover {
           transform: translateX(5px);
         }
-        
+
         /* Contact Form Section */
         .contact-form-section {
           padding: 3rem 0;
@@ -787,7 +771,7 @@ const ContactPage = () => {
           opacity: 0.7;
           cursor: not-allowed;
         }
-        
+
         /* Map Section */
         .map-card {
           background: #f8f9fa;
@@ -842,7 +826,7 @@ const ContactPage = () => {
           background: #ffc107;
           color: #1a3a5c;
         }
-        
+
         /* Newsletter Section */
         .newsletter-section {
           padding: 3rem 0;
@@ -890,7 +874,7 @@ const ContactPage = () => {
         .newsletter-form button:hover {
           transform: translateY(-2px);
         }
-        
+
         /* Social Section */
         .social-section {
           padding: 3rem 0;
@@ -959,7 +943,7 @@ const ContactPage = () => {
           color: var(--social-color);
           font-weight: 600;
         }
-        
+
         /* FAQ Section */
         .contact-faq {
           padding: 3rem 0;
@@ -1033,7 +1017,7 @@ const ContactPage = () => {
           color: #ffc107;
           text-decoration: none;
         }
-        
+
         /* Emergency Banner */
         .emergency-banner {
           background: linear-gradient(135deg, #c0392b, #e74c3c);
@@ -1076,7 +1060,7 @@ const ContactPage = () => {
         .emergency-btn:hover {
           transform: scale(1.05);
         }
-        
+
         /* Responsive */
         @media (max-width: 768px) {
           .contact-hero-content h1 {
