@@ -4,6 +4,8 @@ const bcrypt = require('bcryptjs');
 const crypto = require('crypto');
 
 const User = require('../models/User');
+const { passwordProblems } = require('../utils/passwordPolicy');
+const { rememberPassword } = require('../utils/loginSecurity');
 const TeacherProfile = require('../models/TeacherProfile');
 const Student = require('../models/Student');
 const Class = require('../models/Class');
@@ -35,12 +37,31 @@ router.post('/academic-admin/create-teacher-credentials', authMiddleware, requir
   try {
     const { fullName, email, password, subject, phone } = req.body;
     if (await User.findOne({ email })) return res.status(400).json({ message: 'Email already exists' });
-    const finalPassword = password || crypto.randomBytes(6).toString('hex').slice(0, 10);
+
+    // Same treatment as create-admin: a chosen password is held to the shared
+    // policy, and a generated one is flagged for replacement at first sign-in.
+    const generated = !password;
+    const finalPassword = generated
+      ? crypto.randomBytes(9).toString('base64url').slice(0, 12) + '7'
+      : password;
+
+    const problems = generated ? [] : passwordProblems(finalPassword, { email, fullName });
+    if (problems.length) {
+      return res.status(400).json({ message: problems[0], problems });
+    }
+
     const hashedPassword = await bcrypt.hash(finalPassword, 10);
-    const teacherUser = await User.create({ fullName, email, password: hashedPassword, role: 'teacher', phone: phone || '', createdBy: req.userId });
+    const teacherUser = await User.create({
+      fullName, email, password: hashedPassword, role: 'teacher', phone: phone || '',
+      mustChangePassword: generated,
+      passwordChangedAt: generated ? undefined : new Date(),
+      createdBy: req.userId
+    });
+    await rememberPassword(teacherUser, hashedPassword);
+    await teacherUser.save();
     const teacherProfile = await TeacherProfile.create({ userId: teacherUser._id, fullName, email, subject: subject || 'General', phone: phone || '' });
     sendWelcomeEmail({ _id: teacherUser._id, fullName, email, role: 'teacher' }).catch(console.error);
-    res.json({ success: true, teacher: teacherProfile, password: finalPassword });
+    res.json({ success: true, teacher: teacherProfile, password: finalPassword, generated });
   } catch (error) {
     res.status(500).json({ message: error.message });
   }

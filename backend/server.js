@@ -41,6 +41,7 @@ app.use('/api', apiLimiter);
 
 // ==================== ROUTES ====================
 app.use('/api', require('./routes/authRoutes'));
+app.use('/api', require('./routes/securityRoutes'));
 app.use('/api', require('./routes/healthRoutes'));
 app.use('/api', require('./routes/userRoutes'));
 app.use('/api', require('./routes/contactRoutes'));
