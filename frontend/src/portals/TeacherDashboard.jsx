@@ -4,6 +4,7 @@ import Swal from 'sweetalert2';
 import io from 'socket.io-client';
 import { GradebookPanel } from './GradebookPanel';
 import { AttendancePanel } from './AttendancePanel';
+import GroupedNav from '../components/GroupedNav';
 
 const API_URL = import.meta.env.VITE_API_URL;
 const SOCKET_URL = API_URL;
@@ -461,19 +462,58 @@ const TeacherDashboard = () => {
   const totalStudents = students.length;
   const today = getFormattedDate();
   
-  const menuItems = [
-    { id: 'overview', label: 'Dashboard', icon: 'fas fa-chart-line' },
-    { id: 'classes', label: 'My Classes', icon: 'fas fa-school' },
-    { id: 'gradebook', label: 'Gradebook', icon: 'fas fa-table' },
-    { id: 'attendance', label: 'Attendance', icon: 'fas fa-calendar-check' },
-    { id: 'assignments', label: 'Assignments', icon: 'fas fa-tasks', badge: pendingAssignments },
-    { id: 'students', label: 'Students', icon: 'fas fa-user-graduate' },
-    { id: 'discipline', label: 'Report Issue', icon: 'fas fa-exclamation-triangle' },
-    { id: 'materials', label: 'Study Materials', icon: 'fas fa-book' },
-    { id: 'announcements', label: 'Announcements', icon: 'fas fa-bullhorn' },
-    { id: 'messages', label: 'Messages', icon: 'fas fa-comments', badge: unread },
-    { id: 'profile', label: 'Profile', icon: 'fas fa-user-shield' },
+  // Seven top-level domains; every feature below is reachable as a sub-item.
+  const navGroups = [
+    {
+      id: 'g-dashboard', label: 'Dashboard', icon: 'fas fa-chart-line',
+      items: [
+        { id: 'overview', label: 'Dashboard', icon: 'fas fa-chart-line' },
+      ]
+    },
+    {
+      id: 'g-classes', label: 'My Teaching', icon: 'fas fa-chalkboard',
+      items: [
+        { id: 'classes', label: 'My Classes', icon: 'fas fa-school' },
+        { id: 'students', label: 'My Students', icon: 'fas fa-user-graduate' },
+      ]
+    },
+    {
+      id: 'g-assessment', label: 'Assessment', icon: 'fas fa-clipboard-check',
+      items: [
+        { id: 'gradebook', label: 'Gradebook', icon: 'fas fa-table' },
+        { id: 'assignments', label: 'Assignments', icon: 'fas fa-tasks', badge: pendingAssignments },
+        { id: 'attendance', label: 'Attendance', icon: 'fas fa-calendar-check' },
+      ]
+    },
+    {
+      id: 'g-resources', label: 'Resources', icon: 'fas fa-folder-open',
+      items: [
+        { id: 'materials', label: 'Study Materials', icon: 'fas fa-book' },
+      ]
+    },
+    {
+      id: 'g-conduct', label: 'Conduct', icon: 'fas fa-exclamation-triangle',
+      items: [
+        { id: 'discipline', label: 'Report Issue', icon: 'fas fa-exclamation-triangle' },
+      ]
+    },
+    {
+      id: 'g-comms', label: 'Communication', icon: 'fas fa-comments',
+      items: [
+        { id: 'announcements', label: 'Announcements', icon: 'fas fa-bullhorn' },
+        { id: 'messages', label: 'Messages', icon: 'fas fa-comments', badge: unread },
+      ]
+    },
+    {
+      id: 'g-account', label: 'Account', icon: 'fas fa-user-shield',
+      items: [
+        { id: 'profile', label: 'Profile', icon: 'fas fa-user-shield' },
+      ]
+    },
   ];
+
+  // Flat lookup so the top bar can title the screen, not the domain.
+  const menuItems = navGroups.flatMap(g => g.items);
 
   const sideW = isMobile ? 0 : sidebarOpen ? 260 : 72;
 
@@ -515,18 +555,14 @@ const TeacherDashboard = () => {
           <Avatar name={userName} size={36} bg='rgba(255,193,7,.2)' color='#ffc107' />
           {(sidebarOpen || isMobile) && <div><div style={{ fontSize: 13, fontWeight: 600 }}>{userName}</div><div style={{ fontSize: 10, color: '#ffc107' }}>Teacher</div></div>}
         </div>
-        <nav style={{ flex: 1, overflowY: 'auto', padding: '8px 0' }}>
-          {menuItems.map(item => {
-            const active = activeTab === item.id;
-            return (
-              <button key={item.id} onClick={() => { setActiveTab(item.id); if (isMobile) setMobileOpen(false); }} style={{ display: 'flex', alignItems: 'center', gap: 11, width: '100%', padding: '10px 16px', background: active ? 'rgba(255,193,7,.15)' : 'transparent', border: 'none', borderRight: active ? '3px solid #ffc107' : '3px solid transparent', color: active ? '#ffc107' : 'rgba(255,255,255,.7)', cursor: 'pointer', fontSize: 13, fontWeight: active ? 600 : 400, transition: 'all .2s', textAlign: 'left' }}>
-                <i className={item.icon} style={{ fontSize: 15, width: 18, flexShrink: 0 }} />
-                {(sidebarOpen || isMobile) && <span style={{ flex: 1 }}>{item.label}</span>}
-                {item.badge > 0 && (sidebarOpen || isMobile) && <span style={{ background: '#e74c3c', color: 'white', borderRadius: 20, fontSize: 10, fontWeight: 700, padding: '1px 6px' }}>{item.badge}</span>}
-              </button>
-            );
-          })}
-        </nav>
+        <GroupedNav
+          groups={navGroups}
+          activeTab={activeTab}
+          onSelect={setActiveTab}
+          expanded={sidebarOpen || isMobile}
+          isMobile={isMobile}
+          onNavigate={() => isMobile && setMobileOpen(false)}
+        />
         <div style={{ padding: 12, borderTop: '1px solid rgba(255,255,255,.08)', flexShrink: 0 }}>
           <button onClick={() => { localStorage.clear(); navigate('/portal/login'); }} style={{ display: 'flex', alignItems: 'center', gap: 10, width: '100%', padding: '9px 12px', background: 'rgba(231,76,60,.2)', border: '1px solid rgba(231,76,60,.3)', borderRadius: 9, color: '#ff8a80', cursor: 'pointer', fontSize: 13, transition: 'all 0.2s' }}
             onMouseEnter={e => { e.currentTarget.style.background = 'rgba(231,76,60,.4)'; e.currentTarget.style.transform = 'translateY(-1px)'; }}

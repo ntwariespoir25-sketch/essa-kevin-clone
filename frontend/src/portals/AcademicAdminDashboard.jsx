@@ -7,6 +7,7 @@
     PromotionPanel, AnalyticsPanel, LessonReviewPanel, SdmsPanel
   } from './AcademicPanels';
   import { CalendarPanel } from './CalendarPanel';
+  import GroupedNav from '../components/GroupedNav';
 
   const API_URL = import.meta.env.VITE_API_URL;
   const SOCKET_URL = API_URL;
@@ -363,28 +364,67 @@
       } catch {}
     };
 
-    const menuItems = [
-      { id: 'overview', label: 'Dashboard', icon: 'fas fa-chart-line' },
-      { id: 'teachers', label: 'Teachers', icon: 'fas fa-chalkboard-user' },
-      { id: 'classes', label: 'Classes', icon: 'fas fa-school' },
-      { id: 'students', label: 'Students', icon: 'fas fa-user-graduate' },
-      { id: 'subjects', label: 'Subject Allocation', icon: 'fas fa-book-open' },
-      { id: 'timetable', label: 'Timetable', icon: 'fas fa-calendar-alt' },
-      { id: 'exams', label: 'Exams', icon: 'fas fa-pen-square' },
-      { id: 'reportcards', label: 'Report Cards', icon: 'fas fa-award' },
-      { id: 'promotion', label: 'Promotion', icon: 'fas fa-sort-numeric-up' },
-      { id: 'analytics', label: 'Analytics', icon: 'fas fa-chart-line' },
-      { id: 'lessonreview', label: 'Lesson Review', icon: 'fas fa-clipboard-check' },
-      { id: 'sdms', label: 'SDMS Codes', icon: 'fas fa-id-card' },
-      { id: 'calendar', label: 'Calendar', icon: 'fas fa-calendar-days' },
-      { id: 'news', label: 'News & Events', icon: 'fas fa-newspaper' },
-      { id: 'gallery', label: 'Gallery', icon: 'fas fa-images' },
-      { id: 'applications', label: 'Applications', icon: 'fas fa-file-alt', badge: applications.filter(a => a.status === 'pending').length },
-      { id: 'performance', label: 'Performance', icon: 'fas fa-chart-bar' },
-      { id: 'announcements', label: 'Announcements', icon: 'fas fa-bullhorn' },
-      { id: 'messages', label: 'Messages', icon: 'fas fa-comments', badge: unread },
-      { id: 'profile', label: 'Profile', icon: 'fas fa-user-shield' },
+    // Seven top-level domains; every feature below is reachable as a sub-item.
+    const navGroups = [
+      {
+        id: 'g-dashboard', label: 'Dashboard', icon: 'fas fa-chart-line',
+        items: [
+          { id: 'overview', label: 'Dashboard', icon: 'fas fa-chart-line' },
+        ]
+      },
+      {
+        id: 'g-people', label: 'People', icon: 'fas fa-users',
+        items: [
+          { id: 'teachers', label: 'Teachers', icon: 'fas fa-chalkboard-user' },
+          { id: 'classes', label: 'Classes', icon: 'fas fa-school' },
+          { id: 'students', label: 'Students', icon: 'fas fa-user-graduate' },
+        ]
+      },
+      {
+        id: 'g-academics', label: 'Academics', icon: 'fas fa-book',
+        items: [
+          { id: 'subjects', label: 'Subject Allocation', icon: 'fas fa-book-open' },
+          { id: 'timetable', label: 'Timetable', icon: 'fas fa-calendar-alt' },
+          { id: 'exams', label: 'Exams', icon: 'fas fa-pen-square' },
+        ]
+      },
+      {
+        id: 'g-assessment', label: 'Assessment', icon: 'fas fa-award',
+        items: [
+          { id: 'reportcards', label: 'Report Cards', icon: 'fas fa-award' },
+          { id: 'performance', label: 'Performance', icon: 'fas fa-chart-bar' },
+          { id: 'analytics', label: 'Analytics', icon: 'fas fa-chart-line' },
+          { id: 'promotion', label: 'Promotion', icon: 'fas fa-sort-numeric-up' },
+        ]
+      },
+      {
+        id: 'g-quality', label: 'Quality', icon: 'fas fa-clipboard-check',
+        items: [
+          { id: 'lessonreview', label: 'Lesson Review', icon: 'fas fa-clipboard-check' },
+          { id: 'applications', label: 'Applications', icon: 'fas fa-file-alt', badge: applications.filter(a => a.status === 'pending').length },
+        ]
+      },
+      {
+        id: 'g-comms', label: 'Communication', icon: 'fas fa-comments',
+        items: [
+          { id: 'announcements', label: 'Announcements', icon: 'fas fa-bullhorn' },
+          { id: 'messages', label: 'Messages', icon: 'fas fa-comments', badge: unread },
+        ]
+      },
+      {
+        id: 'g-content', label: 'Content & System', icon: 'fas fa-gears',
+        items: [
+          { id: 'calendar', label: 'Calendar', icon: 'fas fa-calendar-days' },
+          { id: 'news', label: 'News & Events', icon: 'fas fa-newspaper' },
+          { id: 'gallery', label: 'Gallery', icon: 'fas fa-images' },
+          { id: 'sdms', label: 'SDMS Codes', icon: 'fas fa-id-card' },
+          { id: 'profile', label: 'Profile', icon: 'fas fa-user-shield' },
+        ]
+      },
     ];
+
+    // Flat lookup so the top bar can title the screen, not the domain.
+    const menuItems = navGroups.flatMap(g => g.items);
 
     const filteredUsers = msgUsers.filter(u =>
       u.fullName?.toLowerCase().includes(msgSearch.toLowerCase()) || u.role?.toLowerCase().includes(msgSearch.toLowerCase())
@@ -429,18 +469,14 @@
             <Avatar name={userName} size={36} bg='rgba(255,193,7,.2)' color='#ffc107' />
             {(sidebarOpen || isMobile) && <div><div style={{ fontSize: 13, fontWeight: 600 }}>{userName}</div><div style={{ fontSize: 10, color: '#ffc107' }}>Academic Admin</div></div>}
           </div>
-          <nav style={{ flex: 1, overflowY: 'auto', padding: '8px 0' }}>
-            {menuItems.map(item => {
-              const active = activeTab === item.id;
-              return (
-                <button key={item.id} onClick={() => { setActiveTab(item.id); if (isMobile) setMobileOpen(false); }} style={{ display: 'flex', alignItems: 'center', gap: 11, width: '100%', padding: '10px 16px', background: active ? 'rgba(255,193,7,.15)' : 'transparent', border: 'none', borderRight: active ? '3px solid #ffc107' : '3px solid transparent', color: active ? '#ffc107' : 'rgba(255,255,255,.7)', cursor: 'pointer', fontSize: 13, fontWeight: active ? 600 : 400, transition: 'all .2s', textAlign: 'left' }}>
-                  <i className={item.icon} style={{ fontSize: 15, width: 18, flexShrink: 0 }} />
-                  {(sidebarOpen || isMobile) && <span style={{ flex: 1 }}>{item.label}</span>}
-                  {item.badge > 0 && (sidebarOpen || isMobile) && <span style={{ background: '#e74c3c', color: 'white', borderRadius: 20, fontSize: 10, fontWeight: 700, padding: '1px 6px' }}>{item.badge}</span>}
-                </button>
-              );
-            })}
-          </nav>
+          <GroupedNav
+            groups={navGroups}
+            activeTab={activeTab}
+            onSelect={setActiveTab}
+            expanded={sidebarOpen || isMobile}
+            isMobile={isMobile}
+            onNavigate={() => isMobile && setMobileOpen(false)}
+          />
           <div style={{ padding: 12, borderTop: '1px solid rgba(255,255,255,.08)', flexShrink: 0 }}>
             <button onClick={() => { localStorage.clear(); navigate('/portal/login'); }} style={{ display: 'flex', alignItems: 'center', gap: 10, width: '100%', padding: '9px 12px', background: 'rgba(231,76,60,.2)', border: '1px solid rgba(231,76,60,.3)', borderRadius: 9, color: '#ff8a80', cursor: 'pointer', fontSize: 13 }}>
               <i className="fas fa-sign-out-alt" style={{ fontSize: 13 }} />{(sidebarOpen || isMobile) && 'Logout'}

@@ -1,12 +1,12 @@
 const express = require('express');
 
 const Timetable = require('../models/Timetable');
-const Student = require('../models/Student');
 const Class = require('../models/Class');
 const TeacherProfile = require('../models/TeacherProfile');
 const User = require('../models/User');
 const authMiddleware = require('../middleware/auth');
 const requireRole = require('../middleware/roleCheck');
+const { allowedClassIds, isStaff } = require('../utils/access');
 
 const router = express.Router();
 
@@ -54,19 +54,34 @@ router.get('/timetable', authMiddleware, async (req, res) => {
   try {
     const { classId, teacherId, academicYear } = req.query;
 
-    // A teacher sees their own schedule; admins may filter by class or teacher.
-    let effectiveClassId = classId;
-    if (req.userRole === 'teacher') effectiveClassId = undefined;
-    if (req.userRole === 'student' && !classId) {
-      const student = await Student.findOne({ userId: req.userId }).select('classId');
-      if (!student?.classId) return res.json({ success: true, timetable: [] });
-      effectiveClassId = String(student.classId);
-    }
-
+    // A timetable reveals which lessons a class receives and from which staff,
+    // so the read has to follow the same relationships as the rest of the
+    // portal. Previously a student (or parent) could pass ?classId= for any
+    // other class and read it in full, because the query filter was trusted.
     const query = {};
-    if (effectiveClassId) query.classId = effectiveClassId;
-    if (req.userRole === 'teacher') query.teacherId = req.userId;
-    else if (teacherId) query.teacherId = teacherId;
+
+    if (req.userRole === 'teacher') {
+      // Teachers only ever see their own schedule.
+      query.teacherId = req.userId;
+    } else if (!isStaff(req.userRole)) {
+      // Students and parents are pinned to their own classes. A requested
+      // classId is honoured only when it is already inside that set, so it
+      // cannot be used to widen the scope.
+      const ids = await allowedClassIds(req.userId, req.userRole);
+      if (!ids || !ids.length) return res.json({ success: true, timetable: [], days: DAYS });
+      const owned = ids.map(String);
+      if (classId) {
+        if (!owned.includes(String(classId))) {
+          return res.json({ success: true, timetable: [], days: DAYS });
+        }
+        query.classId = classId;
+      } else {
+        query.classId = { $in: ids };
+      }
+    } else {
+      if (classId) query.classId = classId;
+      if (teacherId) query.teacherId = teacherId;
+    }
 
     let entries = await Timetable.find(query).populate('classId', 'grade className').sort({ dayOfWeek: 1, period: 1 });
 
@@ -131,7 +146,11 @@ router.post('/timetable', authMiddleware, manage, async (req, res) => {
       createdBy: req.userId
     });
 
-    const [shaped] = await Timetable.findById(entry._id).populate('classId', 'grade className');
+    // findById resolves to a single document, so it must not be destructured
+    // as an array - doing so threw "(intermediate value) is not iterable"
+    // after the entry had already been written, turning every create into a
+    // 500 that left an orphaned period behind.
+    const shaped = await Timetable.findById(entry._id).populate('classId', 'grade className');
     const obj = shaped.toObject();
     obj.dayName = DAYS[shaped.dayOfWeek];
     obj.className = shaped.classId ? `${shaped.classId.grade || ''} ${shaped.classId.className || ''}`.trim() : null;

@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import Swal from 'sweetalert2';
 import io from 'socket.io-client';
 import ChatModal from '../components/ChatModal';
+import GroupedNav from '../components/GroupedNav';
 
 const API_URL = import.meta.env.VITE_API_URL;
 const SOCKET_URL = API_URL;
@@ -338,18 +339,57 @@ const ParentDashboard = () => {
     }
   };
 
-  const menuItems = [
-    { id: 'overview', label: 'Dashboard', icon: 'fas fa-chart-line' },
-    { id: 'academic', label: 'Academic Performance', icon: 'fas fa-graduation-cap' },
-    { id: 'attendance', label: 'Attendance', icon: 'fas fa-calendar-check' },
-    { id: 'fees', label: 'Fee & Payments', icon: 'fas fa-money-bill-wave' },
-    { id: 'homework', label: 'Homework', icon: 'fas fa-tasks' },
-    { id: 'events', label: 'Events', icon: 'fas fa-calendar-alt' },
-    { id: 'discipline', label: 'Behavior', icon: 'fas fa-gavel' },
-    { id: 'documents', label: 'Documents', icon: 'fas fa-folder-open' },
-    { id: 'messages', label: 'Messages', icon: 'fas fa-comments', badge: unread },
-    { id: 'settings', label: 'Settings', icon: 'fas fa-cog' },
+  // Seven top-level domains; every feature below is reachable as a sub-item.
+  const navGroups = [
+    {
+      id: 'g-dashboard', label: 'Dashboard', icon: 'fas fa-chart-line',
+      items: [
+        { id: 'overview', label: 'Dashboard', icon: 'fas fa-chart-line' },
+      ]
+    },
+    {
+      id: 'g-academic', label: 'Academic', icon: 'fas fa-graduation-cap',
+      items: [
+        { id: 'academic', label: 'Academic Performance', icon: 'fas fa-graduation-cap' },
+        { id: 'homework', label: 'Homework', icon: 'fas fa-tasks' },
+      ]
+    },
+    {
+      id: 'g-attendance', label: 'Attendance', icon: 'fas fa-calendar-check',
+      items: [
+        { id: 'attendance', label: 'Attendance', icon: 'fas fa-calendar-check' },
+      ]
+    },
+    {
+      id: 'g-fees', label: 'Fees', icon: 'fas fa-money-bill-wave',
+      items: [
+        { id: 'fees', label: 'Fee & Payments', icon: 'fas fa-money-bill-wave' },
+      ]
+    },
+    {
+      id: 'g-behaviour', label: 'Behaviour', icon: 'fas fa-gavel',
+      items: [
+        { id: 'discipline', label: 'Behavior', icon: 'fas fa-gavel' },
+      ]
+    },
+    {
+      id: 'g-school', label: 'School Life', icon: 'fas fa-calendar-alt',
+      items: [
+        { id: 'events', label: 'Events', icon: 'fas fa-calendar-alt' },
+        { id: 'documents', label: 'Documents', icon: 'fas fa-folder-open' },
+      ]
+    },
+    {
+      id: 'g-comms', label: 'Communication', icon: 'fas fa-comments',
+      items: [
+        { id: 'messages', label: 'Messages', icon: 'fas fa-comments', badge: unread },
+        { id: 'settings', label: 'Settings', icon: 'fas fa-cog' },
+      ]
+    },
   ];
+
+  // Flat lookup so the top bar can title the screen, not the domain.
+  const menuItems = navGroups.flatMap(g => g.items);
 
   // ─── safe derived values ────────────────────────────────────────────────
   const attendanceList = Array.isArray(attendance) ? attendance : [];
@@ -435,19 +475,14 @@ const ParentDashboard = () => {
           )}
         </div>
 
-        <nav style={{ flex: 1, overflowY: 'auto', padding: '8px 0' }}>
-          {menuItems.map(item => {
-            const active = activeTab === item.id;
-            return (
-              <button key={item.id} onClick={() => { setActiveTab(item.id); if (isMobile) setMobileOpen(false); }}
-                style={{ display: 'flex', alignItems: 'center', gap: 11, width: '100%', padding: '10px 16px', background: active ? 'rgba(255,193,7,.15)' : 'transparent', border: 'none', borderRight: active ? '3px solid #ffc107' : '3px solid transparent', color: active ? '#ffc107' : 'rgba(255,255,255,.7)', cursor: 'pointer', fontSize: 13, fontWeight: active ? 600 : 400, transition: 'all .2s', textAlign: 'left' }}>
-                <i className={item.icon} style={{ fontSize: 15, width: 18, flexShrink: 0 }} />
-                {(sidebarOpen || isMobile) && <span style={{ flex: 1 }}>{item.label}</span>}
-                {item.badge > 0 && (sidebarOpen || isMobile) && <span style={{ background: '#e74c3c', color: 'white', borderRadius: 20, fontSize: 10, fontWeight: 700, padding: '1px 6px' }}>{item.badge}</span>}
-              </button>
-            );
-          })}
-        </nav>
+        <GroupedNav
+          groups={navGroups}
+          activeTab={activeTab}
+          onSelect={setActiveTab}
+          expanded={sidebarOpen || isMobile}
+          isMobile={isMobile}
+          onNavigate={() => isMobile && setMobileOpen(false)}
+        />
 
         <div style={{ padding: 12, borderTop: '1px solid rgba(255,255,255,.08)', flexShrink: 0 }}>
           <button onClick={() => { localStorage.clear(); navigate('/portal/login'); }}

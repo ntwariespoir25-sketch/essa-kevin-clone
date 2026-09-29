@@ -8,6 +8,7 @@ const Student = require('../models/Student');
 const { getJWTSecret } = require('../utils/jwt');
 const { normalizeCode, ensureUser, sessionToken } = require('../utils/sdms');
 const { authLimiter } = require('../config/rateLimit');
+const authMiddleware = require('../middleware/auth');
 
 const router = express.Router();
 
@@ -130,7 +131,10 @@ router.post('/auth/student/login', authLimiter,
 // Reached both from the first-login modal and from Profile Settings. When the
 // session still carries the pending flag, no current password is required,
 // because the student authenticated with the SDMS code instead.
-router.post('/auth/change-password', authLimiter, async (req, res) => {
+// authMiddleware is required: without it req.userId is undefined, so the lookup
+// below 404s and nobody can ever clear a forced password change. It is on the
+// allow-list in auth.js precisely so the pending token still gets through.
+router.post('/auth/change-password', authLimiter, authMiddleware, async (req, res) => {
   const { currentPassword, newPassword } = req.body;
   if (!newPassword || newPassword.length < 8) {
     return res.status(400).json({ message: 'New password must be at least 8 characters' });

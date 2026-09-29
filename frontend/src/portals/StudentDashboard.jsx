@@ -21,6 +21,8 @@ const StudentDashboard = () => {
   const [attendance, setAttendance] = useState([]);
   const [feeStatus, setFeeStatus] = useState(null);
   const [announcements, setAnnouncements] = useState([]);
+  const [timetable, setTimetable] = useState([]);
+  const [timetableDays, setTimetableDays] = useState([]);
   
   // Chat states
   const [isChatModalOpen, setIsChatModalOpen] = useState(false);
@@ -76,13 +78,15 @@ const StudentDashboard = () => {
 
   const fetchAllData = async () => {
     try {
-      const [dashboard, assignmentsData, gradesData, attendanceData, feeData, announcementsData] = await Promise.all([
+      const [dashboard, assignmentsData, gradesData, attendanceData, feeData, announcementsData, timetableData] = await Promise.all([
         apiRequest('/student/dashboard').catch(() => null),
         apiRequest('/student/assignments').catch(() => []),
         apiRequest('/student/grades').catch(() => []),
         apiRequest('/student/attendance').catch(() => []),
         apiRequest('/student/fees').catch(() => null),
-        apiRequest('/student/announcements').catch(() => [])
+        apiRequest('/student/announcements').catch(() => []),
+        // The timetable route resolves the student's own class server-side.
+        apiRequest('/timetable').catch(() => null)
       ]);
       
       setDashboardData(dashboard);
@@ -91,6 +95,8 @@ const StudentDashboard = () => {
       setAttendance(Array.isArray(attendanceData) ? attendanceData : []);
       setFeeStatus(feeData);
       setAnnouncements(Array.isArray(announcementsData) ? announcementsData : []);
+      setTimetable(Array.isArray(timetableData?.timetable) ? timetableData.timetable : []);
+      setTimetableDays(Array.isArray(timetableData?.days) ? timetableData.days : []);
     } catch (error) {
       console.error('Error fetching data:', error);
     } finally {
@@ -226,6 +232,7 @@ const StudentDashboard = () => {
     { id: 'assignments', label: 'Assignments', icon: 'fas fa-tasks', color: '#f39c12' },
     { id: 'grades', label: 'Grades', icon: 'fas fa-chart-simple', color: '#27ae60' },
     { id: 'attendance', label: 'Attendance', icon: 'fas fa-calendar-check', color: '#e74c3c' },
+    { id: 'timetable', label: 'Timetable', icon: 'fas fa-calendar-alt', color: '#16a085' },
     { id: 'fees', label: 'Fee Status', icon: 'fas fa-money-bill-wave', color: '#9b59b6' },
     { id: 'profile', label: 'Profile', icon: 'fas fa-user-circle', color: '#34495e' }
   ];
@@ -450,6 +457,38 @@ const StudentDashboard = () => {
             <div className="table-responsive"><table className="data-table"><thead><tr><th>Date</th><th>Status</th><th>Remarks</th></tr></thead><tbody>
               {attendance.map(record => (<tr key={record._id}><td>{new Date(record.date).toLocaleDateString()}</td><td className={`status-${record.status}`}>{record.status.toUpperCase()}</td><td>{record.remarks || '-'}</td></tr>))}
             </tbody></table></div>
+          </div>
+        )}
+
+        {/* Timetable Tab */}
+        {activeTab === 'timetable' && (
+          <div className="data-card">
+            <div className="card-header"><h2><i className="fas fa-calendar-alt"></i> My Timetable</h2>
+              <div className="stats-badge">{dashboardData?.className || 'My Class'}</div>
+            </div>
+            {timetable.length === 0 ? (
+              <p className="no-data">No timetable has been published for your class yet.</p>
+            ) : (
+              <div className="table-responsive">
+                <table className="data-table">
+                  <thead>
+                    <tr><th>Day</th><th>Period</th><th>Subject</th><th>Time</th><th>Teacher</th><th>Room</th></tr>
+                  </thead>
+                  <tbody>
+                    {timetable.map((entry) => (
+                      <tr key={entry._id}>
+                        <td><strong>{entry.dayName}</strong></td>
+                        <td>Period {entry.period}</td>
+                        <td>{entry.subject || '-'}</td>
+                        <td>{entry.startTime && entry.endTime ? `${entry.startTime} - ${entry.endTime}` : '-'}</td>
+                        <td>{entry.teacherName || '-'}</td>
+                        <td>{entry.room || '-'}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
           </div>
         )}
 
