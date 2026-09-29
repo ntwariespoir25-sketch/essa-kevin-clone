@@ -1,3 +1,4 @@
+const mongoose = require('mongoose');
 const express = require('express');
 const bcrypt = require('bcryptjs');
 const crypto = require('crypto');
@@ -16,7 +17,7 @@ const requireRole = require('../middleware/roleCheck');
 const { sendWelcomeEmail } = require('../utils/emailService');
 const { paginate, respondList } = require('../utils/paginate');
 const { issueCode } = require('../utils/sdms');
-const { studentScopeFilter } = require('../utils/access');
+const { studentScopeFilter, classScopeFilter } = require('../utils/access');
 
 const router = express.Router();
 
@@ -68,7 +69,11 @@ router.delete('/academic-admin/teachers/:id', authMiddleware, requireRole('acade
 // ==================== CLASSES ====================
 router.get('/academic-admin/classes', authMiddleware, async (req, res) => {
   try {
-    const classes = await Class.find().lean();
+    // Scoped like the student roll: staff get every class, a teacher only the
+    // classes they own or are allocated to, a parent or pupil only the classes
+    // their household is enrolled in.
+    const scope = await classScopeFilter(req.userId, req.userRole);
+    const classes = await Class.find(scope).lean();
     for (const cls of classes) {
       if (cls.teacherId) {
         const teacher = await TeacherProfile.findOne({ userId: cls.teacherId });
@@ -81,10 +86,29 @@ router.get('/academic-admin/classes', authMiddleware, async (req, res) => {
   }
 });
 
+// A class whose teacherId points at a missing or non-teacher user is orphaned:
+// it appears in no teacher's dashboard and teacherOwnsClass denies it, so the
+// class silently stops being teachable and drops out of scoped listings. Both
+// class routes below accept teacherId, so the check is shared.
+const resolveTeacher = async (teacherId) => {
+  if (teacherId === undefined || teacherId === null || teacherId === '') return { ok: true, teacherId: null };
+  if (!mongoose.Types.ObjectId.isValid(teacherId)) {
+    return { ok: false, message: 'The selected teacher is not a valid id' };
+  }
+  const teacher = await User.findById(teacherId).select('role');
+  if (!teacher) return { ok: false, message: 'The selected teacher does not exist' };
+  if (teacher.role !== 'teacher') {
+    return { ok: false, message: 'A class teacher must be a user with the teacher role' };
+  }
+  return { ok: true, teacherId: teacher._id };
+};
+
 router.post('/academic-admin/classes', authMiddleware, requireRole('academic_admin', 'super_admin'), async (req, res) => {
   try {
     const { className, grade, academicYear, teacherId } = req.body;
-    const newClass = await Class.create({ className, grade, academicYear, teacherId: teacherId || null, students: [] });
+    const teacher = await resolveTeacher(teacherId);
+    if (!teacher.ok) return res.status(400).json({ message: teacher.message });
+    const newClass = await Class.create({ className, grade, academicYear, teacherId: teacher.teacherId, students: [] });
     res.json({ success: true, class: newClass });
   } catch (error) {
     res.status(500).json({ message: error.message });
@@ -93,7 +117,9 @@ router.post('/academic-admin/classes', authMiddleware, requireRole('academic_adm
 
 router.put('/academic-admin/classes/:classId/assign-teacher', authMiddleware, requireRole('academic_admin', 'super_admin'), async (req, res) => {
   try {
-    const classItem = await Class.findByIdAndUpdate(req.params.classId, { teacherId: req.body.teacherId }, { new: true });
+    const teacher = await resolveTeacher(req.body.teacherId);
+    if (!teacher.ok) return res.status(400).json({ message: teacher.message });
+    const classItem = await Class.findByIdAndUpdate(req.params.classId, { teacherId: teacher.teacherId }, { new: true });
     if (!classItem) return res.status(404).json({ message: 'Class not found' });
     res.json({ success: true, class: classItem });
   } catch (error) {

@@ -54,6 +54,37 @@ const teacherOwnsClass = async (userId, classId) => {
   );
 };
 
+// The class ids a caller is entitled to see: the classes they teach, or the
+// classes their children or their own record are enrolled in. Staff roles get
+// null, meaning "no restriction", which the callers turn into an empty filter.
+const allowedClassIds = async (userId, userRole) => {
+  if (['super_admin', 'academic_admin', 'accounts_admin', 'discipline_admin'].includes(userRole)) {
+    return null;
+  }
+
+  if (userRole === 'teacher') {
+    const [ownClasses, allocations] = await Promise.all([
+      Class.find({ teacherId: userId }).distinct('_id'),
+      SubjectAllocation.find({ teacherId: userId }).distinct('classId')
+    ]);
+    return [...new Set([...ownClasses, ...allocations].map(id => new mongoose.Types.ObjectId(String(id))))];
+  }
+
+  if (userRole === 'student') {
+    const own = await Student.findOne({ userId }).select('classId');
+    return own && own.classId ? [own.classId] : [];
+  }
+
+  if (userRole === 'parent') {
+    const profile = await ParentProfile.findOne({ userId }).select('children');
+    if (!profile || !profile.children || !profile.children.length) return [];
+    return Student.find({ _id: { $in: profile.children } }).distinct('classId');
+  }
+
+  // Unknown role: no access rather than everything.
+  return [];
+};
+
 // Builds the filter that limits a bulk student listing to what the caller is
 // entitled to see.
 //
@@ -62,22 +93,6 @@ const teacherOwnsClass = async (userId, classId) => {
 // school along with their class and code. Callers span four portals, so the
 // scoping lives here rather than being repeated per route.
 const studentScopeFilter = async (userId, userRole) => {
-  // Staff who legitimately need the whole roll.
-  if (['super_admin', 'academic_admin', 'accounts_admin', 'discipline_admin'].includes(userRole)) {
-    return {};
-  }
-
-  if (userRole === 'teacher') {
-    const [ownClasses, allocations] = await Promise.all([
-      Class.find({ teacherId: userId }).distinct('_id'),
-      SubjectAllocation.find({ teacherId: userId }).distinct('classId')
-    ]);
-    const ids = [...new Set([...ownClasses, ...allocations].map(String))];
-    // An empty $in would match nothing, which is the correct outcome: a
-    // teacher assigned no classes must not see the school roll.
-    return { classId: { $in: ids.length ? ids.map(id => new mongoose.Types.ObjectId(id)) : [] } };
-  }
-
   if (userRole === 'student') {
     const own = await Student.findOne({ userId }).select('_id');
     return own ? { _id: own._id } : { _id: { $in: [] } };
@@ -88,8 +103,22 @@ const studentScopeFilter = async (userId, userRole) => {
     return { _id: { $in: (profile && profile.children) || [] } };
   }
 
-  // Unknown role: show nothing rather than everything.
-  return { _id: { $in: [] } };
+  const ids = await allowedClassIds(userId, userRole);
+  if (ids === null) return {};                       // unrestricted staff
+  if (userRole !== 'teacher') return { _id: { $in: [] } };
+  // An empty $in matches nothing, which is correct: a teacher assigned no
+  // classes must not fall back to seeing the school roll.
+  return { classId: { $in: ids } };
 };
 
-module.exports = { authorizeStudentAccess, teacherOwnsClass, studentScopeFilter };
+// The same treatment for the class list, which was previously returned to any
+// logged-in account. A parent or pupil could read the whole school structure
+// and the assigned teacher's name, and the teacher portals used the response
+// to build their class pickers, so they also listed classes the teacher does
+// not own.
+const classScopeFilter = async (userId, userRole) => {
+  const ids = await allowedClassIds(userId, userRole);
+  return ids === null ? {} : { _id: { $in: ids } };
+};
+
+module.exports = { authorizeStudentAccess, teacherOwnsClass, studentScopeFilter, classScopeFilter, allowedClassIds };
