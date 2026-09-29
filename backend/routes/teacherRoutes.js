@@ -12,6 +12,7 @@ const Exam = require('../models/Exam');
 const authMiddleware = require('../middleware/auth');
 const requireRole = require('../middleware/roleCheck');
 const { uploadAssignment, uploadLesson } = require('../config/upload');
+const { authorizeStudentAccess, teacherOwnsClass } = require('../utils/access');
 
 const router = express.Router();
 
@@ -49,6 +50,26 @@ router.post('/teacher/grades', authMiddleware, requireRole('teacher', 'academic_
       return res.status(400).json({ message: 'studentId, subject, score, term and year are required' });
     }
 
+    // Authorise against the student's relationship to this teacher rather than
+    // just the caller's role. Without this any teacher account could post a
+    // score for any student in the school, including students in other
+    // teachers' classes, and silently corrupt their report cards.
+    const student = await Student.findById(studentId).select('_id fullName classId');
+    if (!student) return res.status(404).json({ message: 'Student not found' });
+
+    const { userRole } = req;
+    const isAdmin = userRole === 'super_admin' || userRole === 'academic_admin';
+    if (!isAdmin && !(await authorizeStudentAccess(req, student))) {
+      return res.status(403).json({ message: 'You are not assigned to this student' });
+    }
+
+    // Reject non-numeric scores up front. Storing a string here would be coerced
+    // back to a number by the model, but only after it has already been
+    // persisted and can reach the weighted-average calculation.
+    if (typeof score !== 'number' || !Number.isFinite(score)) {
+      return res.status(400).json({ message: 'score must be a number' });
+    }
+
     // Derive the assessment type from the exam rather than trusting the client,
     // because report cards weight each score by the weight of its exam type. A
     // mismatched or missing type silently drops the score out of the weighting.
@@ -76,9 +97,35 @@ router.post('/teacher/grades', authMiddleware, requireRole('teacher', 'academic_
 router.post('/teacher/attendance', authMiddleware, requireRole('teacher', 'academic_admin', 'super_admin'), async (req, res) => {
   try {
     const { classId, date, records } = req.body;
+    if (!classId || !Array.isArray(records) || !records.length) {
+      return res.status(400).json({ message: 'classId and a non-empty records array are required' });
+    }
+
+    // Class-wide write, so authorise the class rather than each student.
+    if (req.userRole !== 'super_admin' && req.userRole !== 'academic_admin') {
+      if (!(await teacherOwnsClass(req.userId, classId))) {
+        return res.status(403).json({ message: 'You are not assigned to this class' });
+      }
+    }
+
+    // Reject unknown students rather than writing orphaned attendance rows that
+    // silently never show up in any register or attendance rate.
+    const students = await Student.find({ _id: { $in: records.map(r => r.studentId) } }).select('_id classId');
+    const known = new Set(students.map(s => String(s._id)));
+    const unknown = records.filter(r => !known.has(String(r.studentId)));
+    if (unknown.length) {
+      return res.status(400).json({ message: `Unknown studentId(s): ${unknown.map(r => r.studentId).join(', ')}` });
+    }
+
+    // Normalise the day to midnight UTC so re-saving the same date updates the
+    // existing rows instead of appending a second register for that day.
+    const day = new Date(date);
+    if (Number.isNaN(day.getTime())) return res.status(400).json({ message: 'Invalid date' });
+    day.setUTCHours(0, 0, 0, 0);
+
     const bulk = records.map(r => ({
       updateOne: {
-        filter: { studentId: r.studentId, classId, date: new Date(date) },
+        filter: { studentId: r.studentId, classId, date: day },
         update: { $set: { status: r.status, teacherId: req.userId } },
         upsert: true
       }
@@ -93,8 +140,17 @@ router.post('/teacher/attendance', authMiddleware, requireRole('teacher', 'acade
 router.get('/teacher/attendance/:classId', authMiddleware, async (req, res) => {
   try {
     const { date } = req.query;
+    const isAdmin = req.userRole === 'super_admin' || req.userRole === 'academic_admin';
+    if (!isAdmin && !(await teacherOwnsClass(req.userId, req.params.classId))) {
+      return res.status(403).json({ message: 'You are not assigned to this class' });
+    }
     const query = { classId: req.params.classId };
-    if (date) query.date = new Date(date);
+    if (date) {
+      const day = new Date(date);
+      if (Number.isNaN(day.getTime())) return res.status(400).json({ message: 'Invalid date' });
+      day.setUTCHours(0, 0, 0, 0);
+      query.date = day;
+    }
     const attendance = await Attendance.find(query).populate('studentId', 'fullName studentId');
     res.json(attendance);
   } catch (error) {
