@@ -138,27 +138,6 @@ router.post('/teacher/attendance', authMiddleware, requireRole('teacher', 'acade
   }
 });
 
-router.get('/teacher/attendance/:classId', authMiddleware, async (req, res) => {
-  try {
-    const { date } = req.query;
-    const isAdmin = req.userRole === 'super_admin' || req.userRole === 'academic_admin';
-    if (!isAdmin && !(await teacherOwnsClass(req.userId, req.params.classId))) {
-      return res.status(403).json({ message: 'You are not assigned to this class' });
-    }
-    const query = { classId: req.params.classId };
-    if (date) {
-      const day = new Date(date);
-      if (Number.isNaN(day.getTime())) return res.status(400).json({ message: 'Invalid date' });
-      day.setUTCHours(0, 0, 0, 0);
-      query.date = day;
-    }
-    const attendance = await Attendance.find(query).populate('studentId', 'fullName studentId');
-    res.json(attendance);
-  } catch (error) {
-    res.status(500).json({ message: error.message });
-  }
-});
-
 router.get('/teacher/attendance', authMiddleware, requireRole('teacher'), async (req, res) => {
   try {
     const attendance = await Attendance.find({ teacherId: req.userId }).sort({ date: -1 });
@@ -584,6 +563,169 @@ router.get('/teacher/gradebook', authMiddleware, requireRole('teacher', 'academi
     });
   } catch (error) {
     if (error.name === 'CastError') return res.status(400).json({ message: 'Invalid class id' });
+    res.status(500).json({ message: error.message });
+  }
+});
+
+// Returns every student in the class for one day, each carrying whatever mark
+// already exists. The plain find() above omits students with no record, so a
+// register built from it would silently shrink as the day filled in and give no
+// way to tell "absent" from "nobody has got to this row yet".
+router.get('/teacher/attendance/register', authMiddleware, requireRole('teacher', 'academic_admin', 'super_admin'), async (req, res) => {
+  try {
+    const { classId, date } = req.query;
+    if (!classId) return res.status(400).json({ message: 'classId is required' });
+
+    const isAdmin = req.userRole === 'super_admin' || req.userRole === 'academic_admin';
+    if (!isAdmin && !(await teacherOwnsClass(req.userId, classId))) {
+      return res.status(403).json({ message: 'You are not assigned to this class' });
+    }
+
+    let day = null;
+    if (date) {
+      day = new Date(date);
+      if (Number.isNaN(day.getTime())) return res.status(400).json({ message: 'Invalid date' });
+      day.setUTCHours(0, 0, 0, 0);
+    }
+
+    const students = await Student.find({ classId })
+      .select('fullName studentId')
+      .sort({ fullName: 1 });
+
+    let records = [];
+    if (day) {
+      records = await Attendance.find({ classId, date: day }).select('studentId status');
+    }
+    const byStudent = new Map(records.map(r => [String(r.studentId), r.status]));
+
+    res.json({
+      classId,
+      date: day,
+      students: students.map(s => ({
+        studentId: s._id,
+        fullName: s.fullName,
+        code: s.studentId,
+        // null means unmarked, which the UI renders differently from absent.
+        status: byStudent.has(String(s._id)) ? byStudent.get(String(s._id)) : null
+      }))
+    });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+});
+
+// Chronic-absence reporting. Scope is an explicit date range rather than a term
+// because Attendance carries no term field, and guessing term boundaries from
+// the academic year would silently misreport anyone marked outside the window.
+router.get('/teacher/attendance/analytics', authMiddleware, requireRole('teacher', 'academic_admin', 'super_admin'), async (req, res) => {
+  try {
+    const { classId, from, to, threshold } = req.query;
+    if (!classId) return res.status(400).json({ message: 'classId is required' });
+
+    const isAdmin = req.userRole === 'super_admin' || req.userRole === 'academic_admin';
+    if (!isAdmin && !(await teacherOwnsClass(req.userId, classId))) {
+      return res.status(403).json({ message: 'You are not assigned to this class' });
+    }
+
+    const start = new Date(from);
+    const end = new Date(to);
+    if (Number.isNaN(start.getTime()) || Number.isNaN(end.getTime())) {
+      return res.status(400).json({ message: 'from and to are required as valid dates' });
+    }
+    start.setUTCHours(0, 0, 0, 0);
+    end.setUTCHours(23, 59, 59, 999);
+    if (start > end) return res.status(400).json({ message: 'from must not be after to' });
+
+    // A rate alone flags a student with three absences as badly as one with
+    // thirty, so a minimum number of recorded days is required before a
+    // chronic flag can be raised.
+    const rate = Number(threshold);
+    const minRate = Number.isFinite(rate) && rate > 0 && rate <= 100 ? rate : 75;
+    const MIN_DAYS = 10;
+
+    const [students, records] = await Promise.all([
+      Student.find({ classId }).select('fullName studentId').sort({ fullName: 1 }),
+      Attendance.find({ classId, date: { $gte: start, $lte: end } }).select('studentId status date')
+    ]);
+
+    const byStudent = new Map();
+    students.forEach(s => byStudent.set(String(s._id), {
+      studentId: s._id,
+      name: s.fullName,
+      code: s.studentId,
+      present: 0, absent: 0, late: 0, excused: 0, halfDay: 0, total: 0
+    }));
+    records.forEach(r => {
+      const bucket = byStudent.get(String(r.studentId));
+      if (!bucket) return;
+      bucket.total += 1;
+      const key = r.status === 'present' ? 'present'
+        : r.status === 'absent' ? 'absent'
+          : r.status === 'late' ? 'late'
+            : r.status === 'excused' ? 'excused'
+              : r.status === 'halfDay' ? 'halfDay' : null;
+      if (key) bucket[key] += 1;
+    });
+
+    const rows = [...byStudent.values()].map(b => {
+      const counted = b.present + b.absent + b.late + b.halfDay;
+      // Excused absences are excluded from the denominator: a student off sick
+      // with a note should not have it counted against their attendance.
+      const ratePct = counted > 0 ? Math.round((b.present / counted) * 100) : null;
+      return {
+        ...b,
+        attendanceRate: ratePct,
+        meetsMinimum: b.total >= MIN_DAYS,
+        chronic: counted > 0 && b.total >= MIN_DAYS && ratePct < minRate
+      };
+    });
+    rows.sort((a, b) => (a.attendanceRate ?? 101) - (b.attendanceRate ?? 101));
+
+    const withRecords = rows.filter(r => r.total > 0);
+    const classRate = withRecords.length
+      ? Math.round(withRecords.reduce((s, r) => s + (r.attendanceRate ?? 0), 0) / withRecords.length)
+      : null;
+
+    res.json({
+      classId,
+      from: start,
+      to: end,
+      threshold: minRate,
+      minDays: MIN_DAYS,
+      classRate,
+      students: rows,
+      summary: {
+        total: rows.length,
+        unmarked: rows.filter(r => r.total === 0).length,
+        chronic: rows.filter(r => r.chronic).length,
+        belowAverage: rows.filter(r => typeof r.attendanceRate === 'number' && classRate !== null && r.attendanceRate < classRate).length
+      }
+    });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+});
+
+// Declared last on purpose. Express matches routes in file order, so a
+// parameterised :classId registered above this would capture the literal
+// 'register' and 'analytics' segments and fail casting them to an ObjectId.
+router.get('/teacher/attendance/:classId', authMiddleware, async (req, res) => {
+  try {
+    const { date } = req.query;
+    const isAdmin = req.userRole === 'super_admin' || req.userRole === 'academic_admin';
+    if (!isAdmin && !(await teacherOwnsClass(req.userId, req.params.classId))) {
+      return res.status(403).json({ message: 'You are not assigned to this class' });
+    }
+    const query = { classId: req.params.classId };
+    if (date) {
+      const day = new Date(date);
+      if (Number.isNaN(day.getTime())) return res.status(400).json({ message: 'Invalid date' });
+      day.setUTCHours(0, 0, 0, 0);
+      query.date = day;
+    }
+    const attendance = await Attendance.find(query).populate('studentId', 'fullName studentId');
+    res.json(attendance);
+  } catch (error) {
     res.status(500).json({ message: error.message });
   }
 });
