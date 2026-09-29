@@ -17,6 +17,7 @@ const FeeStructure = require('../models/FeeStructure');
 const FeePayment = require('../models/FeePayment');
 const Discipline = require('../models/Discipline');
 const Announcement = require('../models/Announcement');
+const { visibleToAudience } = require('../utils/announcementAudience');
 const Event = require('../models/Event');
 const authMiddleware = require('../middleware/auth');
 const { publicFormLimiter } = require('../config/rateLimit');
@@ -218,14 +219,14 @@ router.get('/parent/children/:childId/announcements', authMiddleware, async (req
     const profile = await ParentProfile.findOne({ userId: req.userId });
     const child = await getChildForParent(profile, req.params.childId);
     if (!child) return res.status(403).json({ message: 'This child is not linked to your account' });
-    const gradeLabel = child.classId?.grade || '';
+    const gradeLabel = (child.classId && child.classId.grade) || '';
     const announcements = await Announcement.find({ isActive: true }).sort({ createdAt: -1 });
-    const visible = announcements.filter(a => {
-      const aud = Array.isArray(a.audience) ? a.audience : [a.audience];
-      if (aud.includes('all')) return true;
-      if (!gradeLabel) return false;
-      return aud.some(x => String(x).toLowerCase().includes(String(gradeLabel).toLowerCase()));
-    });
+    // This filter previously recognised only 'all' and a grade name, so an
+    // announcement addressed to 'parents' was never delivered to a parent even
+    // though it was published for them.
+    const visible = announcements.filter((a) =>
+      visibleToAudience(a, { role: 'parent', gradeLabel })
+    );
     res.json(visible);
   } catch (error) {
     res.status(500).json({ message: error.message });

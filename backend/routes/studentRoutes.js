@@ -6,6 +6,7 @@ const Student = require('../models/Student');
 const Attendance = require('../models/Attendance');
 const Discipline = require('../models/Discipline');
 const Announcement = require('../models/Announcement');
+const { visibleToAudience } = require('../utils/announcementAudience');
 const FeeStructure = require('../models/FeeStructure');
 const FeePayment = require('../models/FeePayment');
 const Invoice = require('../models/Invoice');
@@ -55,14 +56,11 @@ const getOwnStudent = async (userId) => {
 };
 
 const visibleAnnouncements = async (student) => {
-  const gradeLabel = student?.classId?.grade || '';
+  const gradeLabel = (student?.classId && student.classId.grade) || '';
   const announcements = await Announcement.find({ isActive: true }).sort({ createdAt: -1 });
-  return announcements.filter(a => {
-    const aud = Array.isArray(a.audience) ? a.audience : [a.audience];
-    if (aud.some(x => x === 'all' || x === 'students' || x === 'student')) return true;
-    if (!gradeLabel) return false;
-    return aud.some(x => String(x).toLowerCase().includes(String(gradeLabel).toLowerCase()));
-  });
+  return announcements.filter((a) =>
+    visibleToAudience(a, { role: 'student', gradeLabel })
+  );
 };
 
 router.get('/student/dashboard', authMiddleware, async (req, res) => {

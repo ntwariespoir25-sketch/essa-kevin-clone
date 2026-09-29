@@ -1,15 +1,36 @@
 const express = require('express');
 
 const Announcement = require('../models/Announcement');
+const Student = require('../models/Student');
 const authMiddleware = require('../middleware/auth');
 const requireRole = require('../middleware/roleCheck');
+const { isStaffRole, visibleToAudience } = require('../utils/announcementAudience');
 
 const router = express.Router();
 
-router.get('/announcements', async (req, res) => {
+// Requires a session. This used to be public, which meant a discipline notice
+// addressed to parents was handed to any anonymous visitor. Only the four staff
+// portals call it, and they need the full set for oversight; every other signed
+// in account sees whole-school notices plus the ones addressed to its own role.
+router.get('/announcements', authMiddleware, async (req, res) => {
   try {
     const announcements = await Announcement.find({ isActive: true }).sort({ createdAt: -1 });
-    const formatted = announcements.map(ann => ({
+    const staff = isStaffRole(req.userRole);
+
+    // A pupil can also be reached through this endpoint, and an announcement
+    // addressed to a year group ("S3") is meaningless without knowing which
+    // year they are in.
+    let gradeLabel = '';
+    if (!staff && req.userRole === 'student') {
+      const pupil = await Student.findOne({ userId: req.userId }).populate('classId', 'grade');
+      gradeLabel = (pupil && pupil.classId && pupil.classId.grade) || '';
+    }
+
+    const visible = staff
+      ? announcements
+      : announcements.filter((a) => visibleToAudience(a, { role: req.userRole, gradeLabel }));
+
+    const formatted = visible.map(ann => ({
       ...ann.toObject(),
       audience: Array.isArray(ann.audience) ? ann.audience[0] : (ann.audience || 'all')
     }));
