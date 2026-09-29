@@ -3,6 +3,8 @@ import { useNavigate } from 'react-router-dom';
 import Swal from 'sweetalert2';
 import io from 'socket.io-client';
 import GroupedNav from '../components/GroupedNav';
+import ThemeToggle from '../components/ThemeToggle';
+import PreferencesPanel from '../components/PreferencesPanel';
 
 const API_URL = import.meta.env.VITE_API_URL;
 const SOCKET_URL = API_URL;
@@ -572,6 +574,7 @@ const AccountsAdminDashboard = () => {
             </div>
           </div>
           <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+            <ThemeToggle color="#1a3a5c" border="#e5e7eb" />
             {unread > 0 && <div style={{ background: '#fdecea', color: '#e74c3c', borderRadius: 20, fontSize: 12, fontWeight: 700, padding: '4px 10px' }}>{unread} new msg</div>}
             <Avatar name={userName} size={32} />
             <div className="hide-m"><div style={{ fontSize: 12, fontWeight: 600, color: '#333' }}>{userName}</div><div style={{ fontSize: 10, color: '#ffc107' }}>ACCOUNTS ADMIN</div></div>
@@ -1187,6 +1190,10 @@ const AccountsAdminDashboard = () => {
                     document.getElementById('confirmPw').value = '';
                   } catch (e) { Swal.fire('Error', e.message || 'Current password incorrect', 'error'); }
                 }}>Update Password</Btn>
+              </div>
+
+              <div style={{ marginTop: 16 }}>
+                <PreferencesPanel />
               </div>
             </div>
           )}

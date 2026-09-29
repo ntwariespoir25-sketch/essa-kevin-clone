@@ -2,6 +2,8 @@ import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Swal from 'sweetalert2';
 import io from 'socket.io-client';
+import ThemeToggle from '../components/ThemeToggle';
+import PreferencesPanel from '../components/PreferencesPanel';
 
 const API_URL = import.meta.env.VITE_API_URL;
 const SOCKET_URL = API_URL;
@@ -600,6 +602,7 @@ const DisciplineAdminDashboard = () => {
             </div>
           </div>
           <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+            <ThemeToggle color="#1a3a5c" border="#e5e7eb" />
             <button onClick={() => setPermissionModal(true)} style={{ background: '#fdecea', border: 'none', padding: '6px 12px', borderRadius: 20, fontSize: 12, fontWeight: 600, color: '#e74c3c', cursor: 'pointer' }}>
               <i className="fas fa-file-alt" style={{ marginRight: 5 }} /> Request Permission
             </button>
@@ -919,6 +922,10 @@ const DisciplineAdminDashboard = () => {
                     .then(() => Swal.fire('✅ Password Updated!', '', 'success'))
                     .catch(e => Swal.fire('Error', e.message || 'Current password incorrect', 'error'));
                 }}>Update Password</Btn>
+              </div>
+
+              <div style={{ marginTop: 16 }}>
+                <PreferencesPanel />
               </div>
             </div>
           )}

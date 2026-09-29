@@ -5,6 +5,8 @@ import io from 'socket.io-client';
 import { GradebookPanel } from './GradebookPanel';
 import { AttendancePanel } from './AttendancePanel';
 import GroupedNav from '../components/GroupedNav';
+import ThemeToggle from '../components/ThemeToggle';
+import PreferencesPanel from '../components/PreferencesPanel';
 
 const API_URL = import.meta.env.VITE_API_URL;
 const SOCKET_URL = API_URL;
@@ -588,6 +590,7 @@ const TeacherDashboard = () => {
             </div>
           </div>
           <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+            <ThemeToggle color="#1a3a5c" border="#e5e7eb" />
             {unread > 0 && <button onClick={() => setActiveTab('messages')} style={{ position: 'relative', background: 'none', border: 'none', cursor: 'pointer', color: '#888', fontSize: 17, transition: 'all 0.2s' }}
               onMouseEnter={e => e.currentTarget.style.color = '#1a3a5c'}
               onMouseLeave={e => e.currentTarget.style.color = '#888'}>
@@ -929,6 +932,10 @@ const TeacherDashboard = () => {
                     .then(() => Swal.fire('✅ Password Updated!', '', 'success'))
                     .catch(e => Swal.fire('Error', e.message || 'Current password incorrect', 'error'));
                 }}>Update Password</Btn>
+              </div>
+
+              <div style={{ marginTop: 16 }}>
+                <PreferencesPanel />
               </div>
             </div>
           )}

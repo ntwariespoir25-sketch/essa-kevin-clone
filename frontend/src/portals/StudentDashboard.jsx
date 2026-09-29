@@ -3,6 +3,8 @@ import { useNavigate } from 'react-router-dom';
 import Swal from 'sweetalert2';
 import io from 'socket.io-client';
 import ChatModal from "../components/ChatModal";
+import ThemeToggle from '../components/ThemeToggle';
+import PreferencesPanel from '../components/PreferencesPanel';
 
 const API_URL = import.meta.env.VITE_API_URL;
 
@@ -316,6 +318,7 @@ const StudentDashboard = () => {
             <h2>Student Dashboard</h2>
           </div>
           <div className="top-bar-right">
+            <ThemeToggle color="#1a3a5c" border="#e5e7eb" />
             <div className="notification-bell" onClick={() => handleOpenChat()}>
               <i className="fas fa-envelope"></i>
               {unreadCount > 0 && <span className="notification-badge">{unreadCount}</span>}
@@ -532,6 +535,12 @@ const StudentDashboard = () => {
                 Swal.fire('Error', error.message || 'Current password incorrect', 'error');
               }
             })}>Change Password</button>
+          </div>
+        )}
+
+        {activeTab === 'profile' && (
+          <div style={{ marginTop: 16 }}>
+            <PreferencesPanel />
           </div>
         )}
       </main>

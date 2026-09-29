@@ -4,6 +4,8 @@ import Swal from 'sweetalert2';
 import io from 'socket.io-client';
 import ChatModal from '../components/ChatModal';
 import GroupedNav from '../components/GroupedNav';
+import ThemeToggle from '../components/ThemeToggle';
+import PreferencesPanel from '../components/PreferencesPanel';
 
 const API_URL = import.meta.env.VITE_API_URL;
 const SOCKET_URL = API_URL;
@@ -504,6 +506,7 @@ const ParentDashboard = () => {
             </div>
           </div>
           <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+            <ThemeToggle color="#1a3a5c" border="#e5e7eb" />
             {unread > 0 && <button onClick={() => setActiveTab('messages')} style={{ position: 'relative', background: 'none', border: 'none', cursor: 'pointer', color: '#888', fontSize: 17 }}>
               <i className="fas fa-bell" />
               <span style={{ position: 'absolute', top: -4, right: -4, background: '#e74c3c', color: 'white', borderRadius: '50%', fontSize: 9, width: 15, height: 15, display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 700 }}>{unread}</span>
@@ -866,6 +869,10 @@ const ParentDashboard = () => {
                     .then(() => Swal.fire('✅ Password Updated!', '', 'success'))
                     .catch(e => Swal.fire('Error', e.message || 'Current password incorrect', 'error'));
                 }}>Update Password</Btn>
+              </div>
+
+              <div style={{ marginTop: 16 }}>
+                <PreferencesPanel />
               </div>
             </div>
           )}
