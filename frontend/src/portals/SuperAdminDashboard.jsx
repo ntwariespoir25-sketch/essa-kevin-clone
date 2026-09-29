@@ -4,6 +4,7 @@ import Swal from 'sweetalert2';
 import io from 'socket.io-client';
 import PreferencesPanel from '../components/PreferencesPanel';
 import ThemeToggle from '../components/ThemeToggle';
+import GroupedNav from '../components/GroupedNav';
 
 const API_URL = import.meta.env.VITE_API_URL;
 const SOCKET_URL = API_URL;
@@ -227,6 +228,17 @@ const SuperAdminDashboard = () => {
   const [disciplineStats, setDisciplineStats] = useState({ total: 0, pending: 0, resolved: 0 });
   const [permissions, setPermissions]   = useState([]);
 
+  // ─── security trail ───
+  const [loginAttempts, setLoginAttempts] = useState([]);
+  const [loginTotal, setLoginTotal]     = useState(0);
+  const [loginPage, setLoginPage]       = useState(1);
+  const [loginPages, setLoginPages]     = useState(1);
+  const [secHours, setSecHours]         = useState(24);
+  const [lockedAccounts, setLockedAccounts] = useState([]);
+  const [lockPolicy, setLockPolicy]     = useState(null);
+  const [topFailingIps, setTopFailingIps] = useState([]);
+  const [secLoading, setSecLoading]     = useState(false);
+
   // ─── messaging
   const [msgUsers, setMsgUsers]         = useState([]);
   const [msgTab, setMsgTab]             = useState('inbox');
@@ -262,6 +274,14 @@ const SuperAdminDashboard = () => {
     window.addEventListener('resize', check);
     return () => window.removeEventListener('resize', check);
   }, []);
+
+  // The security screens are loaded on demand rather than with refreshAll, since
+  // neither is needed on every page view and one is a heavier aggregate query.
+  useEffect(() => {
+    if (activeTab === 'security-logins') fetchLoginTrail(1);
+    if (activeTab === 'security-locked') fetchLocked();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [activeTab, secHours]);
 
   // ─── socket
   useEffect(() => {
@@ -360,6 +380,50 @@ const SuperAdminDashboard = () => {
     api(`/messages/conversation/${uid}`)
       .then(d => setMessages(Array.isArray(d?.messages) ? d.messages : []))
       .catch(() => setMessages([]));
+  };
+
+  // ─── sign-in security trail ────────────────────────────────────────────────
+  const fetchLoginTrail = (page = 1) => {
+    setSecLoading(true);
+    api(`/security/login-attempts?hours=${secHours}&page=${loginPage}&limit=25`)
+      .then(d => {
+        setLoginAttempts(Array.isArray(d?.attempts) ? d.attempts : []);
+        setLoginPages(d?.pagination?.pages || 1);
+        setLoginTotal(d?.pagination?.total || 0);
+      })
+      .catch(() => setLoginAttempts([]))
+      .finally(() => setSecLoading(false));
+  };
+
+  const fetchLocked = () => {
+    setSecLoading(true);
+    api('/security/locked-accounts')
+      .then(d => {
+        setLockedAccounts(Array.isArray(d?.locked) ? d.locked : []);
+        setLockPolicy(d?.policy || null);
+        setTopFailingIps(Array.isArray(d?.topFailingIps) ? d.topFailingIps : []);
+      })
+      .catch(() => setLockedAccounts([]))
+      .finally(() => setSecLoading(false));
+  };
+
+  const unlockAccount = async (acct) => {
+    const ok = await Swal.fire({
+      title: 'Unlock account?',
+      text: `${acct.name} (${acct.email}) will be able to sign in again immediately.`,
+      icon: 'question',
+      showCancelButton: true,
+      confirmButtonText: 'Unlock',
+      confirmButtonColor: '#1a3a5c'
+    });
+    if (!ok.isConfirmed) return;
+    try {
+      const r = await api(`/security/unlock/${acct.id}`, { method: 'POST' });
+      Swal.fire('Unlocked', r?.message || 'Account unlocked', 'success');
+      fetchLocked();
+    } catch (e) {
+      Swal.fire('Error', e.message || 'Could not unlock account', 'error');
+    }
   };
 
   const refreshAll = () => {
@@ -568,15 +632,36 @@ const SuperAdminDashboard = () => {
   };
 
   // ─── menu items ────────────────────────────────────────────────────────────
-  const menuItems = [
-    { id: 'overview', label: 'Overview', icon: 'fas fa-chart-line' },
-    { id: 'admins', label: 'Sub-Admins', icon: 'fas fa-users-cog' },
-    { id: 'announcements', label: 'Announcements', icon: 'fas fa-bullhorn' },
-    { id: 'discipline', label: 'Discipline', icon: 'fas fa-gavel' },
-    { id: 'permissions', label: 'Permissions', icon: 'fas fa-file-signature' },
-    { id: 'messages', label: 'Messages', icon: 'fas fa-comments', badge: unread },
-    { id: 'profile', label: 'My Profile', icon: 'fas fa-user-shield' },
+  // Grouped rather than flat so the sign-in trail has somewhere to live without
+  // pushing the portal past its seven tabs. Every previous screen is still
+  // reachable; the security trail is simply a second leaf under Security.
+  const navGroups = [
+    { id: 'g-dash',     label: 'Dashboard',     icon: 'fas fa-chart-line',    items: [
+      { id: 'overview', label: 'Overview', icon: 'fas fa-chart-line' },
+    ]},
+    { id: 'g-people',   label: 'People',        icon: 'fas fa-users-cog',     items: [
+      { id: 'admins', label: 'Sub-Admins', icon: 'fas fa-users-cog' },
+    ]},
+    { id: 'g-conduct',  label: 'Conduct',       icon: 'fas fa-gavel',         items: [
+      { id: 'discipline', label: 'Discipline', icon: 'fas fa-gavel' },
+    ]},
+    { id: 'g-approvals', label: 'Approvals',    icon: 'fas fa-file-signature', items: [
+      { id: 'permissions', label: 'Permissions', icon: 'fas fa-file-signature' },
+    ]},
+    { id: 'g-comms',    label: 'Communication', icon: 'fas fa-bullhorn',      items: [
+      { id: 'announcements', label: 'Announcements', icon: 'fas fa-bullhorn' },
+      { id: 'messages',      label: 'Messages',      icon: 'fas fa-comments', badge: unread },
+    ]},
+    { id: 'g-security', label: 'Security',      icon: 'fas fa-shield-alt',    items: [
+      { id: 'security-logins',  label: 'Sign-in History',   icon: 'fas fa-clock-rotate-left' },
+      { id: 'security-locked',  label: 'Locked Accounts',   icon: 'fas fa-lock' },
+    ]},
+    { id: 'g-account',  label: 'My Account',    icon: 'fas fa-user-shield',   items: [
+      { id: 'profile', label: 'My Profile', icon: 'fas fa-user-shield' },
+    ]},
   ];
+
+  const menuItems = navGroups.flatMap(g => g.items);
 
   // ─── filtered users for message search ────────────────────────────────────
   const filteredUsers = msgUsers.filter(u =>
@@ -662,33 +747,14 @@ const SuperAdminDashboard = () => {
         </div>
 
         {/* nav */}
-        <nav style={{ flex:1, overflowY:'auto', overflowX:'hidden', padding:'10px 0' }}>
-          {menuItems.map(item => {
-            const active = activeTab === item.id;
-            return (
-              <button key={item.id} onClick={() => { setActiveTab(item.id); if (isMobile) setMobileOpen(false); }}
-                style={{
-                  display:'flex', alignItems:'center', gap:12,
-                  width:'100%', padding:'11px 18px',
-                  background: active ? 'rgba(255,193,7,.15)' : 'transparent',
-                  border:'none', borderRight: active ? '3px solid #ffc107' : '3px solid transparent',
-                  color: active ? '#ffc107' : 'rgba(255,255,255,.7)',
-                  cursor:'pointer', fontSize:13, fontWeight: active ? 600 : 400,
-                  transition:'all .2s', textAlign:'left',
-                  fontFamily:"'DM Sans', sans-serif",
-                }}>
-                <i className={item.icon} style={{ fontSize:16, width:20, flexShrink:0 }} />
-                {(sidebarOpen || isMobile) && <span style={{ flex:1, whiteSpace:'nowrap' }}>{item.label}</span>}
-                {item.badge > 0 && (sidebarOpen || isMobile) && (
-                  <span style={{ background:'#e74c3c', color:'white', borderRadius:20,
-                    fontSize:10, fontWeight:700, padding:'1px 7px', minWidth:18, textAlign:'center' }}>
-                    {item.badge}
-                  </span>
-                )}
-              </button>
-            );
-          })}
-        </nav>
+        <GroupedNav
+          groups={navGroups}
+          activeTab={activeTab}
+          onSelect={setActiveTab}
+          expanded={sidebarOpen || isMobile}
+          isMobile={isMobile}
+          onNavigate={() => { if (isMobile) setMobileOpen(false); }}
+        />
 
         {/* logout */}
         <div style={{ padding:14, borderTop:'1px solid rgba(255,255,255,.08)', flexShrink:0 }}>
@@ -1043,6 +1109,147 @@ const SuperAdminDashboard = () => {
                   ))}
                 />
               </div>
+            </div>
+          )}
+
+          {/* ╔══ SECURITY: SIGN-IN HISTORY ══╗ */}
+          {activeTab === 'security-logins' && (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+              <div style={{ background: 'white', borderRadius: 16, padding: 20, boxShadow: '0 2px 12px rgba(0,0,0,.06)' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center',
+                  flexWrap: 'wrap', gap: 12, marginBottom: 16 }}>
+                  <div>
+                    <h2 style={{ margin: 0, fontSize: 18, color: '#1a3a5c' }}>Sign-in history</h2>
+                    <p style={{ margin: '4px 0 0', fontSize: 12, color: '#777' }}>
+                      Every authentication attempt, successful or not. Attempts against addresses that
+                      do not exist are recorded too, because a spray across many names is the pattern
+                      worth seeing.
+                    </p>
+                  </div>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                    <Select value={secHours} onChange={e => { setSecHours(Number(e.target.value)); setLoginPage(1); fetchLoginTrail(1); }} style={{ width: 170 }}>
+                      <option value={1}>Last hour</option>
+                      <option value={24}>Last 24 hours</option>
+                      <option value={168}>Last 7 days</option>
+                      <option value={720}>Last 30 days</option>
+                    </Select>
+                    <Btn icon="fas fa-rotate" onClick={() => fetchLoginTrail(loginPage)}>Refresh</Btn>
+                  </div>
+                </div>
+
+                {lockPolicy && (
+                  <p style={{ margin: 0, fontSize: 12, color: '#555', background: '#f4f6f9',
+                    padding: '8px 12px', borderRadius: 8 }}>
+                    Lockout policy: <strong>{lockPolicy.maxAttempts}</strong> failed attempts within 30
+                    minutes locks an account for <strong>{lockPolicy.lockMinutes}</strong> minutes.
+                  </p>
+                )}
+              </div>
+
+              <div style={{ background: 'white', borderRadius: 16, boxShadow: '0 2px 12px rgba(0,0,0,.06)', overflow: 'hidden' }}>
+                {secLoading ? (
+                  <div style={{ padding: 40, textAlign: 'center' }}><Spinner /></div>
+                ) : (
+                  <Table
+                    cols={['When', 'Account', 'Result', 'Method', 'IP address']}
+                    rows={loginAttempts.map((a) => (
+                      <React.Fragment key={a.id}>
+                        <TD><span style={{ fontSize: 12 }}>{fmt(a.at)} · {fmtTime(a.at)}</span></TD>
+                        <TD>
+                          {a.user
+                            ? <span style={{ fontSize: 13 }}>{a.user.name} <span style={{ color: '#999', fontSize: 11 }}>({a.user.role})</span></span>
+                            : <span style={{ fontSize: 13, color: '#999' }}>{a.identifier || 'unknown'}</span>}
+                        </TD>
+                        <TD>
+                          <Badge
+                            text={a.success ? 'Success' : (a.outcome || 'failed').replace(/_/g, ' ')}
+                            color={a.success ? '#27ae60' : '#e74c3c'}
+                            bg={a.success ? '#e8f5e9' : '#fdecea'}
+                          />
+                        </TD>
+                        <TD><span style={{ fontSize: 12, color: '#777' }}>{a.method || 'password'}</span></TD>
+                        <TD><span style={{ fontSize: 12, fontFamily: 'monospace', color: '#555' }}>{a.ip || '—'}</span></TD>
+                      </React.Fragment>
+                    ))}
+                    emptyMsg="No sign-in attempts recorded in this window"
+                  />
+                )}
+
+                {loginPages > 1 && (
+                  <div style={{ padding: 14, display: 'flex', justifyContent: 'space-between',
+                    alignItems: 'center', borderTop: '1px solid #eee', fontSize: 12, color: '#777' }}>
+                    <span>{loginTotal} attempt(s)</span>
+                    <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+                      <Btn small icon="fas fa-chevron-left" color="#888" textColor="white"
+                        onClick={() => { const p = Math.max(1, loginPage - 1); setLoginPage(p); fetchLoginTrail(p); }}>Prev</Btn>
+                      <span>Page {loginPage} of {loginPages}</span>
+                      <Btn small icon="fas fa-chevron-right" color="#888" textColor="white"
+                        onClick={() => { const p = Math.min(loginPages, loginPage + 1); setLoginPage(p); fetchLoginTrail(p); }}>Next</Btn>
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
+
+          {/* ╔══ SECURITY: LOCKED ACCOUNTS ══╗ */}
+          {activeTab === 'security-locked' && (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+              <div style={{ background: 'white', borderRadius: 16, padding: 20, boxShadow: '0 2px 12px rgba(0,0,0,.06)' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 4 }}>
+                  <h2 style={{ margin: 0, fontSize: 18, color: '#1a3a5c' }}>Locked accounts</h2>
+                  <Btn icon="fas fa-rotate" onClick={fetchLocked}>Refresh</Btn>
+                </div>
+                <p style={{ margin: '4px 0 0', fontSize: 12, color: '#777' }}>
+                  Accounts currently blocked by the failed-attempt policy. Unlocking takes effect
+                  immediately, so only do it once you are satisfied the account holder is genuine.
+                </p>
+              </div>
+
+              <div style={{ background: 'white', borderRadius: 16, boxShadow: '0 2px 12px rgba(0,0,0,.06)', overflow: 'hidden' }}>
+                {secLoading ? (
+                  <div style={{ padding: 40, textAlign: 'center' }}><Spinner /></div>
+                ) : (
+                  <Table
+                    cols={['Account', 'Role', 'Locked until', 'Last failed attempt', '']}
+                    rows={lockedAccounts.map((u) => (
+                      <React.Fragment key={u.id}>
+                        <TD>
+                          <span style={{ fontSize: 13 }}>{u.name}</span>
+                          <div style={{ fontSize: 11, color: '#999' }}>{u.email}</div>
+                        </TD>
+                        <TD><Badge text={(u.role || '').replace(/_/g, ' ')} color="#1a3a5c" bg="#e8f0f7" /></TD>
+                        <TD><span style={{ fontSize: 12 }}>{fmt(u.lockedUntil)} {fmtTime(u.lockedUntil)}</span></TD>
+                        <TD><span style={{ fontSize: 12, color: '#777' }}>{u.lastFailedLoginAt ? `${fmt(u.lastFailedLoginAt)} ${fmtTime(u.lastFailedLoginAt)}` : '—'}</span></TD>
+                        <TD><Btn small icon="fas fa-unlock" onClick={() => unlockAccount(u)}>Unlock</Btn></TD>
+                      </React.Fragment>
+                    ))}
+                    emptyMsg="No accounts are currently locked"
+                  />
+                )}
+              </div>
+
+              {topFailingIps.length > 0 && (
+                <div style={{ background: 'white', borderRadius: 16, boxShadow: '0 2px 12px rgba(0,0,0,.06)', overflow: 'hidden' }}>
+                  <div style={{ padding: '18px 20px', borderBottom: '1px solid #eee' }}>
+                    <h3 style={{ margin: 0, fontSize: 15, color: '#1a3a5c' }}>Most failed attempts by address (24h)</h3>
+                    <p style={{ margin: '4px 0 0', fontSize: 12, color: '#777' }}>
+                      Includes attempts that never reached a real account.
+                    </p>
+                  </div>
+                  <Table
+                    cols={['IP address', 'Failed attempts', 'Most recent']}
+                    rows={topFailingIps.map((f, i) => (
+                      <React.Fragment key={`${f.ip}-${i}`}>
+                        <TD><span style={{ fontSize: 12, fontFamily: 'monospace' }}>{f.ip}</span></TD>
+                        <TD><Badge text={String(f.failures)} color="#e74c3c" bg="#fdecea" /></TD>
+                        <TD><span style={{ fontSize: 12, color: '#777' }}>{fmt(f.lastAt)} {fmtTime(f.lastAt)}</span></TD>
+                      </React.Fragment>
+                    ))}
+                    emptyMsg="No failed attempts recorded"
+                  />
+                </div>
+              )}
             </div>
           )}
 

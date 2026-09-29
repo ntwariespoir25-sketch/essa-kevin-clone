@@ -64,6 +64,9 @@ router.post('/auth/login', authLimiter,
         { expiresIn: user.mustChangePassword ? '2h' : '7d' }
       );
       await registerSuccess(user);
+      // Successes belong in the trail too. Without this the audit log answers
+      // "who tried" but not "who got in", which is the more important half.
+      await recordAttempt(req, { user, identifier: email, success: true, outcome: 'ok' });
       res.json({ success: true, _id: user._id, fullName: user.fullName, email: user.email, role: user.role, profileImage: user.profileImage, mustChangePassword: !!user.mustChangePassword, token });
     } catch (error) {
       res.status(500).json({ message: error.message });
