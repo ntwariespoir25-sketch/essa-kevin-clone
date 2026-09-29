@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import Swal from 'sweetalert2';
 import io from 'socket.io-client';
 import { GradebookPanel } from './GradebookPanel';
+import { AttendancePanel } from './AttendancePanel';
 
 const API_URL = import.meta.env.VITE_API_URL;
 const SOCKET_URL = API_URL;
@@ -675,6 +676,8 @@ const TeacherDashboard = () => {
           )}
 
           {activeTab === 'gradebook' && <GradebookPanel />}
+
+          {activeTab === 'attendance' && <AttendancePanel />}
 
           {/* ══ ASSIGNMENTS ══ */}
           {activeTab === 'assignments' && (
