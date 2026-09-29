@@ -9,6 +9,29 @@ const { getJWTSecret } = require('../utils/jwt');
 
 const router = express.Router();
 
+// Matches the rule GET /permissions already applies: a requester may see their
+// own requests, the reviewing staff may see all of them. The slip routes
+// previously checked only that some valid token was present, so any signed-in
+// account could read any child's permission slip by walking the id.
+const canViewPermission = (permission, userId, userRole) => {
+  if (userRole === 'super_admin' || userRole === 'discipline_admin') return true;
+  return String(permission.requesterId) === String(userId);
+};
+
+// Fields the server owns. Without this a requester could POST
+// { status: 'approved', reviewedBy: <id> } and create a permission that is
+// already approved, bypassing the review that PUT /permissions/:id exists to
+// perform, and then print a slip for it.
+const SERVER_OWNED_FIELDS = [
+  'status', 'reviewedBy', 'reviewedAt', 'rejectionReason',
+  'slipGeneratedCount', 'lastSlipGeneratedAt', 'createdAt', '_id', '__v'
+];
+const stripServerOwned = (body = {}) => {
+  const clean = { ...body };
+  for (const field of SERVER_OWNED_FIELDS) delete clean[field];
+  return clean;
+};
+
 router.get('/permissions', authMiddleware, async (req, res) => {
   try {
     let permissions;
@@ -26,8 +49,10 @@ router.get('/permissions', authMiddleware, async (req, res) => {
 router.post('/permissions', authMiddleware, async (req, res) => {
   try {
     const permission = await Permission.create({
-      ...req.body, requesterId: req.userId,
-      requesterName: req.userName, requesterRole: req.userRole
+      ...stripServerOwned(req.body),
+      requesterId: req.userId,
+      requesterName: req.userName,
+      requesterRole: req.userRole
     });
     res.json({ success: true, permission });
   } catch (error) {
@@ -60,15 +85,18 @@ router.get('/super-admin/permissions', authMiddleware, requireRole('super_admin'
 router.get('/permissions/:id/slip', (req, res) => {
   const token = req.headers.authorization?.split(' ')[1] || req.query.token;
   if (!token) return res.status(401).send('<h2>Unauthorized: a token is required to view this slip</h2>');
+  let caller;
   try {
-    jwt.verify(token, getJWTSecret());
+    caller = jwt.verify(token, getJWTSecret());
   } catch {
     return res.status(401).send('<h2>Unauthorized: invalid or expired token</h2>');
   }
-  renderSlip(req, res);
+  // A valid token is not enough. Without this check any signed-in account
+  // could read any approved slip by enumerating ids.
+  renderSlip(req, res, caller);
 });
 
-const renderSlip = async (req, res) => {
+const renderSlip = async (req, res, caller) => {
   try {
     const permission = await Permission.findById(req.params.id);
     if (!permission) {
@@ -77,6 +105,10 @@ const renderSlip = async (req, res) => {
 
     if (permission.status !== 'approved') {
       return res.status(400).send('<h2>Permission slip can only be generated for approved requests</h2>');
+    }
+
+    if (!canViewPermission(permission, caller.id, caller.role)) {
+      return res.status(403).send('<h2>Forbidden: this permission slip belongs to another user</h2>');
     }
 
     const user = await User.findById(permission.requesterId);
@@ -167,6 +199,13 @@ router.get('/permissions/:id/slip-pdf', authMiddleware, async (req, res) => {
 
     if (permission.status !== 'approved') {
       return res.status(400).json({ message: 'Permission slip can only be generated for approved requests' });
+    }
+
+    // Same ownership rule as the slip itself. Checking here as well matters
+    // because this route only redirects; without the check it would simply
+    // bounce the caller to the slip with their own valid token.
+    if (!canViewPermission(permission, req.userId, req.userRole)) {
+      return res.status(403).json({ message: 'This permission slip belongs to another user' });
     }
 
     res.redirect(`/api/permissions/${req.params.id}/slip`);

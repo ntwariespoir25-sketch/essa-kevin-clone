@@ -35,7 +35,7 @@ router.get('/teacher/dashboard', authMiddleware, requireRole('teacher'), async (
 });
 
 // ==================== GRADES ====================
-router.get('/teacher/grades', authMiddleware, async (req, res) => {
+router.get('/teacher/grades', authMiddleware, requireRole('teacher', 'academic_admin', 'super_admin'), async (req, res) => {
   try {
     const grades = await Grade.find({ teacherId: req.userId }).populate('studentId', 'fullName studentId');
     res.json(grades);
