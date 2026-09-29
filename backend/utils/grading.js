@@ -42,7 +42,15 @@ const buildWeightIndex = (exams = []) => {
 };
 
 // Resolves how a single grade row should be scored and weighted.
+// Returns null for a mark that was never sat, so callers can exclude it.
 const resolveGrade = (grade, index) => {
+  // A missing mark must not become a zero. `Number(null)` and `Number('')`
+  // are both 0, so a student absent from an exam would silently be scored 0
+  // and ranked last instead of being left out of the average entirely.
+  if (grade.score === null || grade.score === undefined || grade.score === '') {
+    return null;
+  }
+
   const matched = (grade.assessmentId && index.byId.get(String(grade.assessmentId)))
     || index.byType.get(grade.assessmentType || 'Other')
     || null;
@@ -68,7 +76,7 @@ const resolveGrade = (grade, index) => {
 // plain mean of percentages otherwise, so a term with no weights configured
 // still produces a number rather than a division by zero.
 const averageFor = (grades = [], index) => {
-  const rows = grades.map(g => resolveGrade(g, index)).filter(r => Number.isFinite(r.percentage));
+  const rows = grades.map(g => resolveGrade(g, index)).filter(r => r !== null && Number.isFinite(r.percentage));
   if (rows.length === 0) return { average: null, count: 0, graded: 0, weightTotal: 0 };
 
   if (index.hasWeights) {
