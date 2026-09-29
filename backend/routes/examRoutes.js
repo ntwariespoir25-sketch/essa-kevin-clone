@@ -7,7 +7,7 @@ const Student = require('../models/Student');
 const SubjectAllocation = require('../models/SubjectAllocation');
 const authMiddleware = require('../middleware/auth');
 const requireRole = require('../middleware/roleCheck');
-const { authorizeStudentAccess } = require('../utils/access');
+const { authorizeStudentAccess, teacherOwnsClass } = require('../utils/access');
 
 const router = express.Router();
 
@@ -31,10 +31,18 @@ router.get('/exams', authMiddleware, async (req, res) => {
     let exams = await Exam.find(query).populate('classIds', 'grade className').sort({ createdAt: -1 });
 
     if (req.userRole === 'teacher') {
-      // distinct() hands back ObjectIds, so compare as strings or the filter
-      // silently matches nothing and a teacher sees an empty exam list.
-      const allocations = (await SubjectAllocation.find({ teacherId: req.userId }).distinct('classId')).map(String);
-      exams = exams.filter(e => (e.classIds || []).some(c => allocations.includes(String(c._id))));
+      // Use the same ownership rule as mark entry and the gradebook, otherwise
+      // a teacher who is the class teacher but holds no SubjectAllocation row
+      // sees an empty exam list while their gradebook still shows the columns.
+      // TeacherDashboard then offers nothing to enter marks against.
+      const visible = [];
+      for (const exam of exams) {
+        const owned = await Promise.all(
+          (exam.classIds || []).map(c => teacherOwnsClass(req.userId, c._id))
+        );
+        if (owned.some(Boolean)) visible.push(exam);
+      }
+      exams = visible;
     }
 
     res.json({ success: true, exams });

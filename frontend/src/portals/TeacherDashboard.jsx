@@ -2,6 +2,7 @@ import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Swal from 'sweetalert2';
 import io from 'socket.io-client';
+import { GradebookPanel } from './GradebookPanel';
 
 const API_URL = import.meta.env.VITE_API_URL;
 const SOCKET_URL = API_URL;
@@ -491,6 +492,8 @@ const TeacherDashboard = () => {
   const menuItems = [
     { id: 'overview', label: 'Dashboard', icon: 'fas fa-chart-line' },
     { id: 'classes', label: 'My Classes', icon: 'fas fa-school' },
+    { id: 'gradebook', label: 'Gradebook', icon: 'fas fa-table' },
+    { id: 'attendance', label: 'Attendance', icon: 'fas fa-calendar-check' },
     { id: 'assignments', label: 'Assignments', icon: 'fas fa-tasks', badge: pendingAssignments },
     { id: 'students', label: 'Students', icon: 'fas fa-user-graduate' },
     { id: 'discipline', label: 'Report Issue', icon: 'fas fa-exclamation-triangle' },
@@ -670,6 +673,8 @@ const TeacherDashboard = () => {
               </div>
             </div>
           )}
+
+          {activeTab === 'gradebook' && <GradebookPanel />}
 
           {/* ══ ASSIGNMENTS ══ */}
           {activeTab === 'assignments' && (
