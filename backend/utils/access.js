@@ -54,11 +54,17 @@ const teacherOwnsClass = async (userId, classId) => {
   );
 };
 
+// Roles that oversee the whole school rather than a slice of it. Kept in one
+// place because the student and class scopes and several route guards all need
+// the same definition of "staff".
+const STAFF_ROLES = ['super_admin', 'academic_admin', 'accounts_admin', 'discipline_admin'];
+const isStaff = (role) => STAFF_ROLES.includes(role);
+
 // The class ids a caller is entitled to see: the classes they teach, or the
 // classes their children or their own record are enrolled in. Staff roles get
 // null, meaning "no restriction", which the callers turn into an empty filter.
 const allowedClassIds = async (userId, userRole) => {
-  if (['super_admin', 'academic_admin', 'accounts_admin', 'discipline_admin'].includes(userRole)) {
+  if (isStaff(userRole)) {
     return null;
   }
 
@@ -121,4 +127,12 @@ const classScopeFilter = async (userId, userRole) => {
   return ids === null ? {} : { _id: { $in: ids } };
 };
 
-module.exports = { authorizeStudentAccess, teacherOwnsClass, studentScopeFilter, classScopeFilter, allowedClassIds };
+module.exports = {
+  authorizeStudentAccess,
+  teacherOwnsClass,
+  studentScopeFilter,
+  classScopeFilter,
+  allowedClassIds,
+  STAFF_ROLES,
+  isStaff
+};

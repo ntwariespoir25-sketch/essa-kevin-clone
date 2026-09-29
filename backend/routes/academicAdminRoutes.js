@@ -17,12 +17,14 @@ const requireRole = require('../middleware/roleCheck');
 const { sendWelcomeEmail } = require('../utils/emailService');
 const { paginate, respondList } = require('../utils/paginate');
 const { issueCode } = require('../utils/sdms');
-const { studentScopeFilter, classScopeFilter } = require('../utils/access');
+const { studentScopeFilter, classScopeFilter, STAFF_ROLES } = require('../utils/access');
 
 const router = express.Router();
 
 // ==================== TEACHERS ====================
-router.get('/academic-admin/teachers-list', authMiddleware, async (req, res) => {
+// The staff directory. Previously any signed-in account, including a parent or
+// pupil, could read every teacher's name, email, phone and subject.
+router.get('/academic-admin/teachers-list', authMiddleware, requireRole(...STAFF_ROLES), async (req, res) => {
   const { page, limit, skip } = paginate(req.query);
   const total = await TeacherProfile.countDocuments();
   const teachers = await TeacherProfile.find().sort({ fullName: 1 }).skip(skip).limit(limit || undefined);
@@ -250,7 +252,9 @@ router.get('/academic-admin/students-performance', authMiddleware, async (req, r
   }
 });
 
-router.get('/academic-admin/class-performance', authMiddleware, async (req, res) => {
+// School-wide academic averages per class. Staff only: previously any
+// signed-in account could read every class's performance.
+router.get('/academic-admin/class-performance', authMiddleware, requireRole(...STAFF_ROLES), async (req, res) => {
   try {
     const classes = await Class.find();
     const students = await Student.find({ classId: { $in: classes.map(c => c._id) } });

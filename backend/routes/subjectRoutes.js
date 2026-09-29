@@ -5,6 +5,7 @@ const Class = require('../models/Class');
 const TeacherProfile = require('../models/TeacherProfile');
 const authMiddleware = require('../middleware/auth');
 const requireRole = require('../middleware/roleCheck');
+const { isStaff, allowedClassIds } = require('../utils/access');
 
 const router = express.Router();
 
@@ -36,6 +37,22 @@ router.get('/subject-allocations', authMiddleware, async (req, res) => {
     if (req.query.classId) query.classId = req.query.classId;
     if (req.query.teacherId) query.teacherId = req.query.teacherId;
     if (req.query.academicYear) query.academicYear = req.query.academicYear;
+
+    // Previously anyone signed in could list every allocation and see who
+    // teaches what. Staff still see all; a teacher is limited to their own
+    // allocations; a parent or pupil to the classes their household is in.
+    if (req.userRole === 'teacher') {
+      query.teacherId = req.userId;
+    } else if (!isStaff(req.userRole)) {
+      const ids = await allowedClassIds(req.userId, req.userRole);
+      if (req.query.classId) {
+        // Honour the requested class only if it is one they may see.
+        const permitted = ids.some(id => String(id) === String(req.query.classId));
+        query.classId = permitted ? req.query.classId : { $in: [] };
+      } else {
+        query.classId = { $in: ids };
+      }
+    }
 
     const allocations = await SubjectAllocation.find(query)
       .populate('classId', 'className grade')
