@@ -1,3 +1,4 @@
+const mongoose = require('mongoose');
 const Student = require('../models/Student');
 const Class = require('../models/Class');
 const SubjectAllocation = require('../models/SubjectAllocation');
@@ -53,4 +54,42 @@ const teacherOwnsClass = async (userId, classId) => {
   );
 };
 
-module.exports = { authorizeStudentAccess, teacherOwnsClass };
+// Builds the filter that limits a bulk student listing to what the caller is
+// entitled to see.
+//
+// /academic-admin/students previously had no role check at all, so any logged
+// in account including a parent and a pupil could list every student in the
+// school along with their class and code. Callers span four portals, so the
+// scoping lives here rather than being repeated per route.
+const studentScopeFilter = async (userId, userRole) => {
+  // Staff who legitimately need the whole roll.
+  if (['super_admin', 'academic_admin', 'accounts_admin', 'discipline_admin'].includes(userRole)) {
+    return {};
+  }
+
+  if (userRole === 'teacher') {
+    const [ownClasses, allocations] = await Promise.all([
+      Class.find({ teacherId: userId }).distinct('_id'),
+      SubjectAllocation.find({ teacherId: userId }).distinct('classId')
+    ]);
+    const ids = [...new Set([...ownClasses, ...allocations].map(String))];
+    // An empty $in would match nothing, which is the correct outcome: a
+    // teacher assigned no classes must not see the school roll.
+    return { classId: { $in: ids.length ? ids.map(id => new mongoose.Types.ObjectId(id)) : [] } };
+  }
+
+  if (userRole === 'student') {
+    const own = await Student.findOne({ userId }).select('_id');
+    return own ? { _id: own._id } : { _id: { $in: [] } };
+  }
+
+  if (userRole === 'parent') {
+    const profile = await ParentProfile.findOne({ userId }).select('children');
+    return { _id: { $in: (profile && profile.children) || [] } };
+  }
+
+  // Unknown role: show nothing rather than everything.
+  return { _id: { $in: [] } };
+};
+
+module.exports = { authorizeStudentAccess, teacherOwnsClass, studentScopeFilter };

@@ -16,6 +16,7 @@ const requireRole = require('../middleware/roleCheck');
 const { sendWelcomeEmail } = require('../utils/emailService');
 const { paginate, respondList } = require('../utils/paginate');
 const { issueCode } = require('../utils/sdms');
+const { studentScopeFilter } = require('../utils/access');
 
 const router = express.Router();
 
@@ -109,8 +110,12 @@ router.delete('/academic-admin/classes/:id', authMiddleware, requireRole('academ
 router.get('/academic-admin/students', authMiddleware, async (req, res) => {
   try {
     const { page, limit, skip } = paginate(req.query);
-    const total = await Student.countDocuments();
-    const students = await Student.find().populate('classId', 'grade className').sort({ fullName: 1 }).skip(skip).limit(limit || undefined);
+    // Scoped to the caller's entitlement: staff portals get the whole roll,
+    // a teacher only their classes, a parent only their children, a pupil only
+    // themselves. Previously any logged-in account could list every student.
+    const scope = await studentScopeFilter(req.userId, req.userRole);
+    const total = await Student.countDocuments(scope);
+    const students = await Student.find(scope).populate('classId', 'grade className').sort({ fullName: 1 }).skip(skip).limit(limit || undefined);
     respondList(res, students, { page, limit, total });
   } catch (error) {
     res.status(500).json({ message: error.message });
@@ -188,10 +193,18 @@ router.delete('/academic-admin/students/:id', authMiddleware, requireRole('acade
 // ==================== PERFORMANCE ====================
 router.get('/academic-admin/students-performance', authMiddleware, async (req, res) => {
   try {
-    const students = await Student.find().populate('classId', 'grade className');
-    const gradeAgg = await Grade.aggregate([
-      { $group: { _id: '$studentId', average: { $avg: '$score' }, count: { $sum: 1 } } }
-    ]);
+    const scope = await studentScopeFilter(req.userId, req.userRole);
+    const students = await Student.find(scope).populate('classId', 'grade className');
+    // Only aggregate over the students actually returned, otherwise a teacher
+    // scoped to one class would still have every grade in the school loaded
+    // into the lookup map even though the rows are never rendered.
+    const ids = students.map(s => s._id);
+    const gradeAgg = ids.length
+      ? await Grade.aggregate([
+        { $match: { studentId: { $in: ids } } },
+        { $group: { _id: '$studentId', average: { $avg: '$score' }, count: { $sum: 1 } } }
+      ])
+      : [];
     const scoreMap = new Map(gradeAgg.map(g => [String(g._id), g]));
     const performanceData = students.map(s => {
       const agg = scoreMap.get(String(s._id));
