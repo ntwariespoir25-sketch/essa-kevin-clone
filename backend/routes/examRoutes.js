@@ -7,7 +7,7 @@ const Student = require('../models/Student');
 const SubjectAllocation = require('../models/SubjectAllocation');
 const authMiddleware = require('../middleware/auth');
 const requireRole = require('../middleware/roleCheck');
-const { authorizeStudentAccess, teacherOwnsClass } = require('../utils/access');
+const { authorizeStudentAccess, teacherOwnsClass, allowedClassIds, isStaff } = require('../utils/access');
 
 const router = express.Router();
 
@@ -43,6 +43,15 @@ router.get('/exams', authMiddleware, async (req, res) => {
         if (owned.some(Boolean)) visible.push(exam);
       }
       exams = visible;
+    } else if (!isStaff(req.userRole)) {
+      // A pupil or a parent used to receive every exam in the school, including
+      // other classes' papers and anything not yet published. They now see only
+      // published exams addressed to a class they are actually in.
+      const mine = new Set((await allowedClassIds(req.userId, req.userRole)).map(String));
+      exams = exams.filter((exam) =>
+        exam.isPublished &&
+        (exam.classIds || []).some((c) => mine.has(String(c._id)))
+      );
     }
 
     res.json({ success: true, exams });
@@ -56,8 +65,27 @@ router.get('/exams/:id', authMiddleware, async (req, res) => {
     const exam = await Exam.findById(req.params.id).populate('classIds', 'grade className');
     if (!exam) return res.status(404).json({ success: false, message: 'Exam not found' });
 
+    const classIds = new Set((exam.classIds || []).map(c => String(c._id)));
+    const staff = isStaff(req.userRole);
+
+    // A pupil or parent may only reach an exam for their own class, and only
+    // once it is published. Before this, any signed-in account could walk the
+    // ids and read any exam plus its per-subject statistics.
+    if (!staff) {
+      const mine = new Set((await allowedClassIds(req.userId, req.userRole)).map(String));
+      const shares = [...classIds].some((id) => mine.has(id));
+      if (!shares) return res.status(403).json({ success: false, message: 'You are not allowed to view this exam' });
+      if (!exam.isPublished) return res.status(403).json({ success: false, message: 'This exam has not been published yet' });
+    }
+
+    if (req.userRole === 'teacher' && !staff) {
+      const owned = await Promise.all([...classIds].map(id => teacherOwnsClass(req.userId, id)));
+      if (!owned.some(Boolean)) {
+        return res.status(403).json({ success: false, message: 'You are not allowed to view this exam' });
+      }
+    }
+
     const grades = await Grade.find({ term: exam.term, year: exam.year }).populate('studentId', 'fullName classId');
-    const classIds = new Set(exam.classIds.map(c => String(c._id)));
     const relevant = grades.filter(g => classIds.has(String(g.studentId?.classId?._id || g.studentId?.classId)));
 
     const bySubject = {};
@@ -75,7 +103,13 @@ router.get('/exams/:id', authMiddleware, async (req, res) => {
       average: s.entries ? Math.round(s.total / s.entries) : 0
     }));
 
-    res.json({ success: true, exam, subjectStats, resultCount: relevant.length });
+    // The cohort statistics describe other pupils' marks, so a pupil or parent
+    // gets the paper's own metadata and nothing about how the rest of the class
+    // performed.
+    if (staff || req.userRole === 'teacher') {
+      return res.json({ success: true, exam, subjectStats, resultCount: relevant.length });
+    }
+    res.json({ success: true, exam, subjectStats: undefined, resultCount: undefined });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
   }
