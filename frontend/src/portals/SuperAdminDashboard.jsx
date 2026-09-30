@@ -278,8 +278,8 @@ const SuperAdminDashboard = () => {
   // The security screens are loaded on demand rather than with refreshAll, since
   // neither is needed on every page view and one is a heavier aggregate query.
   useEffect(() => {
-    if (activeTab === 'security-logins') fetchLoginTrail(1);
-    if (activeTab === 'security-locked') fetchLocked();
+if (activeTab === 'security-logins') { fetchLoginTrail(1); fetchLockPolicy(); }
+        if (activeTab === 'security-locked') fetchLocked();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [activeTab, secHours]);
 
@@ -383,13 +383,20 @@ const SuperAdminDashboard = () => {
   };
 
   // ─── sign-in security trail ────────────────────────────────────────────────
-  const fetchLoginTrail = (page = 1) => {
+  // The page and hour window are taken as arguments rather than read from state.
+  // React state updates are asynchronous, so a click handler that did
+  // setLoginPage(3); fetchLoginTrail(3) would still build the request from the
+  // previous loginPage and silently re-fetch the page the user just left. Both
+  // buttons on this screen were affected, and they appeared to do nothing.
+  const fetchLoginTrail = (page = loginPage, hours = secHours) => {
+    const target = Math.max(1, Number(page) || 1);
     setSecLoading(true);
-    api(`/security/login-attempts?hours=${secHours}&page=${loginPage}&limit=25`)
+    api(`/security/login-attempts?hours=${hours}&page=${target}&limit=25`)
       .then(d => {
         setLoginAttempts(Array.isArray(d?.attempts) ? d.attempts : []);
         setLoginPages(d?.pagination?.pages || 1);
         setLoginTotal(d?.pagination?.total || 0);
+        if (target !== loginPage) setLoginPage(target);
       })
       .catch(() => setLoginAttempts([]))
       .finally(() => setSecLoading(false));
@@ -405,6 +412,16 @@ const SuperAdminDashboard = () => {
       })
       .catch(() => setLockedAccounts([]))
       .finally(() => setSecLoading(false));
+  };
+
+  // The lockout policy explains what the sign-in history is showing, but it
+  // arrives with the locked-account payload, which only ever ran on the Locked
+  // Accounts tab. The note was therefore dead on the screen that displays it.
+  // Taken on its own so it can be fetched without also loading the account list.
+  const fetchLockPolicy = () => {
+    api('/security/locked-accounts')
+      .then(d => setLockPolicy(d?.policy || null))
+      .catch(() => setLockPolicy(null));
   };
 
   const unlockAccount = async (acct) => {
@@ -1127,7 +1144,7 @@ const SuperAdminDashboard = () => {
                     </p>
                   </div>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                    <Select value={secHours} onChange={e => { setSecHours(Number(e.target.value)); setLoginPage(1); fetchLoginTrail(1); }} style={{ width: 170 }}>
+                    <Select value={secHours} onChange={e => { setLoginPage(1); setSecHours(Number(e.target.value)); }} style={{ width: 170 }}>
                       <option value={1}>Last hour</option>
                       <option value={24}>Last 24 hours</option>
                       <option value={168}>Last 7 days</option>
@@ -1181,10 +1198,10 @@ const SuperAdminDashboard = () => {
                     <span>{loginTotal} attempt(s)</span>
                     <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
                       <Btn small icon="fas fa-chevron-left" color="#888" textColor="white"
-                        onClick={() => { const p = Math.max(1, loginPage - 1); setLoginPage(p); fetchLoginTrail(p); }}>Prev</Btn>
+                        onClick={() => fetchLoginTrail(Math.max(1, loginPage - 1))}>Prev</Btn>
                       <span>Page {loginPage} of {loginPages}</span>
                       <Btn small icon="fas fa-chevron-right" color="#888" textColor="white"
-                        onClick={() => { const p = Math.min(loginPages, loginPage + 1); setLoginPage(p); fetchLoginTrail(p); }}>Next</Btn>
+                        onClick={() => fetchLoginTrail(Math.min(loginPages, loginPage + 1))}>Next</Btn>
                     </div>
                   </div>
                 )}
