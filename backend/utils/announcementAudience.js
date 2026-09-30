@@ -44,14 +44,60 @@ const audienceMatchesGrade = (audience, gradeLabel) => {
   return audience.some((a) => a !== 'all' && a.includes(grade));
 };
 
-// A pupil or a parent sees an announcement addressed to their role, to the
-// whole school, or to their year group.
-const visibleToAudience = (announcement, { role, gradeLabel } = {}) => {
+// The classes an announcement is restricted to. Empty means "not class scoped",
+// in which case the role and grade rules below decide.
+const audienceClassIds = (announcement) => {
+  const raw = (announcement && announcement.classIds) || [];
+  const list = Array.isArray(raw) ? raw : [raw];
+  return list.filter(Boolean).map((id) => String(id));
+};
+
+// Every class the caller belongs to. A pupil has exactly one; a parent may have
+// children spread across forms, and is entitled to the notices for each of them,
+// so the plural matters.
+const callerClassIds = ({ classId, classIds } = {}) => {
+  const list = [classId, ...(classIds || [])].filter(Boolean);
+  return new Set(list.map((id) => String(id)));
+};
+
+// A pupil or a parent only ever sees a class-scoped notice for a class they are
+// actually enrolled in. This check runs before the role and grade checks, because
+// a teacher's notice to "S3 B" is addressed to the role 'students' as well: role
+// matching alone would hand every pupil in the school someone else's homework
+// reminder.
+const classScopedToCaller = (announcement, caller = {}) => {
+  const classes = audienceClassIds(announcement);
+  if (!classes.length) return true;
+  const mine = callerClassIds(caller);
+  if (!mine.size) return false;
+  return classes.some((id) => mine.has(id));
+};
+
+// Who sees an announcement.
+//
+// Order matters. Class scoping is resolved first, because a class-scoped notice
+// is addressed to a role token ('students') that every pupil in the school also
+// carries: testing the audience before the class would hand every pupil in the
+// school another form's notice. Only once the caller is known to be inside the
+// scope do the role and grade rules apply.
+const visibleToAudience = (announcement, caller = {}) => {
+  const classes = audienceClassIds(announcement);
+  const classScoped = classes.length > 0;
+  if (classScoped && !classScopedToCaller(announcement, caller)) return false;
+
   const audience = normalizeAudience(announcement);
   if (isOpenToEveryone(audience)) return true;
-  if (isStaffRole(role)) return true;
-  if (audienceMatchesRole(audience, role)) return true;
-  return audienceMatchesGrade(audience, gradeLabel);
+  if (isStaffRole(caller.role)) return true;
+
+  // A teacher who is inside the scope of a class-scoped notice has already
+  // passed the class check, and the audience tokens describe that class's own
+  // pupils and parents rather than the teacher who wrote it. Without this a
+  // teacher would stop seeing their own class notices the moment class scoping
+  // was introduced.
+  if (classScoped && String(caller.role || '').toLowerCase() === 'teacher') return true;
+
+  if (audienceMatchesRole(audience, caller.role)) return true;
+  return audienceMatchesGrade(audience, caller.gradeLabel);
 };
 
 module.exports = {
@@ -60,6 +106,9 @@ module.exports = {
   isOpenToEveryone,
   audienceMatchesRole,
   audienceMatchesGrade,
+  audienceClassIds,
+  classScopedToCaller,
+  callerClassIds,
   isStaffRole,
   visibleToAudience
 };

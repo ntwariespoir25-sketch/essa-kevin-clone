@@ -53,6 +53,8 @@ app.use('/api', require('./routes/admissionRoutes'));
 app.use('/api', require('./routes/superAdminRoutes'));
 app.use('/api', require('./routes/academicAdminRoutes'));
 app.use('/api', require('./routes/teacherRoutes'));
+app.use('/api', require('./routes/quizRoutes'));
+app.use('/api', require('./routes/progressRoutes'));
 app.use('/api', require('./routes/studentRoutes'));
 app.use('/api', require('./routes/parentRoutes'));
 app.use('/api', require('./routes/disciplineAdminRoutes'));

@@ -2,9 +2,13 @@ const express = require('express');
 
 const Announcement = require('../models/Announcement');
 const Student = require('../models/Student');
+const Class = require('../models/Class');
+const SubjectAllocation = require('../models/SubjectAllocation');
+const ParentProfile = require('../models/ParentProfile');
 const authMiddleware = require('../middleware/auth');
 const requireRole = require('../middleware/roleCheck');
 const { isStaffRole, visibleToAudience } = require('../utils/announcementAudience');
+const { teacherOwnsClass } = require('../utils/access');
 
 const router = express.Router();
 
@@ -19,16 +23,39 @@ router.get('/announcements', authMiddleware, async (req, res) => {
 
     // A pupil can also be reached through this endpoint, and an announcement
     // addressed to a year group ("S3") is meaningless without knowing which
-    // year they are in.
+    // year they are in. The class id matters for the same reason: a teacher's
+    // notice to one form must not reach another form in the same year.
     let gradeLabel = '';
+    const caller = { role: req.userRole, gradeLabel, classIds: [] };
     if (!staff && req.userRole === 'student') {
       const pupil = await Student.findOne({ userId: req.userId }).populate('classId', 'grade');
-      gradeLabel = (pupil && pupil.classId && pupil.classId.grade) || '';
+      caller.gradeLabel = (pupil && pupil.classId && pupil.classId.grade) || '';
+      if (pupil && pupil.classId) caller.classIds = [pupil.classId._id];
+    } else if (!staff && req.userRole === 'parent') {
+      // Parents are linked through ParentProfile, not Student.userId, and may
+      // have children in more than one form. Both matter: using the wrong link
+      // finds nothing at all, and taking only the first child would hide the
+      // other form's notices from a parent who is entitled to them.
+      const profile = await ParentProfile.findOne({ userId: req.userId }).select('children');
+      const children = (profile && profile.children) || [];
+      if (children.length) {
+        const classes = await Student.find({ _id: { $in: children } }).distinct('classId');
+        caller.classIds = classes.filter(Boolean);
+      }
+    } else if (!staff && req.userRole === 'teacher') {
+      // A teacher sees the notices for the forms they are responsible for, plus
+      // the whole-school ones. Without this they would lose sight of their own
+      // class notices as soon as class scoping was introduced.
+      const [homeroom, allocations] = await Promise.all([
+        Class.find({ teacherId: req.userId }).distinct('_id'),
+        SubjectAllocation.find({ teacherId: req.userId }).distinct('classId')
+      ]);
+      caller.classIds = [...new Set([...homeroom, ...allocations].map(String))];
     }
 
     const visible = staff
       ? announcements
-      : announcements.filter((a) => visibleToAudience(a, { role: req.userRole, gradeLabel }));
+      : announcements.filter((a) => visibleToAudience(a, caller));
 
     const formatted = visible.map(ann => ({
       ...ann.toObject(),
@@ -147,5 +174,70 @@ router.delete('/super-admin/announcements/:id', authMiddleware, requireRole('sup
     res.status(500).json({ message: error.message });
   }
 });
+
+// A teacher's class notice. Restricted to the forms the teacher is actually
+// responsible for, because the obvious implementation - accept classIds from the
+// body - would let any teacher post a notice to any form in the school, and the
+// audience rules would then dutifully deliver it.
+router.post('/teacher/announcements', authMiddleware, requireRole('teacher'), async (req, res) => {
+  try {
+    const title = String(req.body.title || '').trim();
+    const content = String(req.body.content || '').trim();
+    if (!title) return res.status(400).json({ message: 'A title is required' });
+    if (!content) return res.status(400).json({ message: 'A message is required' });
+
+    const requested = (Array.isArray(req.body.classIds) ? req.body.classIds : [req.body.classId])
+      .filter(Boolean);
+    if (!requested.length) {
+      return res.status(400).json({ message: 'Choose at least one class for this notice' });
+    }
+
+    const permitted = [];
+    for (const classId of requested) {
+      if (await teacherOwnsClass(req.userId, classId)) permitted.push(classId);
+    }
+    if (!permitted.length) {
+      return res.status(403).json({ message: 'You are not responsible for any of those classes' });
+    }
+
+    const announcement = await Announcement.create({
+      title,
+      content,
+      // A class notice is always addressed to that class's pupils and their
+      // parents. The teacher chooses who else to copy, within a fixed set, so a
+      // crafted audience value cannot widen the notice to the whole school.
+      audience: normalizeTeacherAudience(req.body.audience),
+      classIds: permitted,
+      priority: ['low', 'normal', 'high'].includes(req.body.priority) ? req.body.priority : 'normal',
+      createdBy: req.userId,
+      isActive: true
+    });
+
+    res.status(201).json({
+      success: true,
+      announcement: { ...announcement.toObject(), audience: announcement.audience[0] },
+      // Tell the caller plainly when part of the request was dropped, rather than
+      // quietly posting to fewer classes than they asked for.
+      skippedClasses: requested.length - permitted.length
+    });
+  } catch (error) {
+    console.error('POST /api/teacher/announcements error:', error);
+    res.status(500).json({ message: error.message });
+  }
+});
+
+// The roles a teacher may address a class notice to. 'all' and 'everyone' are
+// absent on purpose and are filtered even if supplied: a class-scoped notice
+// turned into a whole-school one would defeat the point of scoping it.
+const TEACHER_AUDIENCE = ['students', 'parents', 'teachers', 'staff'];
+const normalizeTeacherAudience = (raw) => {
+  const list = Array.isArray(raw) ? raw : (raw ? [raw] : []);
+  const wanted = list
+    .map((a) => String(a).trim().toLowerCase())
+    .filter((a) => a && !['all', 'everyone'].includes(a) && TEACHER_AUDIENCE.includes(a));
+  // Default is the class itself: its pupils and their parents. Anyone else has to
+  // be asked for explicitly.
+  return wanted.length ? wanted : ['students', 'parents'];
+};
 
 module.exports = router;
