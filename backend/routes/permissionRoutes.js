@@ -83,7 +83,12 @@ router.get('/super-admin/permissions', authMiddleware, requireRole('super_admin'
 });
 
 router.get('/permissions/:id/slip', (req, res) => {
-  const token = req.headers.authorization?.split(' ')[1] || req.query.token;
+  // Header only. This route used to fall back to ?token= because the print
+  // button opened it with window.open, which sends no Authorization header.
+  // That fallback put a live session token in browser history, in the access
+  // log and in the Referer of anything the slip later loaded, so the button now
+  // fetches with the header and renders the document itself.
+  const token = req.headers.authorization?.split(' ')[1];
   if (!token) return res.status(401).send('<h2>Unauthorized: a token is required to view this slip</h2>');
   let caller;
   try {

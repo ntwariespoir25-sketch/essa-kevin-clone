@@ -4,6 +4,7 @@ import Swal from 'sweetalert2';
 import io from 'socket.io-client';
 import ThemeToggle from '../components/ThemeToggle';
 import PreferencesPanel from '../components/PreferencesPanel';
+import { openPrintableDocument } from '../utils/printDocument';
 
 const API_URL = import.meta.env.VITE_API_URL;
 const SOCKET_URL = API_URL;
@@ -452,11 +453,22 @@ const DisciplineAdminDashboard = () => {
   });
   
   if (printResult.isConfirmed) {
-    const token = getToken();
-    const slipUrl = `${API_URL}/api/permissions/${permission._id}/slip?token=${encodeURIComponent(token)}`;
-    const slipWindow = window.open(slipUrl, '_blank');
-    if (!slipWindow) {
-      Swal.fire('Popup Blocked', 'Please allow pop-ups to print permission slips.', 'warning');
+    // The token used to be appended to the URL as ?token=..., which put a live
+    // session token into browser history, the server access log and any Referer
+    // the slip page later sent. The header-based helper keeps it out of all of
+    // those.
+    try {
+      await openPrintableDocument(
+        `/permissions/${permission._id}/slip`,
+        API_URL,
+        'Permission Slip — ESSA Nyarugunga'
+      );
+    } catch (e) {
+      Swal.fire(
+        /pop-?up/i.test(e.message || '') ? 'Popup Blocked' : 'Cannot open slip',
+        e.message || 'The permission slip could not be opened',
+        'warning'
+      );
     }
   }
 }
@@ -746,7 +758,17 @@ const DisciplineAdminDashboard = () => {
                     small 
                     icon="fas fa-print" 
                     color="#3498db" 
-                    onClick={() => { const t = getToken(); window.open(`${API_URL}/api/permissions/${p._id}/slip?token=${encodeURIComponent(t)}`, '_blank'); }}
+                    onClick={() => {
+                      openPrintableDocument(
+                        `/permissions/${p._id}/slip`,
+                        API_URL,
+                        'Permission Slip — ESSA Nyarugunga'
+                      ).catch((e) => Swal.fire(
+                        /pop-?up/i.test(e.message || '') ? 'Popup Blocked' : 'Cannot open slip',
+                        e.message || 'The permission slip could not be opened',
+                        'warning'
+                      ));
+                    }}
                   >
                     Print Slip
                   </Btn>

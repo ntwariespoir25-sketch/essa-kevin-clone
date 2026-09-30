@@ -1,4 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
+import Swal from 'sweetalert2';
+import { openPrintableDocument } from '../utils/printDocument';
 
 const API_URL = import.meta.env.VITE_API_URL;
 const authHeaders = () => ({
@@ -443,7 +445,22 @@ export const ReportCardsPanel = ({ classes }) => {
             <TD style={{ minWidth: 110 }}><Bar value={r.attendanceRate} color={r.attendanceRate >= 80 ? '#27ae60' : '#e67e22'} /></TD>
             <TD>
               <Btn small icon="fas fa-eye" onClick={() => setOpen(r)}>View</Btn>{' '}
-              <Btn small icon="fas fa-file-pdf" color="#e74c3c" onClick={() => window.open(`${API_URL}/api/report-cards/${r.studentId}/print?term=${term}&year=${year}`, '_blank')}>PDF</Btn>
+              <Btn
+                small
+                icon="fas fa-file-pdf"
+                color="#e74c3c"
+                onClick={async () => {
+                  try {
+                    await openPrintableDocument(
+                      `/report-cards/${r.studentId}/print?term=${term}&year=${year}`,
+                      API_URL,
+                      `Report Card — ${r.fullName || r.studentName || ''}`.trim()
+                    );
+                  } catch (e) {
+                    Swal.fire('Cannot print', e.message || 'The report card could not be opened', 'error');
+                  }
+                }}
+              >PDF</Btn>
             </TD>
           </tr>
         ))}
