@@ -1,11 +1,10 @@
-import React, { useState, useEffect } from 'react';
+import React, { useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import Swal from 'sweetalert2';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 
 // Import images directly from assets folder
-import heroBg from '../assets/hero-bg.jpg';
 import campusImage from '../assets/campus.png';
 import studentsImage from '../assets/students.png';
 import classroomImg from '../assets/classroom.png';
@@ -17,22 +16,7 @@ import musicImg from '../assets/music.png';
 import artImg from '../assets/art.png';
 import graduationImg from '../assets/graduation.png';
 
-// Fallback image URLs
-const fallbackImages = {
-  heroBg: heroBg,
-  campusImage: campusImage,
-  studentsImage: studentsImage,
-  classroomImg: classroomImg,
-  libraryImg: libraryImg,
-  scienceLabImg: scienceLabImg,
-  footballImg: footballImg,
-  musicImg: musicImg,
-  graduationImg: graduationImg
-};
-
 const AcademicsPage = () => {
-  const [activeTab, setActiveTab] = useState('ordinary');
-
   useEffect(() => {
     window.scrollTo(0, 0);
   }, []);
@@ -104,25 +88,33 @@ const AcademicsPage = () => {
     }
   ];
 
-  const departments = [
-    { name: 'ICT Department', icon: 'fas fa-laptop-code', hod: 'Mr. Elissa Ntihinduka',  teachers: 6, description: 'Programming, networking, database management, and computer maintenance.' },
-    { name: 'Economics Department', icon: 'fas fa-chart-line', hod: 'Coming Soon....', teachers: 5, description: 'Accounting, economics, entrepreneurship, and business studies.' },
-    { name: 'Tourism Department', icon: 'fas fa-umbrella-beach', hod: 'Coming Soon....', teachers: 4, description: 'Tourism management, hospitality, customer service, and cultural studies.' },
-    { name: 'Food and Beverages', icon: 'fas fa-utensils', hod: 'Mama Culinary', teachers: 4, description: 'Food Preparation, Kitchen Management, Beverages Operation.' },
-    { name: 'Building and Construction', icon: 'fas fa-building', hod: 'Delphin and Phocus', teachers: 5, description: 'Cement Workflows, Stone Structure, Chemistry, Physics, Mathematics.' },
-    { name: 'Ordinary Level', icon: 'fas fa-book', hod: 'Coming Soon......', teachers: 10, description: 'Biology, Physics, Chemistry, Mathematics, History, Geography, etc.' }
+  const ordinaryCoreSubjects = [
+    'Mathematics',
+    'English Language',
+    'French',
+    'Kinyarwanda',
+    'Physics',
+    'Chemistry',
+    'Biology',
+    'Social Studies',
+    'Computer Science',
+    'Religion & Ethics'
   ];
 
-  const calendarEvents = [
-    { month: 'Sept', day: '10', title: 'Term 1 Begins', description: 'Opening ceremony and classes commence' },
-    { month: 'Nov', day: '25-30', title: 'Term 1 Exams', description: 'End of term examinations' },
-    { month: 'Jan', day: '10', title: 'Term 2 Begins', description: 'Start of second term' },
-    { month: 'Mar', day: '10-20', title: 'Term 2 Exams', description: 'Mid-year examinations' },
-    { month: 'April', day: '20', title: 'Term 3 Begins', description: 'Final term of the academic year' },
-    { month: 'June', day: '1-5', title: 'National Practical Exams', description: 'L3 & L5 National Practical Examinations' },
-    { month: 'June', day: '15', title: 'NESA School Exams', description: 'End of Year NESA prepared Exams' },
-    { month: 'July', day: '12', title: 'National Theory Exams', description: 'All Candidates Theory National Examinations' },
-    { month: 'Aug', day: '5', title: 'Academic Year Ends', description: 'End of year closure' }
+  const ordinaryElectives = [
+    'Entrepreneurship',
+    'Art & Design',
+    'Music',
+    'Physical Education',
+    'Agriculture',
+    'Home Economics'
+  ];
+
+  const ordinaryAssessment = [
+    { label: 'Continuous Assessment', value: '30%' },
+    { label: 'Term Exams', value: '30%' },
+    { label: 'National Exams', value: '40%' },
+    { label: 'Projects & Practicals', value: 'Included' }
   ];
 
   const resources = [
@@ -132,32 +124,36 @@ const AcademicsPage = () => {
     { name: 'E-Learning Platform', icon: 'fas fa-wifi', description: 'Access to online resources, digital assignments, and virtual classrooms.', detail: '24/7 Access' }
   ];
 
+  // Stats used in the hero stats cards
+  const heroStats = [
+    { number: '95%', label: 'Pass Rate', icon: 'fas fa-chart-line' },
+    { number: '6+', label: 'Programs', icon: 'fas fa-layer-group' },
+    { number: '30+', label: 'Teachers', icon: 'fas fa-chalkboard-user' },
+    { number: '1:15', label: 'Teacher Ratio', icon: 'fas fa-users' }
+  ];
+
   return (
     <>
       <Navbar />
-      
-      {/* Hero Section with Gradient Overlay */}
-      <section className="academics-hero" style={{ backgroundImage: `url(${fallbackImages.heroBg})` }}>
-        <div className="academics-hero-gradient"></div>
+
+      {/* Hero Section - Solid Blue with Stats Cards cut in the middle at the bottom */}
+      <section className="academics-hero">
         <div className="container academics-hero-content">
           <div className="hero-badge">
             <i className="fas fa-graduation-cap"></i> ACADEMIC EXCELLENCE
           </div>
           <h1>Academics at <span className="highlight">ESSA Nyarugunga</span></h1>
           <p>Excellence in Education | Diverse Programs | Holistic Development</p>
-          <div className="hero-stats">
-            <div className="hero-stat">
-              <span className="stat-number">95%</span>
-              <span className="stat-label">Pass Rate</span>
-            </div>
-            <div className="hero-stat">
-              <span className="stat-number">6+</span>
-              <span className="stat-label">Programs</span>
-            </div>
-            <div className="hero-stat">
-              <span className="stat-number">30+</span>
-              <span className="stat-label">Teachers</span>
-            </div>
+
+          {/* Stats Cards - placed inside the hero but cut in the middle */}
+          <div className="stats-cards">
+            {heroStats.map((stat, index) => (
+              <div key={index} className="stat-card">
+                <i className={stat.icon}></i>
+                <div className="stat-number">{stat.number}</div>
+                <div className="stat-label">{stat.label}</div>
+              </div>
+            ))}
           </div>
         </div>
       </section>
@@ -191,13 +187,13 @@ const AcademicsPage = () => {
               </div>
             </div>
             <div className="overview-image">
-              <img src={fallbackImages.studentsImage} alt="Students in class" />
+              <img src={studentsImage} alt="Students in class" />
             </div>
           </div>
         </div>
       </section>
 
-      {/* Academic Levels Tabs */}
+      {/* ============ ACADEMIC LEVELS ============ */}
       <section className="academics-levels">
         <div className="container">
           <div className="section-title">
@@ -205,189 +201,96 @@ const AcademicsPage = () => {
             <div className="underline"></div>
             <p className="section-subtitle">Choose your path to success</p>
           </div>
-          
-          <div className="tabs">
-            <button className={`tab-btn ${activeTab === 'ordinary' ? 'active' : ''}`} onClick={() => setActiveTab('ordinary')}>
-              Ordinary Level (S1-S3)
-            </button>
-            <button className={`tab-btn ${activeTab === 'advanced' ? 'active' : ''}`} onClick={() => setActiveTab('advanced')}>
-              Advanced Level (L3-L5)
-            </button>
-          </div>
 
-          {/* Ordinary Level Content */}
-          {activeTab === 'ordinary' && (
-            <div className="tab-content">
-              <div className="level-grid">
-                <div className="level-card">
-                  <i className="fas fa-book-open"></i>
-                  <h3>Core Subjects</h3>
-                  <ul>
-                    <li><i className="fas fa-check"></i> Mathematics</li>
-                    <li><i className="fas fa-check"></i> English Language</li>
-                    <li><i className="fas fa-check"></i> French</li>
-                    <li><i className="fas fa-check"></i> Kinyarwanda</li>
-                    <li><i className="fas fa-check"></i> Sciences (Physics, Chemistry, Biology)</li>
-                    <li><i className="fas fa-check"></i> Social Studies</li>
-                    <li><i className="fas fa-check"></i> Computer Science</li>
-                    <li><i className="fas fa-check"></i> Religion & Ethics</li>
-                  </ul>
-                </div>
-                <div className="level-card">
-                  <i className="fas fa-chart-line"></i>
-                  <h3>Electives</h3>
-                  <ul>
-                    <li><i className="fas fa-check"></i> Entrepreneurship</li>
-                    <li><i className="fas fa-check"></i> Art & Design</li>
-                    <li><i className="fas fa-check"></i> Music</li>
-                    <li><i className="fas fa-check"></i> Physical Education</li>
-                    <li><i className="fas fa-check"></i> Agriculture</li>
-                    <li><i className="fas fa-check"></i> Home Economics</li>
-                  </ul>
-                </div>
-                <div className="level-card">
-                  <i className="fas fa-clock"></i>
-                  <h3>Assessment</h3>
-                  <ul>
-                    <li><i className="fas fa-check"></i> Continuous Assessment (30%)</li>
-                    <li><i className="fas fa-check"></i> Term Exams (30%)</li>
-                    <li><i className="fas fa-check"></i> National Exams (40%)</li>
-                    <li><i className="fas fa-check"></i> Projects & Practicals</li>
-                  </ul>
-                </div>
+          {/* ---------- ORDINARY LEVEL SECTION ---------- */}
+          <div className="level-section">
+            <div className="level-section-header">
+              <div className="level-section-icon">
+                <i className="fas fa-book-open"></i>
+              </div>
+              <div className="level-section-heading">
+                <span className="level-tag">Ordinary Level</span>
+                <h3>Ordinary Level (S1 - S3)</h3>
+                <p>A strong foundation for future success — building core skills, curiosity, and character.</p>
               </div>
             </div>
-          )}
 
-          {/* Advanced Level Content */}
-          {activeTab === 'advanced' && (
-            <div className="tab-content">
-              <div className="advanced-intro">
-                <p>At Advanced Level, students choose combinations based on their career aspirations. Each combination is carefully designed to prepare students for university education and professional careers.</p>
+            <div className="level-grid">
+              <div className="level-card">
+                <i className="fas fa-book-open"></i>
+                <h4>Core Subjects</h4>
+                <ul>
+                  {ordinaryCoreSubjects.map((subject, idx) => (
+                    <li key={idx}><i className="fas fa-check"></i> {subject}</li>
+                  ))}
+                </ul>
               </div>
-              
-              <div className="combinations-grid">
-                {combinations.map(combo => (
-                  <div key={combo.id} className="combination-card" style={{ borderTop: `4px solid ${combo.color}` }}>
-                    <div className="combination-icon" style={{ background: combo.color }}>
-                      <i className={combo.icon}></i>
-                    </div>
-                    <h3>{combo.name}</h3>
-                    <p className="combination-subtitle">{combo.subtitle}</p>
-                    <div className="subjects">
-                      <h4>Subjects:</h4>
-                      <ul>
-                        {combo.subjects.map((subject, idx) => (
-                          <li key={idx}>{subject}</li>
-                        ))}
-                      </ul>
-                    </div>
-                    <div className="career-path">
-                      <h4>Career Path:</h4>
-                      <p>{combo.careerPath}</p>
-                    </div>
-                    <button className="learn-more" onClick={() => handleLearnMore(combo.name)}>
-                      Learn More <i className="fas fa-arrow-right"></i>
-                    </button>
+              <div className="level-card">
+                <i className="fas fa-palette"></i>
+                <h4>Electives</h4>
+                <ul>
+                  {ordinaryElectives.map((subject, idx) => (
+                    <li key={idx}><i className="fas fa-check"></i> {subject}</li>
+                  ))}
+                </ul>
+              </div>
+              <div className="level-card">
+                <i className="fas fa-clock"></i>
+                <h4>Assessment</h4>
+                <ul>
+                  {ordinaryAssessment.map((item, idx) => (
+                    <li key={idx}>
+                      <i className="fas fa-check"></i> {item.label}
+                      <span className="assessment-value">{item.value}</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            </div>
+          </div>
+
+          {/* ---------- ADVANCED LEVEL SECTION ---------- */}
+          <div className="level-section advanced-section">
+            <div className="level-section-header">
+              <div className="level-section-icon advanced-icon">
+                <i className="fas fa-graduation-cap"></i>
+              </div>
+              <div className="level-section-heading">
+                <span className="level-tag advanced-tag">Advanced Level</span>
+                <h3>Advanced Level (L3 - L5)</h3>
+                <p>Specialized combinations designed to prepare students for university and professional careers.</p>
+              </div>
+            </div>
+
+            <div className="advanced-intro">
+              <p>At Advanced Level, students choose combinations based on their career aspirations. Each combination is carefully designed to prepare students for university education and professional careers. Explore our six specialized programs below.</p>
+            </div>
+
+            <div className="combinations-grid">
+              {combinations.map(combo => (
+                <div key={combo.id} className="combination-card" style={{ borderTop: `4px solid ${combo.color}` }}>
+                  <div className="combination-icon" style={{ background: combo.color }}>
+                    <i className={combo.icon}></i>
                   </div>
-                ))}
-              </div>
-            </div>
-          )}
-        </div>
-      </section>
-
-      {/* Academic Departments */}
-      <section className="academics-departments">
-        <div className="container">
-          <div className="section-title">
-            <h2><i className="fas fa-building"></i> Academic Departments</h2>
-            <div className="underline"></div>
-          </div>
-          <div className="departments-grid">
-            {departments.map((dept, index) => (
-              <div key={index} className="dept-card">
-                <i className={dept.icon}></i>
-                <h3>{dept.name}</h3>
-                <p>{dept.description}</p>
-                <div className="dept-staff">
-                  <span><i className="fas fa-user-tie"></i> HOD: {dept.hod}</span>
-                  <span><i className="fas fa-chalkboard-user"></i> {dept.teachers} Teachers</span>
+                  <h3>{combo.name}</h3>
+                  <p className="combination-subtitle">{combo.subtitle}</p>
+                  <div className="subjects">
+                    <h4>Subjects:</h4>
+                    <ul>
+                      {combo.subjects.map((subject, idx) => (
+                        <li key={idx}>{subject}</li>
+                      ))}
+                    </ul>
+                  </div>
+                  <div className="career-path">
+                    <h4>Career Path:</h4>
+                    <p>{combo.careerPath}</p>
+                  </div>
+                  <button className="learn-more" onClick={() => handleLearnMore(combo.name)}>
+                    Learn More <i className="fas fa-arrow-right"></i>
+                  </button>
                 </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* Academic Calendar */}
-      <section className="academics-calendar">
-        <div className="container">
-          <div className="section-title">
-            <h2><i className="fas fa-calendar-alt"></i> Academic Calendar 2026</h2>
-            <div className="underline"></div>
-          </div>
-          <div className="calendar-grid">
-            {calendarEvents.map((event, index) => (
-              <div key={index} className="calendar-item">
-                <div className="calendar-date">
-                  <span className="month">{event.month}</span>
-                  <span className="day">{event.day}</span>
-                </div>
-                <div className="calendar-event">
-                  <h4>{event.title}</h4>
-                  <p>{event.description}</p>
-                </div>
-              </div>
-            ))}
-          </div>
-          <div className="calendar-note">
-            <i className="fas fa-info-circle"></i>
-            <p>Dates are subject to change. Parents and students will be notified of any changes.</p>
-          </div>
-        </div>
-      </section>
-
-      {/* Grading System */}
-      <section className="academics-grading">
-        <div className="container">
-          <div className="section-title">
-            <h2><i className="fas fa-chart-simple"></i> Grading System</h2>
-            <div className="underline"></div>
-          </div>
-          <div className="grading-grid">
-            <div className="grading-card">
-              <h3>Ordinary Level (S1-S3)</h3>
-              <table className="grading-table">
-                <thead>
-                  <tr><th>Grade</th><th>Percentage</th><th>Description</th></tr>
-                </thead>
-                <tbody>
-                  <tr><td>A</td><td>80-100%</td><td>Excellent</td></tr>
-                  <tr><td>B</td><td>70-79%</td><td>Very Good</td></tr>
-                  <tr><td>C</td><td>60-69%</td><td>Good</td></tr>
-                  <tr><td>D</td><td>50-59%</td><td>Satisfactory</td></tr>
-                  <tr><td>E</td><td>40-49%</td><td>Pass</td></tr>
-                  <tr><td>F</td><td>Below 40%</td><td>Fail</td></tr>
-                </tbody>
-              </table>
-            </div>
-            <div className="grading-card">
-              <h3>Advanced Level (L3-L5)</h3>
-              <table className="grading-table">
-                <thead>
-                  <tr><th>Grade</th><th>Points</th><th>Description</th></tr>
-                </thead>
-                <tbody>
-                  <tr><td>A</td><td>6</td><td>Excellent</td></tr>
-                  <tr><td>B+</td><td>5</td><td>Very Good</td></tr>
-                  <tr><td>B</td><td>4</td><td>Good</td></tr>
-                  <tr><td>C</td><td>3</td><td>Satisfactory</td></tr>
-                  <tr><td>D</td><td>2</td><td>Pass</td></tr>
-                  <tr><td>E</td><td>1</td><td>Marginal Pass</td></tr>
-                  <tr><td>F</td><td>0</td><td>Fail</td></tr>
-                </tbody>
-              </table>
+              ))}
             </div>
           </div>
         </div>
@@ -438,284 +341,405 @@ const AcademicsPage = () => {
 
       {/* Styles */}
       <style>{`
-        /* Hero Section with Gradient Overlay */
+        /* Hero Section - Solid Blue, Stats Cards Cut in Middle */
         .academics-hero {
           position: relative;
-          min-height: 400px;
-          display: flex;
-          align-items: center;
-          background-size: cover;
-          background-position: center;
-          background-repeat: no-repeat;
+          background: #1e3c72;
+          padding: 4rem 0 7rem;
+          overflow: visible;
         }
-        
-        .academics-hero-gradient {
-          position: absolute;
-          top: 0;
-          left: 0;
-          right: 0;
-          bottom: 0;
-            background: linear-gradient(
-  135deg,
-  hsla(220, 60%, 18%, 0.80) 0%,
-  hsla(45, 90%, 70%, 0.45) 100%
-);
-        }
-        
+
         .academics-hero-content {
           position: relative;
           z-index: 2;
           text-align: center;
           color: white;
-          padding: 3rem 0;
         }
-        
+
         .hero-badge {
           display: inline-block;
-          background: rgba(255,193,7,0.2);
+          background: rgba(255,193,7,0.15);
           color: #ffc107;
-          padding: 0.5rem 1rem;
+          padding: 7px 20px;
           border-radius: 30px;
           font-size: 0.8rem;
           margin-bottom: 1rem;
+          border: 1px solid rgba(255,193,7,0.3);
+          letter-spacing: 1px;
+          font-weight: 600;
+          animation: fadeInDown 0.6s ease both;
         }
-        
+
+        @keyframes fadeInDown {
+          from { opacity: 0; transform: translateY(-15px); }
+          to   { opacity: 1; transform: translateY(0); }
+        }
+
         .academics-hero-content h1 {
           font-size: 2.5rem;
           margin-bottom: 1rem;
+          font-weight: 800;
+          letter-spacing: -0.75px;
+          text-shadow: 0 2px 20px rgba(0, 0, 0, 0.25);
+          animation: fadeInUp 0.7s ease 0.1s both;
         }
-        
+
+        @keyframes fadeInUp {
+          from { opacity: 0; transform: translateY(20px); }
+          to   { opacity: 1; transform: translateY(0); }
+        }
+
         .academics-hero-content .highlight {
           color: #ffc107;
         }
-        
+
         .academics-hero-content p {
-          font-size: 1rem;
-          opacity: 0.9;
-          margin-bottom: 1.5rem;
+          font-size: 1.05rem;
+          opacity: 0.92;
+          margin-bottom: 1rem;
+          max-width: 620px;
+          margin-left: auto;
+          margin-right: auto;
+          line-height: 1.6;
+          animation: fadeInUp 0.7s ease 0.2s both;
         }
-        
-        .hero-stats {
-          display: flex;
-          justify-content: center;
-          gap: 2rem;
-          flex-wrap: wrap;
+
+        /* Stats Cards - cut in the middle at the bottom of the hero */
+        .stats-cards {
+          display: grid;
+          grid-template-columns: repeat(4, 1fr);
+          gap: 1.5rem;
+          margin-top: 4rem;
+          margin-bottom: -10.5rem;
+          position: relative;
+          z-index: 5;
         }
-        
-        .hero-stat {
+
+        .stat-card {
+          background: #ffffff;
+          border-radius: 14px;
+          padding: 2rem 1rem;
           text-align: center;
+          box-shadow: 0 12px 32px rgba(10, 22, 40, 0.14);
+          transition: transform 0.3s ease, box-shadow 0.3s ease;
         }
-        
-        .hero-stat .stat-number {
-          display: block;
-          font-size: 1.5rem;
-          font-weight: 700;
+
+        .stat-card:hover {
+          transform: translateY(-6px);
+          box-shadow: 0 18px 44px rgba(10, 22, 40, 0.2);
         }
-        
-        .hero-stat .stat-label {
-          font-size: 0.8rem;
-          opacity: 0.8;
+
+        .stat-card i {
+          font-size: 2.2rem;
+          color: #ffc107;
+          margin-bottom: 0.6rem;
+          display: inline-block;
         }
-        
+
+        .stat-card .stat-number {
+          font-size: 2.2rem;
+          font-weight: 800;
+          color: #ffc107;
+          margin: 0.25rem 0;
+          letter-spacing: -0.5px;
+        }
+
+        .stat-card .stat-label {
+          font-size: 0.9rem;
+          color: #4a5568;
+          font-weight: 500;
+        }
+
         /* Overview Section */
         .academics-overview {
-          padding: 4rem 0;
+          padding: 8rem 0 4rem;
           background: white;
         }
-        
+
         .overview-grid {
           display: grid;
           grid-template-columns: 1fr 1fr;
           gap: 3rem;
           align-items: center;
         }
-        
+
         .overview-content {
           text-align: left;
         }
-        
+
         .section-badge {
           display: inline-block;
           background: #ffc10720;
-          color: #ffc107;
+          color: #d4a017;
           padding: 0.3rem 1rem;
           border-radius: 30px;
           font-size: 0.8rem;
           margin-bottom: 1rem;
+          font-weight: 600;
         }
-        
+
         .overview-content h2 {
           font-size: 2rem;
           margin-bottom: 1rem;
           color: #1e3c72;
         }
-        
+
         .overview-content .highlight {
           color: #ffc107;
         }
-        
+
         .overview-content p {
           color: #555;
           margin-bottom: 1rem;
           line-height: 1.6;
         }
-        
+
         .academic-stats {
           display: grid;
           grid-template-columns: repeat(4, 1fr);
           gap: 1rem;
           margin-top: 1.5rem;
         }
-        
+
         .stat-item {
           text-align: center;
           background: #f8f9fa;
           padding: 1rem;
           border-radius: 12px;
         }
-        
+
         .stat-item .stat-number {
           display: block;
           font-size: 1.5rem;
           font-weight: 700;
           color: #1e3c72;
         }
-        
+
         .stat-item .stat-label {
           font-size: 0.75rem;
           color: #666;
         }
-        
+
         .overview-image img {
           width: 100%;
           border-radius: 16px;
           box-shadow: 0 10px 30px rgba(0,0,0,0.1);
         }
-        
-        /* Tabs Section */
+
+        /* Academic Levels Section */
         .academics-levels {
           padding: 4rem 0;
           background: #f8f9fa;
         }
-        
+
         .section-title {
           text-align: center;
           margin-bottom: 3rem;
         }
-        
+
         .section-title h2 {
           font-size: 2rem;
           color: #1e3c72;
         }
-        
+
         .section-title h2 i {
           color: #ffc107;
           margin-right: 10px;
         }
-        
+
         .underline {
           width: 80px;
           height: 3px;
           background: #ffc107;
           margin: 10px auto;
         }
-        
+
         .section-subtitle {
           color: #666;
           font-size: 0.9rem;
         }
-        
-        .tabs {
+
+        /* Level Section (each level has its own full section) */
+        .level-section {
+          background: #ffffff;
+          border-radius: 20px;
+          padding: 2.5rem;
+          margin-bottom: 2.5rem;
+          box-shadow: 0 6px 24px rgba(30, 60, 114, 0.06);
+          border: 1px solid #eef1f6;
+        }
+
+        .advanced-section {
+          margin-bottom: 0;
+        }
+
+        .level-section-header {
           display: flex;
-          justify-content: center;
-          gap: 1rem;
+          align-items: center;
+          gap: 1.25rem;
+          padding-bottom: 1.5rem;
           margin-bottom: 2rem;
+          border-bottom: 2px solid #f1f5f9;
+          text-align: left;
         }
-        
-        .tab-btn {
-          padding: 0.8rem 2rem;
-          background: white;
-          border: 2px solid #e0e0e0;
-          border-radius: 40px;
-          cursor: pointer;
-          font-weight: 600;
-          transition: all 0.3s;
-        }
-        
-        .tab-btn.active {
+
+        .level-section-icon {
+          flex-shrink: 0;
+          width: 64px;
+          height: 64px;
+          border-radius: 16px;
           background: #1e3c72;
-          border-color: #1e3c72;
-          color: white;
+          display: flex;
+          align-items: center;
+          justify-content: center;
         }
-        
+
+        .level-section-icon i {
+          font-size: 1.6rem;
+          color: #ffc107;
+        }
+
+        .level-section-icon.advanced-icon {
+          background: linear-gradient(135deg, #ffc107 0%, #d4a017 100%);
+        }
+
+        .level-section-icon.advanced-icon i {
+          color: #1e3c72;
+        }
+
+        .level-section-heading {
+          text-align: left;
+        }
+
+        .level-tag {
+          display: inline-block;
+          background: #1e3c72;
+          color: #ffffff;
+          padding: 4px 14px;
+          border-radius: 20px;
+          font-size: 0.72rem;
+          font-weight: 700;
+          letter-spacing: 1px;
+          text-transform: uppercase;
+          margin-bottom: 0.5rem;
+        }
+
+        .level-tag.advanced-tag {
+          background: #ffc107;
+          color: #1e3c72;
+        }
+
+        .level-section-heading h3 {
+          font-size: 1.6rem;
+          color: #1e3c72;
+          margin-bottom: 0.35rem;
+          font-weight: 800;
+        }
+
+        .level-section-heading p {
+          color: #64748b;
+          font-size: 0.9rem;
+          margin: 0;
+        }
+
         .level-grid {
           display: grid;
           grid-template-columns: repeat(3, 1fr);
           gap: 1.5rem;
         }
-        
+
         .level-card {
-          background: white;
-          padding: 1.5rem;
+          background: #f8fafc;
+          padding: 1.75rem;
           border-radius: 16px;
           text-align: left;
+          border: 1px solid #eef1f6;
+          transition: transform 0.3s ease, box-shadow 0.3s ease;
         }
-        
-        .level-card i {
+
+        .level-card:hover {
+          transform: translateY(-4px);
+          box-shadow: 0 12px 28px rgba(30, 60, 114, 0.08);
+        }
+
+        .level-card > i {
           font-size: 2rem;
           color: #1e3c72;
           margin-bottom: 1rem;
         }
-        
-        .level-card h3 {
+
+        .level-card h4 {
           margin-bottom: 1rem;
           color: #1e3c72;
+          font-size: 1.1rem;
         }
-        
+
         .level-card ul {
           list-style: none;
           padding: 0;
+          margin: 0;
         }
-        
+
         .level-card ul li {
-          margin: 0.5rem 0;
-          font-size: 0.85rem;
+          margin: 0.55rem 0;
+          font-size: 0.87rem;
+          color: #475569;
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          gap: 8px;
         }
-        
+
         .level-card ul li i {
-          font-size: 0.8rem;
+          font-size: 0.75rem;
           color: #ffc107;
           margin-right: 8px;
+          flex-shrink: 0;
         }
-        
+
+        .assessment-value {
+          font-weight: 700;
+          color: #1e3c72;
+          font-size: 0.82rem;
+        }
+
         /* Combinations Grid */
         .advanced-intro {
           text-align: center;
           margin-bottom: 2rem;
-          padding: 1rem;
-          background: white;
+          padding: 1.25rem 1.5rem;
+          background: #f8fafc;
           border-radius: 12px;
+          border-left: 4px solid #ffc107;
         }
-        
+
+        .advanced-intro p {
+          margin: 0;
+          color: #475569;
+          font-size: 0.92rem;
+          line-height: 1.6;
+        }
+
         .combinations-grid {
           display: grid;
-          grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+          grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
           gap: 1.5rem;
         }
-        
+
         .combination-card {
-          background: white;
+          background: #ffffff;
           border-radius: 16px;
-          padding: 1.5rem;
-          transition: transform 0.3s;
+          padding: 1.75rem;
+          transition: transform 0.3s, box-shadow 0.3s;
           text-align: left;
+          box-shadow: 0 4px 16px rgba(30, 60, 114, 0.06);
         }
-        
+
         .combination-card:hover {
           transform: translateY(-5px);
-          box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+          box-shadow: 0 14px 34px rgba(30, 60, 114, 0.12);
         }
-        
+
         .combination-icon {
           width: 60px;
           height: 60px;
@@ -725,34 +749,35 @@ const AcademicsPage = () => {
           justify-content: center;
           margin-bottom: 1rem;
         }
-        
+
         .combination-icon i {
           font-size: 1.5rem;
           color: white;
         }
-        
+
         .combination-card h3 {
           margin-bottom: 0.3rem;
           color: #1e3c72;
+          font-size: 1.15rem;
         }
-        
+
         .combination-subtitle {
-          color: #ffc107;
+          color: #d4a017;
           font-weight: 600;
           font-size: 0.8rem;
           margin-bottom: 1rem;
         }
-        
+
         .subjects, .career-path {
           margin: 1rem 0;
         }
-        
+
         .subjects h4, .career-path h4 {
           font-size: 0.85rem;
           color: #666;
           margin-bottom: 0.5rem;
         }
-        
+
         .subjects ul {
           display: flex;
           flex-wrap: wrap;
@@ -760,223 +785,94 @@ const AcademicsPage = () => {
           list-style: none;
           padding: 0;
         }
-        
+
         .subjects ul li {
           background: #f0f2f5;
           padding: 0.3rem 0.8rem;
           border-radius: 20px;
           font-size: 0.75rem;
+          color: #475569;
         }
-        
+
         .career-path p {
           font-size: 0.85rem;
           color: #555;
+          line-height: 1.5;
         }
-        
+
         .learn-more {
           background: none;
           border: none;
-          color: #ffc107;
+          color: #d4a017;
           font-weight: 600;
           cursor: pointer;
           margin-top: 1rem;
           display: inline-flex;
           align-items: center;
           gap: 5px;
+          padding: 0;
+          font-size: 0.88rem;
         }
-        
-        /* Departments Grid */
-        .academics-departments {
-          padding: 4rem 0;
-          background: white;
-        }
-        
-        .departments-grid {
-          display: grid;
-          grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
-          gap: 1.5rem;
-        }
-        
-        .dept-card {
-          background: #f8f9fa;
-          padding: 1.5rem;
-          border-radius: 16px;
-          text-align: left;
-        }
-        
-        .dept-card i {
-          font-size: 2rem;
-          color: #1e3c72;
-          margin-bottom: 1rem;
-        }
-        
-        .dept-card h3 {
-          margin-bottom: 0.5rem;
+
+        .learn-more:hover {
           color: #1e3c72;
         }
-        
-        .dept-card p {
-          color: #666;
-          margin-bottom: 1rem;
-          font-size: 0.85rem;
-        }
-        
-        .dept-staff {
-          display: flex;
-          gap: 1rem;
-          font-size: 0.75rem;
-          color: #888;
-        }
-        
-        /* Calendar */
-        .academics-calendar {
-          padding: 4rem 0;
-          background: #f8f9fa;
-        }
-        
-        .calendar-grid {
-          display: grid;
-          grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-          gap: 1rem;
-        }
-        
-        .calendar-item {
-          display: flex;
-          gap: 1rem;
-          background: white;
-          padding: 1rem;
-          border-radius: 12px;
-        }
-        
-        .calendar-date {
-          text-align: center;
-          background: #1e3c72;
-          color: white;
-          padding: 0.8rem;
-          border-radius: 12px;
-          min-width: 70px;
-        }
-        
-        .calendar-date .month {
-          display: block;
-          font-size: 0.7rem;
-        }
-        
-        .calendar-date .day {
-          display: block;
-          font-size: 1.1rem;
-          font-weight: 700;
-        }
-        
-        .calendar-event h4 {
-          margin-bottom: 0.3rem;
-          color: #1e3c72;
-        }
-        
-        .calendar-event p {
-          font-size: 0.8rem;
-          color: #666;
-        }
-        
-        .calendar-note {
-          margin-top: 2rem;
-          background: #fff8e7;
-          padding: 1rem;
-          border-radius: 12px;
-          display: flex;
-          align-items: center;
-          gap: 0.5rem;
-          font-size: 0.8rem;
-        }
-        
-        /* Grading */
-        .academics-grading {
-          padding: 4rem 0;
-          background: white;
-        }
-        
-        .grading-grid {
-          display: grid;
-          grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-          gap: 2rem;
-        }
-        
-        .grading-card {
-          background: #f8f9fa;
-          padding: 1.5rem;
-          border-radius: 16px;
-        }
-        
-        .grading-card h3 {
-          text-align: center;
-          margin-bottom: 1rem;
-          color: #1e3c72;
-        }
-        
-        .grading-table {
-          width: 100%;
-          border-collapse: collapse;
-        }
-        
-        .grading-table th, .grading-table td {
-          padding: 0.8rem;
-          text-align: left;
-          border-bottom: 1px solid #e0e0e0;
-        }
-        
-        .grading-table th {
-          background: #1e3c72;
-          color: white;
-        }
-        
+
         /* Resources */
         .academics-resources {
           padding: 4rem 0;
           background: #f8f9fa;
         }
-        
+
         .resources-grid {
           display: grid;
           grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
           gap: 1.5rem;
         }
-        
+
         .resource-card {
           background: white;
           padding: 1.5rem;
           border-radius: 16px;
           text-align: center;
+          box-shadow: 0 4px 16px rgba(30, 60, 114, 0.05);
+          transition: transform 0.3s ease;
         }
-        
+
+        .resource-card:hover {
+          transform: translateY(-4px);
+        }
+
         .resource-card i {
           font-size: 2rem;
           color: #1e3c72;
           margin-bottom: 1rem;
         }
-        
+
         .resource-card h3 {
           margin-bottom: 0.5rem;
           color: #1e3c72;
         }
-        
+
         .resource-card p {
           font-size: 0.85rem;
           color: #666;
           margin-bottom: 1rem;
         }
-        
+
         .resource-hours {
           font-size: 0.75rem;
-          color: #ffc107;
+          color: #d4a017;
+          font-weight: 600;
         }
-        
+
         /* Support */
         .academics-support {
           padding: 4rem 0;
-          background: linear-gradient(135deg, #1e3c72, #2a5298);
+          background: #1e3c72;
           color: white;
         }
-        
+
         .support-box {
           display: flex;
           gap: 2rem;
@@ -984,68 +880,135 @@ const AcademicsPage = () => {
           max-width: 900px;
           margin: 0 auto;
         }
-        
+
         .support-icon i {
           font-size: 3rem;
           color: #ffc107;
         }
-        
+
         .support-content h3 {
           margin-bottom: 0.5rem;
         }
-        
+
         .support-content p {
           opacity: 0.9;
           margin-bottom: 1rem;
         }
-        
+
         .support-features {
           display: flex;
           flex-wrap: wrap;
           gap: 0.8rem;
         }
-        
+
         .support-features span {
           background: rgba(255,255,255,0.15);
           padding: 0.3rem 1rem;
           border-radius: 30px;
           font-size: 0.75rem;
         }
-        
+
         /* Responsive */
+        @media (max-width: 900px) {
+          .stats-cards {
+            grid-template-columns: repeat(2, 1fr);
+            margin-bottom: -22rem;
+          }
+
+          .academics-overview {
+            padding-top: 14rem;
+          }
+
+          .level-grid {
+            grid-template-columns: 1fr 1fr;
+          }
+        }
+
         @media (max-width: 768px) {
+          .academics-hero {
+            padding: 3rem 0 5rem;
+          }
+
+          .academics-hero-content h1 {
+            font-size: 1.6rem;
+          }
+
+          .academics-hero-content p {
+            font-size: 0.9rem;
+          }
+
           .overview-grid {
             grid-template-columns: 1fr;
           }
-          
+
           .level-grid {
             grid-template-columns: 1fr;
           }
-          
+
           .academic-stats {
             grid-template-columns: repeat(2, 1fr);
           }
-          
-          .tabs {
-            flex-direction: column;
-            align-items: center;
-          }
-          
+
           .support-box {
             flex-direction: column;
             text-align: center;
           }
-          
+
           .combinations-grid {
             grid-template-columns: 1fr;
           }
-          
-          .hero-stats {
+
+          .level-section {
+            padding: 1.75rem;
+          }
+
+          .level-section-header {
+            flex-direction: column;
+            text-align: center;
             gap: 1rem;
           }
-          
+
+          .level-section-heading {
+            text-align: center;
+          }
+
+          .level-section-heading h3 {
+            font-size: 1.3rem;
+          }
+        }
+
+        @media (max-width: 480px) {
           .academics-hero-content h1 {
-            font-size: 1.8rem;
+            font-size: 1.35rem;
+          }
+
+          .academics-hero-content p {
+            font-size: 0.82rem;
+          }
+
+          .stats-cards {
+            margin-bottom: -30rem;
+          }
+
+          .academics-overview {
+            padding-top: 18rem;
+          }
+
+          .level-section {
+            padding: 1.25rem;
+          }
+
+          .level-section-icon {
+            width: 54px;
+            height: 54px;
+          }
+
+          .level-section-icon i {
+            font-size: 1.35rem;
+          }
+
+          .level-section-heading h3 {
+            font-size: 1.15rem;
           }
         }
       `}</style>

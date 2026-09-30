@@ -5,7 +5,6 @@ import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 
 // Import images
-import heroBg from '../assets/hero-bg.jpg';
 import campusImage from '../assets/campus.png';
 import studentsImage from '../assets/students.png';
 import classroomImg from '../assets/classroom.png';
@@ -28,7 +27,6 @@ const AdmissionsPage = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [currentStep, setCurrentStep] = useState(1);
   const [formData, setFormData] = useState({
-    // Step 1: Student Information
     fullName: '',
     dateOfBirth: '',
     nationality: 'Rwandan',
@@ -36,17 +34,14 @@ const AdmissionsPage = () => {
     email: '',
     phone: '',
     address: '',
-    // Step 2: Academic Information
     level: '',
     previousSchool: '',
     lastAverage: '',
     achievements: '',
-    // Step 3: Parent/Guardian Information
     parentName: '',
     parentPhone: '',
     parentEmail: '',
     parentOccupation: '',
-    // Step 4: Additional Info
     applyScholarship: false,
     hearAboutUs: '',
     agreeTerms: false
@@ -68,7 +63,6 @@ const AdmissionsPage = () => {
       ...prev,
       [name]: type === 'checkbox' ? checked : value
     }));
-    // Clear error for this field when user starts typing
     if (errors[name]) {
       setErrors(prev => ({ ...prev, [name]: '' }));
     }
@@ -83,7 +77,7 @@ const AdmissionsPage = () => {
     if (!formData.phone) newErrors.phone = 'Phone number is required';
     else if (!/^(\+250|0)[7-9][0-9]{8}$/.test(formData.phone)) newErrors.phone = 'Invalid Rwanda phone number';
     if (!formData.address) newErrors.address = 'Address is required';
-    
+
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
@@ -94,7 +88,7 @@ const AdmissionsPage = () => {
     if (!formData.previousSchool) newErrors.previousSchool = 'Previous school is required';
     if (!formData.lastAverage) newErrors.lastAverage = 'Last year average is required';
     else if (formData.lastAverage < 0 || formData.lastAverage > 100) newErrors.lastAverage = 'Average must be between 0 and 100';
-    
+
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
@@ -104,7 +98,7 @@ const AdmissionsPage = () => {
     if (!formData.parentName) newErrors.parentName = 'Parent/Guardian name is required';
     if (!formData.parentPhone) newErrors.parentPhone = 'Parent phone is required';
     else if (!/^(\+250|0)[7-9][0-9]{8}$/.test(formData.parentPhone)) newErrors.parentPhone = 'Invalid Rwanda phone number';
-    
+
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
@@ -124,7 +118,6 @@ const AdmissionsPage = () => {
 
     if (isValid) {
       setCurrentStep(prev => prev + 1);
-      // Scroll only the form section into view (not the whole page to top)
       document.getElementById('application-form')?.scrollIntoView({
         behavior: 'smooth',
         block: 'start'
@@ -134,7 +127,6 @@ const AdmissionsPage = () => {
 
   const prevStep = () => {
     setCurrentStep(prev => prev - 1);
-    // Scroll only the form section into view (not the whole page to top)
     document.getElementById('application-form')?.scrollIntoView({
       behavior: 'smooth',
       block: 'start'
@@ -143,20 +135,20 @@ const AdmissionsPage = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
+
     if (!validateStep4()) return;
-    
+
     setIsSubmitting(true);
-    
+
     try {
       const response = await fetch(`${API_URL}/api/admissions/submit`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(formData)
       });
-      
+
       const data = await response.json();
-      
+
       if (data.success) {
         Swal.fire({
           title: 'Application Submitted!',
@@ -174,8 +166,7 @@ const AdmissionsPage = () => {
           confirmButtonText: 'OK',
           confirmButtonColor: '#1e3c72'
         });
-        
-        // Reset form
+
         setFormData({
           fullName: '',
           dateOfBirth: '',
@@ -212,15 +203,22 @@ const AdmissionsPage = () => {
     }
   };
 
-  const handleScholarshipApply = () => {
+  const handleCallAdmissions = () => {
     Swal.fire({
-      title: 'Scholarship Application',
-      text: 'Please complete the online application form below to apply for a scholarship.',
+      title: 'Call Admissions',
+      html: `
+        <div style="text-align: left;">
+          <p><strong>Phone:</strong> +250 788 123 456</p>
+          <p><strong>Email:</strong> admissions@essanyarugunga.rw</p>
+          <p><strong>Office Hours:</strong> Mon-Fri, 8AM - 5PM</p>
+          <hr>
+          <p>Our admissions team will share the complete fee structure for your chosen level, including tuition, uniform, boarding, and any additional costs.</p>
+        </div>
+      `,
       icon: 'info',
-      confirmButtonText: 'Continue to Form',
+      confirmButtonText: 'Got it',
       confirmButtonColor: '#1e3c72'
     });
-    document.getElementById('application-form')?.scrollIntoView({ behavior: 'smooth' });
   };
 
   const faqs = [
@@ -230,12 +228,6 @@ const AdmissionsPage = () => {
     { q: 'Is accommodation available?', a: 'Yes, we offer boarding facilities for students who live far from the school. Limited spaces available.' },
     { q: 'What is the school uniform policy?', a: 'All students are required to wear the official ESSA Nyarugunga uniform. Uniforms can be purchased from the school store.' },
     { q: 'How do I check my application status?', a: 'You can check your application status by contacting the admissions office via phone or email with your application reference number.' }
-  ];
-
-  const feeStructures = [
-    { level: 'Ordinary Level', grades: 'S1 - S3', amount: '304,000', features: ['Tuition', 'Library Access', 'Computer Lab', 'Science Lab Materials', 'Sports Activities'], popular: false, note: '* Additional: Uniform (30,000 RWF) one-time' },
-    { level: 'Advanced Level - ICT', grades: 'L3 - L5 SOD and CSA', amount: '349,000', features: ['Tuition', 'Library Access', 'Advanced Computer Labs', 'Internship Placement', 'Career Guidance', 'Certification Prep'], popular: true, note: '* ICT students get laptop learning access' },
-    { level: 'Advanced Level - Others', grades: 'Accounting, Tourism, Food and Beverages Operation', amount: '400,000', features: ['Tuition', 'Library Access', 'Laboratory Access', 'Field Trips', 'Study Materials'], popular: false, note: '* Payment plans available upon request' }
   ];
 
   const hearAboutOptions = ['Social Media', 'Friend/Family', 'School Website', 'Radio/TV', 'School Event', 'Other'];
@@ -248,28 +240,33 @@ const AdmissionsPage = () => {
     <>
       <Navbar />
 
-      {/* Hero Section - matches Home page style (static background) */}
-      <section className="hero" style={{ backgroundImage: `url(${heroBg})` }}>
-        <div className="hero-overlay"></div>
-
+      {/* Hero Section - Solid Blue */}
+      <section className="hero">
         <div className="container hero-content">
           <div className="hero-badge">
             <i className="fas fa-door-open"></i> BEGIN YOUR JOURNEY
           </div>
           <h1>
-            Begin Your Journey to <span className="highlight">Excellence</span> at ESSA Nyarugunga
+            Apply to <span className="highlight">ESSA Nyarugunga</span> and Enroll Today
           </h1>
           <p>
-            Join a community of learners shaping the future of Rwanda. Applications are open
-            for the 2026–2027 academic year — limited seats available.
+            Begin your journey to excellence at ESSA Nyarugunga — join a community of learners
+            shaping the future of Rwanda. Applications are open for the 2026–2027 academic year.
+            Limited seats available, so apply and enroll today.
           </p>
           <div className="hero-buttons">
             <a href="#application-form" className="btn btn-primary">
               <i className="fas fa-user-graduate"></i> Apply Now
             </a>
-            <Link to="/contact" className="btn btn-secondary">
-              <i className="fas fa-phone-alt"></i> Contact Admissions
-            </Link>
+            <button onClick={handleCallAdmissions} className="btn btn-secondary">
+              <i className="fas fa-phone-alt"></i> Call Admissions
+            </button>
+          </div>
+
+          <div className="hero-highlights">
+            <span><i className="fas fa-check-circle"></i> Open for 2026–2027</span>
+            <span><i className="fas fa-check-circle"></i> Limited Seats</span>
+            <span><i className="fas fa-check-circle"></i> Enroll Today</span>
           </div>
 
           <div className="hero-notice">
@@ -353,80 +350,38 @@ const AdmissionsPage = () => {
         </div>
       </section>
 
-      {/* Fee Structure */}
-      <section className="fee-structure">
+      {/* Call Admissions for Fee Structure */}
+      <section className="call-admissions-section">
         <div className="container">
-          <div className="section-title">
-            <h2><i className="fas fa-money-bill-wave"></i> Fee Structure</h2>
-            <div className="underline"></div>
-            <p className="section-subtitle">Affordable quality education - 2026 Academic Year</p>
-          </div>
-          <div className="fee-grid">
-            {feeStructures.map((fee, index) => (
-              <div key={index} className={`fee-card ${fee.popular ? 'popular' : ''}`}>
-                {fee.popular && <div className="popular-badge">Most Popular</div>}
-                <div className="fee-header">
-                  <h3>{fee.level}</h3>
-                  <p className="fee-grades">{fee.grades}</p>
-                  <div className="fee-amount">
-                    <span className="currency">RWF</span>
-                    <span className="amount">{fee.amount}</span>
-                    <span className="period">per term</span>
-                  </div>
-                </div>
-                <div className="fee-features">
-                  <ul>
-                    {fee.features.map((feature, idx) => (
-                      <li key={idx}><i className="fas fa-check-circle"></i> {feature}</li>
-                    ))}
-                  </ul>
-                </div>
-                <div className="fee-note">
-                  <p>{fee.note}</p>
-                </div>
-              </div>
-            ))}
-          </div>
-          <div className="payment-methods">
-            <p><i className="fas fa-university"></i> Bank Transfer: Bank of Kigali - Account: 000123456789</p>
-            <p><i className="fas fa-mobile-alt"></i> Mobile Money: Airtel Money | MoMo Pay</p>
-          </div>
-        </div>
-      </section>
+          <div className="call-admissions-card">
+            <div className="call-admissions-icon">
+              <i className="fas fa-hand-holding-usd"></i>
+            </div>
+            <div className="call-admissions-content">
+              <span className="call-tag">Fees & Financial Aid</span>
+              <h2>Need the Fee Structure or Scholarship Info?</h2>
+              <p>
+                Tuition varies by level, combination, and boarding option. To receive an accurate,
+                up-to-date fee structure — and to learn about available merit, need-based, and
+                talent-based scholarships — please contact our admissions office directly. We'll
+                be happy to walk you through the options that fit your family.
+              </p>
 
-      {/* Financial Aid */}
-      <section className="financial-aid">
-        <div className="container">
-          <div className="aid-header">
-            <i className="fas fa-hand-holding-heart"></i>
-            <h2>Scholarships & Financial Aid</h2>
-            <p>ESSA Nyarugunga believes that every talented student deserves access to quality education regardless of financial background.</p>
-          </div>
-          <div className="aid-grid">
-            <div className="aid-card">
-              <i className="fas fa-trophy"></i>
-              <h3>Merit Scholarship</h3>
-              <p>For top-performing students</p>
-              <span className="aid-percent">50-100% fee waiver</span>
+              <div className="call-admissions-actions">
+                <button onClick={handleCallAdmissions} className="btn-call">
+                  <i className="fas fa-phone-alt"></i> Call Admissions Now
+                </button>
+                <Link to="/contact" className="btn-contact-alt">
+                  <i className="fas fa-envelope"></i> Send a Message
+                </Link>
+              </div>
+
+              <div className="call-quick-info">
+                <span><i className="fas fa-phone-alt"></i> +250 788 123 456</span>
+                <span><i className="fas fa-envelope"></i> admissions@essanyarugunga.rw</span>
+                <span><i className="fas fa-clock"></i> Mon-Fri: 8AM - 5PM</span>
+              </div>
             </div>
-            <div className="aid-card">
-              <i className="fas fa-heart"></i>
-              <h3>Need-Based Scholarship</h3>
-              <p>For students from low-income families</p>
-              <span className="aid-percent">25-75% fee waiver</span>
-            </div>
-            <div className="aid-card">
-              <i className="fas fa-futbol"></i>
-              <h3>Sports & Talent Scholarship</h3>
-              <p>For exceptional athletes and artists</p>
-              <span className="aid-percent">30% fee waiver</span>
-            </div>
-          </div>
-          <div className="aid-action">
-            <button onClick={handleScholarshipApply} className="btn btn-primary">
-              <i className="fas fa-graduation-cap"></i> Apply for Scholarship
-            </button>
-            <p className="scholarship-note">* Limited scholarships available per academic year</p>
           </div>
         </div>
       </section>
@@ -834,30 +789,14 @@ const AdmissionsPage = () => {
       <Footer />
 
       <style>{`
-        /* ========== HERO STYLES (matches Home) ========== */
+        /* ========== HERO STYLES (Solid Blue) ========== */
         .hero {
           position: relative;
-          min-height: 90vh;
+          background: #1e3c72;
+          padding: 5rem 0 4.5rem;
           display: flex;
           align-items: center;
           overflow: hidden;
-          background-size: cover;
-          background-position: center;
-          background-repeat: no-repeat;
-        }
-
-        .hero-overlay {
-          position: absolute;
-          top: 0;
-          left: 0;
-          width: 100%;
-          height: 100%;
-          background: linear-gradient(
-            135deg,
-            hsla(220, 60%, 18%, 0.80) 0%,
-            hsla(45, 90%, 70%, 0.45) 100%
-          );
-          z-index: 2;
         }
 
         .hero-content {
@@ -870,31 +809,49 @@ const AdmissionsPage = () => {
 
         .hero-badge {
           display: inline-block;
-          background: rgba(255,193,7,0.2);
+          background: rgba(255,193,7,0.15);
           color: #ffc107;
           padding: 8px 20px;
           border-radius: 30px;
-          font-size: 0.85rem;
+          font-size: 0.82rem;
           margin-bottom: 1rem;
-          backdrop-filter: blur(5px);
+          border: 1px solid rgba(255,193,7,0.3);
+          letter-spacing: 1px;
+          font-weight: 600;
+          animation: fadeInDown 0.6s ease both;
+        }
+
+        @keyframes fadeInDown {
+          from { opacity: 0; transform: translateY(-15px); }
+          to   { opacity: 1; transform: translateY(0); }
         }
 
         .hero-content h1 {
-          font-size: 3rem;
+          font-size: 2.75rem;
           margin-bottom: 1rem;
+          font-weight: 800;
+          letter-spacing: -0.75px;
+          line-height: 1.2;
+          text-shadow: 0 2px 20px rgba(0, 0, 0, 0.25);
+          animation: fadeInUp 0.7s ease 0.1s both;
         }
 
-        .hero-content .highlight {
-          color: #ffc107;
+        @keyframes fadeInUp {
+          from { opacity: 0; transform: translateY(20px); }
+          to   { opacity: 1; transform: translateY(0); }
         }
+
+        .hero-content .highlight { color: #ffc107; }
 
         .hero-content p {
-          font-size: 1.2rem;
-          opacity: 0.95;
+          font-size: 1.1rem;
+          opacity: 0.92;
           margin-bottom: 2rem;
-          max-width: 700px;
+          max-width: 720px;
           margin-left: auto;
           margin-right: auto;
+          line-height: 1.65;
+          animation: fadeInUp 0.7s ease 0.2s both;
         }
 
         .hero-buttons {
@@ -902,46 +859,82 @@ const AdmissionsPage = () => {
           gap: 1rem;
           justify-content: center;
           flex-wrap: wrap;
+          animation: fadeInUp 0.7s ease 0.3s both;
         }
 
         .btn-primary {
           background: #ffc107;
           color: #1e3c72;
-          padding: 12px 28px;
+          padding: 13px 30px;
           border-radius: 30px;
           text-decoration: none;
-          font-weight: 600;
+          font-weight: 700;
           transition: all 0.3s ease;
           display: inline-flex;
           align-items: center;
           gap: 8px;
           border: none;
           cursor: pointer;
+          box-shadow: 0 6px 20px rgba(255, 193, 7, 0.35);
+          font-size: 0.95rem;
         }
 
         .btn-primary:hover {
           background: #e0a800;
-          transform: translateY(-2px);
+          transform: translateY(-3px);
+          box-shadow: 0 10px 26px rgba(255, 193, 7, 0.45);
         }
 
         .btn-secondary {
           background: transparent;
           color: white;
-          padding: 12px 28px;
+          padding: 13px 30px;
           border-radius: 30px;
           text-decoration: none;
-          font-weight: 600;
-          border: 2px solid white;
+          font-weight: 700;
+          border: 2px solid rgba(255, 255, 255, 0.6);
           transition: all 0.3s ease;
           display: inline-flex;
           align-items: center;
           gap: 8px;
+          cursor: pointer;
+          font-size: 0.95rem;
         }
 
         .btn-secondary:hover {
           background: white;
           color: #1e3c72;
-          transform: translateY(-2px);
+          border-color: white;
+          transform: translateY(-3px);
+          box-shadow: 0 10px 26px rgba(255, 255, 255, 0.2);
+        }
+
+        .hero-highlights {
+          display: flex;
+          justify-content: center;
+          flex-wrap: wrap;
+          gap: 0.75rem;
+          margin-top: 1.75rem;
+          animation: fadeInUp 0.7s ease 0.35s both;
+        }
+
+        .hero-highlights span {
+          display: inline-flex;
+          align-items: center;
+          gap: 8px;
+          background: rgba(255, 255, 255, 0.1);
+          border: 1px solid rgba(255, 255, 255, 0.2);
+          color: #ffffff;
+          padding: 8px 18px;
+          border-radius: 30px;
+          font-size: 0.82rem;
+          font-weight: 600;
+          backdrop-filter: blur(6px);
+        }
+
+        .hero-highlights span i {
+          color: #ffc107;
+          font-size: 0.85rem;
         }
 
         .hero-notice {
@@ -949,20 +942,309 @@ const AdmissionsPage = () => {
           align-items: center;
           gap: 8px;
           margin-top: 1.5rem;
-          background: rgba(255,193,7,0.2);
+          background: rgba(255,193,7,0.15);
           color: #ffc107;
-          padding: 10px 20px;
+          padding: 10px 22px;
           border-radius: 30px;
           font-size: 0.85rem;
           font-weight: 600;
-          backdrop-filter: blur(5px);
           border: 1px solid rgba(255,193,7,0.4);
+          animation: fadeInUp 0.7s ease 0.4s both;
         }
 
-        /* ========== FORM ANCHOR OFFSET ========== */
-        #application-form {
-          scroll-margin-top: 90px;
+        /* ========== CALL ADMISSIONS SECTION ========== */
+        .call-admissions-section {
+          padding: 4rem 0;
+          background: #f8f9fa;
         }
+
+        .call-admissions-card {
+          max-width: 980px;
+          margin: 0 auto;
+          background: #ffffff;
+          border-radius: 22px;
+          padding: 2.5rem 2.75rem;
+          box-shadow: 0 20px 50px rgba(26, 58, 92, 0.10);
+          border: 1px solid rgba(26, 58, 92, 0.05);
+          display: flex;
+          gap: 2rem;
+          align-items: flex-start;
+        }
+
+        .call-admissions-icon {
+          flex-shrink: 0;
+          width: 76px;
+          height: 76px;
+          border-radius: 20px;
+          background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          box-shadow: 0 10px 26px rgba(30, 60, 114, 0.28);
+        }
+
+        .call-admissions-icon i {
+          font-size: 2rem;
+          color: #ffc107;
+        }
+
+        .call-admissions-content {
+          flex: 1;
+          text-align: left;
+        }
+
+        .call-tag {
+          display: inline-block;
+          font-size: 0.72rem;
+          font-weight: 700;
+          letter-spacing: 0.12em;
+          text-transform: uppercase;
+          color: #d4a017;
+          background: rgba(255, 193, 7, 0.15);
+          padding: 4px 12px;
+          border-radius: 20px;
+          margin-bottom: 0.75rem;
+        }
+
+        .call-admissions-content h2 {
+          font-size: 1.7rem;
+          color: #1e3c72;
+          margin-bottom: 0.75rem;
+          font-weight: 800;
+          letter-spacing: -0.5px;
+        }
+
+        .call-admissions-content > p {
+          color: #555;
+          line-height: 1.65;
+          font-size: 0.95rem;
+          margin-bottom: 1.5rem;
+        }
+
+        .call-admissions-actions {
+          display: flex;
+          gap: 1rem;
+          flex-wrap: wrap;
+          margin-bottom: 1.5rem;
+        }
+
+        .btn-call {
+          background: linear-gradient(135deg, #ffc107 0%, #e0a800 100%);
+          color: #1e3c72;
+          padding: 13px 28px;
+          border-radius: 30px;
+          border: none;
+          font-weight: 700;
+          cursor: pointer;
+          font-size: 0.92rem;
+          display: inline-flex;
+          align-items: center;
+          gap: 9px;
+          box-shadow: 0 8px 22px rgba(255, 193, 7, 0.4);
+          transition: all 0.3s ease;
+        }
+
+        .btn-call:hover {
+          transform: translateY(-3px);
+          box-shadow: 0 12px 28px rgba(255, 193, 7, 0.5);
+        }
+
+        .btn-contact-alt {
+          background: transparent;
+          color: #1e3c72;
+          padding: 13px 28px;
+          border-radius: 30px;
+          border: 2px solid #1e3c72;
+          font-weight: 700;
+          cursor: pointer;
+          font-size: 0.92rem;
+          display: inline-flex;
+          align-items: center;
+          gap: 9px;
+          text-decoration: none;
+          transition: all 0.3s ease;
+        }
+
+        .btn-contact-alt:hover {
+          background: #1e3c72;
+          color: #ffffff;
+          transform: translateY(-3px);
+          box-shadow: 0 10px 26px rgba(30, 60, 114, 0.25);
+        }
+
+        .call-quick-info {
+          display: flex;
+          flex-wrap: wrap;
+          gap: 1.25rem;
+          padding-top: 1.25rem;
+          border-top: 1px solid #eef2f8;
+        }
+
+        .call-quick-info span {
+          font-size: 0.85rem;
+          color: #475569;
+          display: inline-flex;
+          align-items: center;
+          gap: 8px;
+          font-weight: 500;
+        }
+
+        .call-quick-info span i { color: #ffc107; }
+
+        /* ========== WELCOME / PROCESS / REQUIREMENTS / FAQ / SUPPORT ========== */
+        .welcome-section { padding: 3rem 0; background: #ffffff; }
+        .welcome-card {
+          max-width: 900px;
+          margin: 0 auto;
+          background: linear-gradient(135deg, #f7f9fc 0%, #eef2f8 100%);
+          border-left: 5px solid #ffc107;
+          border-radius: 16px;
+          padding: 2rem 2.5rem;
+          text-align: center;
+          box-shadow: 0 8px 24px rgba(26, 58, 92, 0.06);
+        }
+        .welcome-card h2 {
+          color: #1e3c72;
+          margin-bottom: 0.75rem;
+          font-size: 1.5rem;
+        }
+        .welcome-card h2 i { color: #ffc107; margin-right: 8px; }
+        .welcome-card p { color: #555; line-height: 1.7; margin: 0; }
+
+        .application-process { padding: 4rem 0; background: #f8f9fa; }
+        .section-title { text-align: center; margin-bottom: 3rem; }
+        .section-title h2 { font-size: 2rem; color: #1e3c72; }
+        .section-title h2 i { color: #ffc107; margin-right: 10px; }
+        .underline { width: 80px; height: 3px; background: #ffc107; margin: 10px auto; }
+        .section-subtitle { color: #666; font-size: 0.9rem; }
+
+        .process-steps {
+          display: grid;
+          grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+          gap: 1.5rem;
+        }
+        .step {
+          background: #ffffff;
+          border-radius: 16px;
+          padding: 1.75rem 1.5rem;
+          text-align: left;
+          box-shadow: 0 6px 20px rgba(26, 58, 92, 0.06);
+          position: relative;
+          transition: transform 0.3s ease;
+        }
+        .step:hover { transform: translateY(-4px); }
+        .step-number {
+          width: 42px;
+          height: 42px;
+          border-radius: 50%;
+          background: linear-gradient(135deg, #1e3c72, #2a5298);
+          color: #ffc107;
+          font-weight: 800;
+          font-size: 1.1rem;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          margin-bottom: 1rem;
+          box-shadow: 0 6px 14px rgba(30, 60, 114, 0.25);
+        }
+        .step-content h3 { color: #1e3c72; font-size: 1.05rem; margin-bottom: 0.5rem; }
+        .step-content p { color: #666; font-size: 0.87rem; line-height: 1.55; margin: 0; }
+
+        .requirements-section { padding: 4rem 0; background: #ffffff; }
+        .requirements-grid {
+          display: grid;
+          grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+          gap: 1.5rem;
+        }
+        .requirement-card {
+          background: #f8f9fa;
+          border-radius: 16px;
+          padding: 1.75rem;
+          text-align: left;
+        }
+        .requirement-card i {
+          font-size: 1.8rem;
+          color: #1e3c72;
+          margin-bottom: 1rem;
+        }
+        .requirement-card h3 { color: #1e3c72; margin-bottom: 1rem; font-size: 1.1rem; }
+        .requirement-card ul { list-style: none; padding: 0; margin: 0; }
+        .requirement-card ul li {
+          display: flex;
+          gap: 10px;
+          margin: 0.6rem 0;
+          font-size: 0.87rem;
+          color: #475569;
+          align-items: flex-start;
+        }
+        .requirement-card ul li i { font-size: 0.75rem; color: #ffc107; margin-top: 4px; }
+
+        .faq-section { padding: 4rem 0; background: #f8f9fa; }
+        .faq-grid {
+          max-width: 900px;
+          margin: 0 auto;
+          display: flex;
+          flex-direction: column;
+          gap: 1rem;
+        }
+        .faq-item {
+          background: #ffffff;
+          border-radius: 14px;
+          overflow: hidden;
+          box-shadow: 0 6px 20px rgba(26, 58, 92, 0.06);
+        }
+        .faq-question {
+          padding: 1.2rem 1.5rem;
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          cursor: pointer;
+          gap: 1rem;
+        }
+        .faq-question h3 { font-size: 0.98rem; color: #1e3c72; margin: 0; }
+        .faq-question i { color: #ffc107; }
+        .faq-answer { max-height: 0; overflow: hidden; transition: max-height 0.35s ease; }
+        .faq-answer.active { max-height: 300px; }
+        .faq-answer p {
+          padding: 0 1.5rem 1.25rem;
+          color: #555;
+          font-size: 0.88rem;
+          line-height: 1.65;
+          margin: 0;
+        }
+
+        .support-section { padding: 4rem 0; background: #ffffff; }
+        .support-card {
+          max-width: 720px;
+          margin: 0 auto;
+          background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+          color: #ffffff;
+          border-radius: 22px;
+          padding: 2.75rem 2.5rem;
+          text-align: center;
+          box-shadow: 0 20px 50px rgba(30, 60, 114, 0.25);
+        }
+        .support-card > i { font-size: 2.5rem; color: #ffc107; margin-bottom: 1rem; }
+        .support-card h3 { font-size: 1.5rem; margin-bottom: 0.75rem; font-weight: 800; }
+        .support-card > p { opacity: 0.92; margin-bottom: 1.75rem; line-height: 1.65; }
+        .support-contact {
+          display: flex;
+          justify-content: center;
+          gap: 1.5rem;
+          flex-wrap: wrap;
+          margin-bottom: 1.75rem;
+        }
+        .support-contact div {
+          font-size: 0.88rem;
+          display: inline-flex;
+          align-items: center;
+          gap: 8px;
+          opacity: 0.95;
+        }
+        .support-contact div i { color: #ffc107; }
+
+        /* ========== FORM ANCHOR OFFSET ========== */
+        #application-form { scroll-margin-top: 90px; }
 
         /* ========== ONLINE APPLICATION WRAPPER ========== */
         .online-application {
@@ -1054,9 +1336,7 @@ const AdmissionsPage = () => {
         }
 
         .progress-step.active,
-        .progress-step.completed {
-          opacity: 1;
-        }
+        .progress-step.completed { opacity: 1; }
 
         .progress-step .step-icon {
           width: 42px;
@@ -1104,9 +1384,7 @@ const AdmissionsPage = () => {
           border: 1px solid rgba(26, 58, 92, 0.05);
         }
 
-        .form-step {
-          display: none;
-        }
+        .form-step { display: none; }
 
         .form-step.active {
           display: block;
@@ -1118,7 +1396,6 @@ const AdmissionsPage = () => {
           to   { opacity: 1; transform: translateY(0); }
         }
 
-        /* ========== SECTION HEADER ========== */
         .section-header {
           display: flex;
           align-items: center;
@@ -1141,10 +1418,7 @@ const AdmissionsPage = () => {
           box-shadow: 0 6px 14px rgba(26, 58, 92, 0.25);
         }
 
-        .header-icon i {
-          color: #ffc107;
-          font-size: 1.35rem;
-        }
+        .header-icon i { color: #ffc107; font-size: 1.35rem; }
 
         .header-text { flex: 1; min-width: 160px; }
 
@@ -1170,7 +1444,6 @@ const AdmissionsPage = () => {
           border-radius: 20px;
         }
 
-        /* ========== FORM ROWS & GROUPS ========== */
         .form-row {
           display: grid;
           grid-template-columns: 1fr 1fr;
@@ -1178,11 +1451,7 @@ const AdmissionsPage = () => {
           margin-bottom: 1.1rem;
         }
 
-        .form-group {
-          display: flex;
-          flex-direction: column;
-        }
-
+        .form-group { display: flex; flex-direction: column; }
         .form-group.full-width { grid-column: span 2; }
 
         .form-group label {
@@ -1202,10 +1471,7 @@ const AdmissionsPage = () => {
 
         .required { color: #dc2626; }
 
-        /* ========== INPUTS ========== */
-        .input-wrapper {
-          position: relative;
-        }
+        .input-wrapper { position: relative; }
 
         .input-icon {
           position: absolute;
@@ -1219,9 +1485,7 @@ const AdmissionsPage = () => {
           z-index: 1;
         }
 
-        .input-wrapper:focus-within .input-icon {
-          color: #1a3a5c;
-        }
+        .input-wrapper:focus-within .input-icon { color: #1a3a5c; }
 
         .input-wrapper input,
         .input-wrapper select,
@@ -1244,9 +1508,7 @@ const AdmissionsPage = () => {
         }
 
         .input-wrapper input::placeholder,
-        .input-wrapper textarea::placeholder {
-          color: #b0bac7;
-        }
+        .input-wrapper textarea::placeholder { color: #b0bac7; }
 
         .input-wrapper input:hover,
         .input-wrapper select:hover,
@@ -1273,7 +1535,6 @@ const AdmissionsPage = () => {
           padding-right: 40px;
         }
 
-        /* ========== ERROR / HELP ========== */
         .error-text {
           display: inline-flex;
           align-items: center;
@@ -1284,7 +1545,6 @@ const AdmissionsPage = () => {
           font-weight: 500;
         }
 
-        /* ========== CHECKBOXES ========== */
         .form-checkboxes {
           margin-top: 1rem;
           display: flex;
@@ -1355,7 +1615,6 @@ const AdmissionsPage = () => {
         .checkbox-text small { color: #94a3b8; font-size: 0.75rem; }
         .checkbox-text a { color: #1a3a5c; font-weight: 600; text-decoration: underline; }
 
-        /* ========== REVIEW BLOCKS ========== */
         .review-block {
           background: #fbfcfe;
           border: 1px solid #eef2f8;
@@ -1436,7 +1695,6 @@ const AdmissionsPage = () => {
           word-break: break-word;
         }
 
-        /* ========== NAV BUTTONS ========== */
         .form-navigation {
           display: flex;
           justify-content: space-between;
@@ -1526,10 +1784,28 @@ const AdmissionsPage = () => {
         .form-footnote i { color: #ffc107; }
 
         /* ========== RESPONSIVE ========== */
+        @media (max-width: 900px) {
+          .call-admissions-card {
+            flex-direction: column;
+            text-align: center;
+            padding: 2rem 1.75rem;
+          }
+          .call-admissions-icon { margin: 0 auto; }
+          .call-admissions-content { text-align: center; }
+          .call-admissions-actions { justify-content: center; }
+          .call-quick-info { justify-content: center; }
+        }
+
         @media (max-width: 768px) {
-          .hero { min-height: 70vh; }
-          .hero-content h1 { font-size: 1.8rem; }
+          .hero { padding: 3.5rem 0 3rem; }
+          .hero-content h1 { font-size: 1.7rem; }
           .hero-content p { font-size: 0.9rem; }
+
+          .hero-highlights { gap: 0.5rem; margin-top: 1.25rem; }
+          .hero-highlights span { font-size: 0.75rem; padding: 6px 14px; }
+          .hero-notice { margin-top: 1rem; }
+
+          .call-admissions-content h2 { font-size: 1.35rem; }
 
           .online-application { padding: 3rem 0 4rem; }
           .application-form { padding: 1.4rem; border-radius: 18px; }
@@ -1555,6 +1831,18 @@ const AdmissionsPage = () => {
           }
 
           .form-navigation { gap: 0.6rem; }
+        }
+
+        @media (max-width: 480px) {
+          .hero-content h1 { font-size: 1.4rem; }
+          .hero-content p { font-size: 0.82rem; }
+          .hero-buttons { gap: 0.6rem; }
+          .btn-primary, .btn-secondary {
+            padding: 11px 22px;
+            font-size: 0.85rem;
+          }
+          .call-admissions-actions { flex-direction: column; align-items: stretch; }
+          .btn-call, .btn-contact-alt { justify-content: center; width: 100%; }
         }
       `}</style>
     </>

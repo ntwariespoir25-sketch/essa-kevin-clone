@@ -4,9 +4,6 @@ import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 import { Link } from 'react-router-dom';
 
-// Import images for hero background
-import heroBg from '../assets/hero-bg.jpg';
-
 // API Base URL
 const API_URL = import.meta.env.VITE_API_URL;
 
@@ -19,7 +16,6 @@ const GalleryPage = () => {
   const [error, setError] = useState(null);
   const [viewMode, setViewMode] = useState('grid'); // grid or masonry
 
-  // Gallery categories with enhanced styling
   const categories = [
     { id: 'all', name: 'All Photos', icon: 'fas fa-th-large', color: '#1a3a5c', bgLight: '#e8f0fe' },
     { id: 'academic', name: 'Academic', icon: 'fas fa-graduation-cap', color: '#27ae60', bgLight: '#e8f5e9' },
@@ -28,7 +24,6 @@ const GalleryPage = () => {
     { id: 'events', name: 'Events', icon: 'fas fa-calendar-alt', color: '#e74c3c', bgLight: '#fdecea' }
   ];
 
-  // Fetch gallery from API
   useEffect(() => {
     fetchGallery();
   }, []);
@@ -38,7 +33,7 @@ const GalleryPage = () => {
     try {
       const response = await fetch(`${API_URL}/api/gallery/public`);
       const data = await response.json();
-      
+
       if (data.success) {
         setGalleryItems(data.data);
       } else {
@@ -53,8 +48,8 @@ const GalleryPage = () => {
     }
   };
 
-  const filteredItems = activeFilter === 'all' 
-    ? galleryItems 
+  const filteredItems = activeFilter === 'all'
+    ? galleryItems
     : galleryItems.filter(item => item.category === activeFilter);
 
   const openLightbox = (item) => {
@@ -98,7 +93,7 @@ const GalleryPage = () => {
         } catch (e) {
           console.error('Download tracking error:', e);
         }
-        
+
         window.open(image.image, '_blank');
         Swal.fire('Download Started', 'Your image download will begin shortly.', 'success');
       }
@@ -122,7 +117,7 @@ const GalleryPage = () => {
       didOpen: () => {
         const url = encodeURIComponent(window.location.href);
         const title = encodeURIComponent(image.title);
-        
+
         document.getElementById('share-facebook')?.addEventListener('click', () => {
           window.open(`https://www.facebook.com/sharer/sharer.php?u=${url}`, '_blank');
           Swal.close();
@@ -173,7 +168,7 @@ const GalleryPage = () => {
     const now = new Date();
     const diffTime = Math.abs(now - date);
     const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-    
+
     if (diffDays === 0) return 'Today';
     if (diffDays === 1) return 'Yesterday';
     if (diffDays < 7) return `${diffDays} days ago`;
@@ -202,10 +197,9 @@ const GalleryPage = () => {
   return (
     <>
       <Navbar />
-      
-      {/* Hero Section with Gradient */}
-      <section className="gallery-hero" style={{ backgroundImage: `url(${heroBg})` }}>
-        <div className="gallery-hero-gradient"></div>
+
+      {/* Hero Section - Solid Blue */}
+      <section className="gallery-hero">
         <div className="container gallery-hero-content">
           <div className="hero-badge">
             <i className="fas fa-camera"></i> CAPTURED MOMENTS
@@ -252,15 +246,15 @@ const GalleryPage = () => {
                 </button>
               ))}
             </div>
-            
+
             <div className="view-toggle">
-              <button 
+              <button
                 className={`view-btn ${viewMode === 'grid' ? 'active' : ''}`}
                 onClick={() => setViewMode('grid')}
               >
                 <i className="fas fa-th-large"></i>
               </button>
-              <button 
+              <button
                 className={`view-btn ${viewMode === 'masonry' ? 'active' : ''}`}
                 onClick={() => setViewMode('masonry')}
               >
@@ -312,19 +306,19 @@ const GalleryPage = () => {
                 <span><i className="fas fa-download"></i> Click to download</span>
               </div>
             </div>
-            
+
             <div className={`gallery-${viewMode}`}>
               {filteredItems.map((item, index) => {
                 const categoryInfo = getCategoryInfo(item.category);
                 return (
-                  <div 
-                    key={item._id} 
+                  <div
+                    key={item._id}
                     className="gallery-card"
                     style={{ animationDelay: `${index * 0.05}s` }}
                   >
                     <div className="gallery-image-wrapper">
-                      <img 
-                        src={item.image} 
+                      <img
+                        src={item.image}
                         alt={item.title}
                         loading="lazy"
                         onError={(e) => {
@@ -442,71 +436,100 @@ const GalleryPage = () => {
         @keyframes spin {
           to { transform: rotate(360deg); }
         }
-        
-        /* Hero Section */
+
+        /* Hero Section - Solid Blue */
         .gallery-hero {
           position: relative;
-          min-height: 350px;
+          background: #1e3c72;
+          padding: 5rem 0 4rem;
           display: flex;
           align-items: center;
-          background-size: cover;
-          background-position: center;
+          overflow: hidden;
         }
-        .gallery-hero-gradient {
-          position: absolute;
-          top: 0;
-          left: 0;
-          right: 0;
-          bottom: 0;
-           background: linear-gradient(
-  135deg,
-  hsla(220, 60%, 18%, 0.80) 0%,
-  hsla(45, 90%, 70%, 0.45) 100%
-);
-        }
+
         .gallery-hero-content {
           position: relative;
           z-index: 2;
           text-align: center;
           color: white;
-          padding: 3rem 0;
+          width: 100%;
         }
+
         .hero-badge {
           display: inline-block;
-          background: rgba(255,193,7,0.2);
+          background: rgba(255,193,7,0.15);
           color: #ffc107;
-          padding: 0.5rem 1rem;
+          padding: 8px 20px;
           border-radius: 30px;
-          font-size: 0.8rem;
+          font-size: 0.82rem;
           margin-bottom: 1rem;
+          border: 1px solid rgba(255,193,7,0.3);
+          letter-spacing: 1px;
+          font-weight: 600;
+          animation: fadeInDown 0.6s ease both;
         }
+
+        @keyframes fadeInDown {
+          from { opacity: 0; transform: translateY(-15px); }
+          to   { opacity: 1; transform: translateY(0); }
+        }
+
         .gallery-hero-content h1 {
-          font-size: 2.5rem;
+          font-size: 2.75rem;
           margin-bottom: 1rem;
+          font-weight: 800;
+          letter-spacing: -0.75px;
+          line-height: 1.2;
+          text-shadow: 0 2px 20px rgba(0, 0, 0, 0.25);
+          animation: fadeInUp 0.7s ease 0.1s both;
         }
-        .gallery-hero-content .highlight {
-          color: #ffc107;
+
+        @keyframes fadeInUp {
+          from { opacity: 0; transform: translateY(20px); }
+          to   { opacity: 1; transform: translateY(0); }
         }
+
+        .gallery-hero-content .highlight { color: #ffc107; }
+
+        .gallery-hero-content p {
+          font-size: 1.05rem;
+          opacity: 0.92;
+          margin-bottom: 1rem;
+          max-width: 680px;
+          margin-left: auto;
+          margin-right: auto;
+          line-height: 1.65;
+          animation: fadeInUp 0.7s ease 0.2s both;
+        }
+
         .hero-stats {
           display: flex;
           justify-content: center;
-          gap: 2rem;
-          margin-top: 1.5rem;
+          gap: 2.5rem;
+          margin-top: 2rem;
           flex-wrap: wrap;
+          animation: fadeInUp 0.7s ease 0.3s both;
         }
+
         .hero-stat {
           text-align: center;
         }
+
         .hero-stat .stat-number {
           display: block;
-          font-size: 1.5rem;
-          font-weight: 700;
+          font-size: 1.65rem;
+          font-weight: 800;
+          color: #ffc107;
+          letter-spacing: -0.5px;
         }
+
         .hero-stat .stat-label {
           font-size: 0.8rem;
-          opacity: 0.8;
+          opacity: 0.85;
+          letter-spacing: 0.5px;
+          text-transform: uppercase;
         }
-        
+
         /* Category Filters */
         .gallery-categories {
           padding: 2rem 0;
@@ -535,6 +558,7 @@ const GalleryPage = () => {
           cursor: pointer;
           transition: all 0.3s ease;
           font-size: 0.85rem;
+          color: #475569;
         }
         .category-btn i {
           font-size: 0.9rem;
@@ -569,7 +593,7 @@ const GalleryPage = () => {
           color: white;
           border-color: #1a3a5c;
         }
-        
+
         /* Gallery Grid */
         .gallery-grid-section {
           padding: 3rem 0;
@@ -699,7 +723,7 @@ const GalleryPage = () => {
           font-size: 0.7rem;
           color: #999;
         }
-        
+
         /* No Gallery Section */
         .no-gallery-section {
           padding: 4rem 0;
@@ -773,7 +797,7 @@ const GalleryPage = () => {
           text-decoration: none;
           font-weight: 500;
         }
-        
+
         /* Lightbox Modal */
         .lightbox-modal {
           position: fixed;
@@ -861,7 +885,7 @@ const GalleryPage = () => {
           text-align: center;
           padding: 3rem;
         }
-        
+
         /* Responsive */
         @media (max-width: 992px) {
           .gallery-masonry {
@@ -869,9 +893,14 @@ const GalleryPage = () => {
           }
         }
         @media (max-width: 768px) {
-          .gallery-hero-content h1 {
-            font-size: 1.8rem;
-          }
+          .gallery-hero { padding: 3.5rem 0 3rem; }
+          .gallery-hero-content h1 { font-size: 1.8rem; }
+          .gallery-hero-content p { font-size: 0.9rem; }
+
+          .hero-stats { gap: 1.5rem; margin-top: 1.5rem; }
+          .hero-stat .stat-number { font-size: 1.35rem; }
+          .hero-stat .stat-label { font-size: 0.72rem; }
+
           .gallery-grid {
             grid-template-columns: 1fr;
           }
@@ -890,6 +919,13 @@ const GalleryPage = () => {
             width: 35px;
             height: 35px;
           }
+        }
+
+        @media (max-width: 480px) {
+          .gallery-hero-content h1 { font-size: 1.5rem; }
+          .gallery-hero-content p { font-size: 0.85rem; }
+          .hero-stats { gap: 1rem; }
+          .hero-stat .stat-number { font-size: 1.2rem; }
         }
       `}</style>
     </>

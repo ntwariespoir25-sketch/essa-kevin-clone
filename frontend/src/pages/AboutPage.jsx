@@ -5,7 +5,6 @@ import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 
 // Import all images directly from assets folder
-import heroBg from '../assets/hero-bg.jpg';
 import campusImage from '../assets/campus.png';
 import studentsImage from '../assets/students.png';
 import classroomImg from '../assets/classroom.png';
@@ -26,44 +25,44 @@ const AboutPage = () => {
   }, []);
 
   const leadershipTeam = [
-    { 
-      name: 'Ingabire Jolly', 
-      title: 'Headmistress / Director', 
+    {
+      name: 'Ingabire Jolly',
+      title: 'Headmistress / Director',
       image: campusImage,
       education: 'Experienced in Educational Leadership',
       experience: '10+ years experience'
     },
-    { 
-      name: 'Linah', 
-      title: 'Assistant Administrator', 
+    {
+      name: 'Linah',
+      title: 'Assistant Administrator',
       image: studentsImage,
       education: 'Experience in Educational and Social Affairs Management',
       experience: '10+ years experience'
     },
-    { 
-      name: 'Kabutore Boniface', 
-      title: 'Director of Studies', 
+    {
+      name: 'Kabutore Boniface',
+      title: 'Director of Studies',
       image: graduationImg,
       education: 'Experience in Curriculum Development and Academic Management',
       experience: '12+ years experience'
     },
-    { 
-      name: 'AineByoona James', 
-      title: 'Dean of Discipline', 
+    {
+      name: 'AineByoona James',
+      title: 'Dean of Discipline',
       image: graduationImg,
       education: 'Experience in Behaviours Management and Discipline Conduct',
       experience: '15+ years experience'
     },
-    { 
-      name: 'Coming Soon.....', 
-      title: 'Dean of Discipline', 
+    {
+      name: 'Coming Soon.....',
+      title: 'Dean of Discipline',
       image: graduationImg,
       education: 'Experience in Behaviours Management and Discipline Conduct',
       experience: '11+ years experience'
     },
-    { 
-      name: 'Coming Soon.....', 
-      title: 'Accountant', 
+    {
+      name: 'Coming Soon.....',
+      title: 'Accountant',
       image: graduationImg,
       education: 'Experience in Accounting and Budgeting',
       experience: '12+ years experience'
@@ -135,21 +134,17 @@ const AboutPage = () => {
     <>
       <Navbar />
 
-      {/* Hero Section - Static background image (no slider) */}
-      <section className="hero" style={{ backgroundImage: `url(${heroBg})` }}>
-        <div className="hero-overlay"></div>
-
+      {/* Hero Section - Solid Blue with Stats Cards cut in the middle at the bottom */}
+      <section className="hero">
         <div className="container hero-content">
           <div className="hero-badge">
-            <i className="fas fa-info-circle"></i> ABOUT OUR SCHOOL
+            <i className="fas fa-info-circle"></i> ABOUT US
           </div>
           <h1>
-            Excellence in{' '}
-            <span className="highlight">Technology & Administrative</span> Education
+            About <span className="highlight">ESSA Nyarugunga</span>
           </h1>
           <p>
-            For over 20 years, we have been shaping the future leaders of Rwanda through
-            quality education, discipline, and holistic development.
+            Excellence in Technology & Administrative Education — shaping future leaders since 2006.
           </p>
           <div className="hero-buttons">
             <button onClick={handleContactClick} className="btn btn-primary">
@@ -159,15 +154,11 @@ const AboutPage = () => {
               <i className="fas fa-user-graduate"></i> Apply Now
             </Link>
           </div>
-        </div>
-      </section>
 
-      {/* Stats Bar Section */}
-      <section className="stats-bar">
-        <div className="container">
-          <div className="stats-grid">
+          {/* Stats Cards - placed inside the hero but pushed to the bottom, cut in the middle */}
+          <div className="stats-cards">
             {stats.map((stat, index) => (
-              <div key={index} className="stat-item">
+              <div key={index} className="stat-card">
                 <i className={stat.icon}></i>
                 <div className="stat-number">{stat.number}</div>
                 <div className="stat-label">{stat.label}</div>
@@ -359,7 +350,7 @@ const AboutPage = () => {
         </div>
       </section>
 
-      {/* Call to Action Section */}
+      {/* Call to Action Section - solid blue */}
       <section className="cta-section">
         <div className="container">
           <div className="cta-content">
@@ -376,30 +367,12 @@ const AboutPage = () => {
       <Footer />
 
       <style>{`
-        /* ========== HERO STYLES (static background, no slider) ========== */
+        /* ========== HERO STYLES (Solid Blue, Stats Cards Cut in Middle) ========== */
         .hero {
           position: relative;
-          min-height: 90vh;
-          display: flex;
-          align-items: center;
-          overflow: hidden;
-          background-size: cover;
-          background-position: center;
-          background-repeat: no-repeat;
-        }
-
-        .hero-overlay {
-          position: absolute;
-          top: 0;
-          left: 0;
-          width: 100%;
-          height: 100%;
-          background: linear-gradient(
-            135deg,
-            hsla(220, 60%, 18%, 0.80) 0%,
-            hsla(45, 90%, 70%, 0.45) 100%
-          );
-          z-index: 2;
+          background: #1e3c72;
+          padding: 4rem 0 7rem;
+          overflow: visible;
         }
 
         .hero-content {
@@ -412,31 +385,63 @@ const AboutPage = () => {
 
         .hero-badge {
           display: inline-block;
-          background: rgba(255,193,7,0.2);
+          background: rgba(255, 193, 7, 0.15);
           color: #ffc107;
-          padding: 8px 20px;
+          padding: 7px 20px;
           border-radius: 30px;
-          font-size: 0.85rem;
+          font-size: 0.8rem;
           margin-bottom: 1rem;
-          backdrop-filter: blur(5px);
+          border: 1px solid rgba(255, 193, 7, 0.3);
+          letter-spacing: 1px;
+          font-weight: 600;
+          animation: fadeInDown 0.6s ease both;
+        }
+
+        @keyframes fadeInDown {
+          from { opacity: 0; transform: translateY(-15px); }
+          to   { opacity: 1; transform: translateY(0); }
         }
 
         .hero-content h1 {
-          font-size: 3rem;
+          font-size: 2.5rem;
           margin-bottom: 1rem;
+          font-weight: 800;
+          letter-spacing: -0.75px;
+          text-shadow: 0 2px 20px rgba(0, 0, 0, 0.25);
+          animation: fadeInUp 0.7s ease 0.1s both;
+        }
+
+        @keyframes fadeInUp {
+          from { opacity: 0; transform: translateY(20px); }
+          to   { opacity: 1; transform: translateY(0); }
         }
 
         .hero-content .highlight {
           color: #ffc107;
+          position: relative;
+          display: inline-block;
+        }
+
+        .hero-content .highlight::after {
+          content: '';
+          position: absolute;
+          bottom: 4px;
+          left: 0;
+          right: 0;
+          height: 3px;
+          background: linear-gradient(90deg, transparent, #ffc107, transparent);
+          border-radius: 2px;
         }
 
         .hero-content p {
-          font-size: 1.2rem;
-          opacity: 0.95;
-          margin-bottom: 2rem;
-          max-width: 700px;
+          font-size: 1.05rem;
+          opacity: 0.92;
+          margin-bottom: 1.75rem;
+          max-width: 620px;
           margin-left: auto;
           margin-right: auto;
+          line-height: 1.6;
+          animation: fadeInUp 0.7s ease 0.2s both;
         }
 
         .hero-buttons {
@@ -444,6 +449,7 @@ const AboutPage = () => {
           gap: 1rem;
           justify-content: center;
           flex-wrap: wrap;
+          animation: fadeInUp 0.7s ease 0.3s both;
         }
 
         .btn-primary {
@@ -452,18 +458,22 @@ const AboutPage = () => {
           padding: 12px 28px;
           border-radius: 30px;
           text-decoration: none;
-          font-weight: 600;
+          font-weight: 700;
           transition: all 0.3s ease;
           display: inline-flex;
           align-items: center;
           gap: 8px;
           border: none;
           cursor: pointer;
+          box-shadow: 0 4px 16px rgba(255, 193, 7, 0.35);
+          letter-spacing: 0.3px;
+          font-size: 0.95rem;
         }
 
         .btn-primary:hover {
           background: #e0a800;
-          transform: translateY(-2px);
+          transform: translateY(-3px);
+          box-shadow: 0 8px 24px rgba(255, 193, 7, 0.45);
         }
 
         .btn-secondary {
@@ -472,50 +482,68 @@ const AboutPage = () => {
           padding: 12px 28px;
           border-radius: 30px;
           text-decoration: none;
-          font-weight: 600;
-          border: 2px solid white;
+          font-weight: 700;
+          border: 2px solid rgba(255, 255, 255, 0.6);
           transition: all 0.3s ease;
           display: inline-flex;
           align-items: center;
           gap: 8px;
+          letter-spacing: 0.3px;
+          font-size: 0.95rem;
         }
 
         .btn-secondary:hover {
           background: white;
           color: #1e3c72;
-          transform: translateY(-2px);
+          border-color: white;
+          transform: translateY(-3px);
+          box-shadow: 0 8px 24px rgba(255, 255, 255, 0.2);
         }
 
-        /* Stats Bar Section */
-        .stats-bar {
-          background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
-          color: white;
-          padding: 3rem 0;
-        }
-
-        .stats-grid {
+        /* Stats Cards - cut in the middle at the bottom of the hero */
+        .stats-cards {
           display: grid;
           grid-template-columns: repeat(4, 1fr);
-          gap: 2rem;
-          text-align: center;
+          gap: 1.5rem;
+          margin-top: 4rem;
+          margin-bottom: -10.5rem; /* pulls cards down so they overlap the next section */
+          position: relative;
+          z-index: 5;
         }
 
-        .stat-item i {
-          font-size: 2rem;
+        .stat-card {
+          background: #ffffff;
+          border-radius: 14px;
+          padding: 2rem 1rem;
+          text-align: center;
+          box-shadow: 0 12px 32px rgba(10, 22, 40, 0.14);
+          transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .stat-card:hover {
+          transform: translateY(-6px);
+          box-shadow: 0 18px 44px rgba(10, 22, 40, 0.2);
+        }
+
+        .stat-card i {
+          font-size: 2.2rem;
           color: #ffc107;
-          margin-bottom: 0.5rem;
+          margin-bottom: 0.6rem;
           display: inline-block;
         }
 
-        .stat-number {
-          font-size: 2rem;
-          font-weight: 700;
-          margin: 0.5rem 0;
+        .stat-card .stat-number {
+          font-size: 2.2rem;
+          font-weight: 800;
+          color: #ffc107;
+          margin: 0.25rem 0;
+          letter-spacing: -0.5px;
         }
 
-        .stat-label {
-          font-size: 0.85rem;
-          opacity: 0.9;
+        .stat-card .stat-label {
+          font-size: 0.9rem;
+          color: #4a5568;
+          font-weight: 500;
         }
 
         /* Story Grid */
@@ -891,9 +919,9 @@ const AboutPage = () => {
           font-weight: 600;
         }
 
-        /* CTA Section */
+        /* CTA Section - solid blue */
         .cta-section {
-          background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+          background: #1e3c72;
           color: white;
           padding: 4rem 0;
           text-align: center;
@@ -917,7 +945,11 @@ const AboutPage = () => {
         }
 
         /* Section spacing */
-        .our-story, .mission-vision, .facilities, .leadership, .student-life-preview {
+        .our-story {
+          padding: 8rem 0 4rem; /* extra top padding for the overlapping stats cards */
+        }
+
+        .mission-vision, .facilities, .leadership, .student-life-preview {
           padding: 4rem 0;
         }
 
@@ -926,22 +958,60 @@ const AboutPage = () => {
         }
 
         /* Responsive */
+        @media (max-width: 900px) {
+          .stats-cards {
+            grid-template-columns: repeat(2, 1fr);
+            margin-bottom: -22rem;
+          }
+
+          .our-story {
+            padding-top: 14rem;
+          }
+        }
+
         @media (max-width: 768px) {
           .hero {
-            min-height: 70vh;
+            padding: 3rem 0 5rem;
           }
 
           .hero-content h1 {
-            font-size: 1.8rem;
+            font-size: 1.6rem;
           }
 
           .hero-content p {
             font-size: 0.9rem;
+            margin-bottom: 1.25rem;
           }
 
-          .stats-grid {
-            grid-template-columns: repeat(2, 1fr);
+          .hero-badge {
+            font-size: 0.72rem;
+            padding: 6px 16px;
+          }
+
+          .stats-cards {
             gap: 1rem;
+            margin-top: 3rem;
+            margin-bottom: -20rem;
+          }
+
+          .stat-card {
+            padding: 1.5rem 0.75rem;
+          }
+
+          .stat-card i {
+            font-size: 1.8rem;
+          }
+
+          .stat-card .stat-number {
+            font-size: 1.7rem;
+          }
+
+          .stat-card .stat-label {
+            font-size: 0.78rem;
+          }
+
+          .our-story {
+            padding-top: 12rem;
           }
 
           .story-grid,
@@ -977,6 +1047,34 @@ const AboutPage = () => {
 
           .facilities-grid {
             grid-template-columns: 1fr;
+          }
+        }
+
+        @media (max-width: 480px) {
+          .hero-content h1 {
+            font-size: 1.35rem;
+          }
+
+          .hero-content p {
+            font-size: 0.82rem;
+          }
+
+          .hero-buttons {
+            gap: 0.6rem;
+          }
+
+          .btn-primary,
+          .btn-secondary {
+            padding: 10px 20px;
+            font-size: 0.85rem;
+          }
+
+          .stats-cards {
+            margin-bottom: -30rem;
+          }
+
+          .our-story {
+            padding-top: 18rem;
           }
         }
       `}</style>

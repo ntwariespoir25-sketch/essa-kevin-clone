@@ -4,9 +4,6 @@ import Swal from 'sweetalert2';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 
-// Import images
-import heroBg from '../assets/hero-bg.jpg';
-
 // API Base URL
 const API_URL = import.meta.env.VITE_API_URL;
 
@@ -19,10 +16,9 @@ const NewsPage = () => {
   const [newsItems, setNewsItems] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [viewMode, setViewMode] = useState('grid'); // grid or list
+  const [viewMode, setViewMode] = useState('grid');
   const itemsPerPage = 6;
 
-  // News categories with enhanced styling
   const categories = [
     { id: 'all', name: 'All News', icon: 'fas fa-newspaper', color: '#1a3a5c', bgLight: '#e8f0fe' },
     { id: 'achievement', name: 'Achievements', icon: 'fas fa-trophy', color: '#27ae60', bgLight: '#e8f5e9' },
@@ -32,7 +28,6 @@ const NewsPage = () => {
     { id: 'sports', name: 'Sports', icon: 'fas fa-futbol', color: '#f39c12', bgLight: '#fff3e0' }
   ];
 
-  // Fetch news from API
   useEffect(() => {
     fetchNews();
   }, []);
@@ -42,7 +37,7 @@ const NewsPage = () => {
     try {
       const response = await fetch(`${API_URL}/api/news/public`);
       const data = await response.json();
-      
+
       if (data.success) {
         setNewsItems(data.data);
       } else {
@@ -57,7 +52,6 @@ const NewsPage = () => {
     }
   };
 
-  // Filter news based on category and search
   const filteredNews = newsItems.filter(item => {
     const matchesCategory = activeCategory === 'all' || item.category === activeCategory;
     const matchesSearch = item.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -66,7 +60,6 @@ const NewsPage = () => {
     return matchesCategory && matchesSearch;
   });
 
-  // Pagination
   const totalPages = Math.ceil(filteredNews.length / itemsPerPage);
   const paginatedNews = filteredNews.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
 
@@ -76,11 +69,10 @@ const NewsPage = () => {
   };
 
   const handleNewsClick = async (news) => {
-    // Increment view count
     try {
       await fetch(`${API_URL}/api/news/${news._id}/view`, { method: 'POST' });
     } catch (e) { console.error(e); }
-    
+
     setSelectedNews(news);
     setIsModalOpen(true);
     document.body.style.overflow = 'hidden';
@@ -103,7 +95,7 @@ const NewsPage = () => {
           body: JSON.stringify({ email })
         });
         const data = await response.json();
-        
+
         Swal.fire({
           title: data.success ? 'Subscribed!' : 'Already Subscribed',
           text: data.message || 'You have successfully subscribed to our newsletter.',
@@ -139,7 +131,7 @@ const NewsPage = () => {
       didOpen: () => {
         const url = encodeURIComponent(window.location.href);
         const title = encodeURIComponent(news.title);
-        
+
         document.getElementById('share-facebook')?.addEventListener('click', () => {
           window.open(`https://www.facebook.com/sharer/sharer.php?u=${url}`, '_blank');
           Swal.close();
@@ -167,7 +159,7 @@ const NewsPage = () => {
     const now = new Date();
     const diffTime = Math.abs(now - date);
     const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-    
+
     if (diffDays === 0) return 'Today';
     if (diffDays === 1) return 'Yesterday';
     if (diffDays < 7) return `${diffDays} days ago`;
@@ -197,10 +189,9 @@ const NewsPage = () => {
   return (
     <>
       <Navbar />
-      
-      {/* Hero Section with Gradient */}
-      <section className="news-hero" style={{ backgroundImage: `url(${heroBg})` }}>
-        <div className="news-hero-gradient"></div>
+
+      {/* Hero Section - Solid Blue */}
+      <section className="news-hero">
         <div className="container news-hero-content">
           <div className="hero-badge">
             <i className="fas fa-newspaper"></i> STAY INFORMED
@@ -249,9 +240,9 @@ const NewsPage = () => {
           <div className="search-filter-container">
             <div className="search-box">
               <i className="fas fa-search"></i>
-              <input 
-                type="text" 
-                placeholder="Search news articles..." 
+              <input
+                type="text"
+                placeholder="Search news articles..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
               />
@@ -261,15 +252,15 @@ const NewsPage = () => {
                 </button>
               )}
             </div>
-            
+
             <div className="view-toggle">
-              <button 
+              <button
                 className={`view-btn ${viewMode === 'grid' ? 'active' : ''}`}
                 onClick={() => setViewMode('grid')}
               >
                 <i className="fas fa-th-large"></i>
               </button>
-              <button 
+              <button
                 className={`view-btn ${viewMode === 'list' ? 'active' : ''}`}
                 onClick={() => setViewMode('list')}
               >
@@ -277,14 +268,14 @@ const NewsPage = () => {
               </button>
             </div>
           </div>
-          
+
           <div className="category-pills">
             {categories.map((category) => (
               <button
                 key={category.id}
                 className={`category-pill ${activeCategory === category.id ? 'active' : ''}`}
                 onClick={() => setActiveCategory(category.id)}
-                style={{ 
+                style={{
                   '--category-color': category.color,
                   background: activeCategory === category.id ? category.color : 'transparent'
                 }}
@@ -292,8 +283,8 @@ const NewsPage = () => {
                 <i className={category.icon}></i>
                 <span>{category.name}</span>
                 <span className="category-count">
-                  {activeCategory === category.id ? filteredNews.length : 
-                   category.id === 'all' ? newsItems.length : 
+                  {activeCategory === category.id ? filteredNews.length :
+                   category.id === 'all' ? newsItems.length :
                    newsItems.filter(n => n.category === category.id).length}
                 </span>
               </button>
@@ -384,15 +375,15 @@ const NewsPage = () => {
                   {paginatedNews.map((news, index) => {
                     const categoryInfo = getCategoryInfo(news.category);
                     return (
-                      <div 
-                        key={news._id || news.id} 
+                      <div
+                        key={news._id || news.id}
                         className={`news-card ${viewMode === 'list' ? 'list-view' : ''}`}
                         style={{ animationDelay: `${index * 0.05}s` }}
                       >
                         <div className="news-image-wrapper">
-                          <img 
-                            src={news.image || 'https://via.placeholder.com/400x250/1a3a5c/ffffff?text=ESSA+News'} 
-                            alt={news.title} 
+                          <img
+                            src={news.image || 'https://via.placeholder.com/400x250/1a3a5c/ffffff?text=ESSA+News'}
+                            alt={news.title}
                             loading="lazy"
                           />
                           <div className="news-category-tag" style={{ background: categoryInfo.color }}>
@@ -424,8 +415,8 @@ const NewsPage = () => {
                 {/* Pagination */}
                 {totalPages > 1 && (
                   <div className="pagination">
-                    <button 
-                      onClick={() => handlePageChange(currentPage - 1)} 
+                    <button
+                      onClick={() => handlePageChange(currentPage - 1)}
                       disabled={currentPage === 1}
                       className="page-btn prev"
                     >
@@ -438,7 +429,7 @@ const NewsPage = () => {
                         else if (currentPage <= 3) pageNum = i + 1;
                         else if (currentPage >= totalPages - 2) pageNum = totalPages - 4 + i;
                         else pageNum = currentPage - 2 + i;
-                        
+
                         return (
                           <button
                             key={pageNum}
@@ -458,8 +449,8 @@ const NewsPage = () => {
                         </>
                       )}
                     </div>
-                    <button 
-                      onClick={() => handlePageChange(currentPage + 1)} 
+                    <button
+                      onClick={() => handlePageChange(currentPage + 1)}
                       disabled={currentPage === totalPages}
                       className="page-btn next"
                     >
@@ -481,52 +472,6 @@ const NewsPage = () => {
           </div>
         </section>
       )}
-
-      {/* Upcoming Events Section */}
-      <section className="upcoming-events">
-        <div className="container">
-          <div className="section-title">
-            <h2><i className="fas fa-calendar-alt"></i> Upcoming Events</h2>
-            <div className="underline"></div>
-            <p className="section-subtitle">Mark your calendars for these important dates</p>
-          </div>
-          <div className="events-list">
-            <div className="event-item">
-              <div className="event-date">
-                <span className="event-day">15</span>
-                <span className="event-month">MAY</span>
-              </div>
-              <div className="event-details">
-                <h3>Parent-Teacher Conference</h3>
-                <p><i className="fas fa-clock"></i> 8:00 AM - 5:00 PM | School Auditorium</p>
-                <span className="event-status upcoming">Upcoming</span>
-              </div>
-            </div>
-            <div className="event-item">
-              <div className="event-date">
-                <span className="event-day">20</span>
-                <span className="event-month">MAY</span>
-              </div>
-              <div className="event-details">
-                <h3>Science Fair Exhibition</h3>
-                <p><i className="fas fa-clock"></i> 9:00 AM - 3:00 PM | Science Laboratory</p>
-                <span className="event-status upcoming">Upcoming</span>
-              </div>
-            </div>
-            <div className="event-item">
-              <div className="event-date">
-                <span className="event-day">10</span>
-                <span className="event-month">JUN</span>
-              </div>
-              <div className="event-details">
-                <h3>Term 2 Examinations Begin</h3>
-                <p><i className="fas fa-clock"></i> All Day | Various Classrooms</p>
-                <span className="event-status upcoming">Upcoming</span>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
 
       {/* News Modal */}
       {isModalOpen && selectedNews && (
@@ -588,71 +533,100 @@ const NewsPage = () => {
         @keyframes spin {
           to { transform: rotate(360deg); }
         }
-        
-        /* Hero Section */
+
+        /* Hero Section - Solid Blue */
         .news-hero {
           position: relative;
-          min-height: 350px;
+          background: #1e3c72;
+          padding: 5rem 0 4rem;
           display: flex;
           align-items: center;
-          background-size: cover;
-          background-position: center;
+          overflow: hidden;
         }
-        .news-hero-gradient {
-          position: absolute;
-          top: 0;
-          left: 0;
-          right: 0;
-          bottom: 0;
-            background: linear-gradient(
-  135deg,
-  hsla(220, 60%, 18%, 0.80) 0%,
-  hsla(45, 90%, 70%, 0.45) 100%
-);
-        }
+
         .news-hero-content {
           position: relative;
           z-index: 2;
           text-align: center;
           color: white;
-          padding: 3rem 0;
+          width: 100%;
         }
+
         .hero-badge {
           display: inline-block;
-          background: rgba(255,193,7,0.2);
+          background: rgba(255,193,7,0.15);
           color: #ffc107;
-          padding: 0.5rem 1rem;
+          padding: 8px 20px;
           border-radius: 30px;
-          font-size: 0.8rem;
+          font-size: 0.82rem;
           margin-bottom: 1rem;
+          border: 1px solid rgba(255,193,7,0.3);
+          letter-spacing: 1px;
+          font-weight: 600;
+          animation: fadeInDown 0.6s ease both;
         }
+
+        @keyframes fadeInDown {
+          from { opacity: 0; transform: translateY(-15px); }
+          to   { opacity: 1; transform: translateY(0); }
+        }
+
         .news-hero-content h1 {
-          font-size: 2.5rem;
+          font-size: 2.75rem;
           margin-bottom: 1rem;
+          font-weight: 800;
+          letter-spacing: -0.75px;
+          line-height: 1.2;
+          text-shadow: 0 2px 20px rgba(0, 0, 0, 0.25);
+          animation: fadeInUp 0.7s ease 0.1s both;
         }
-        .news-hero-content .highlight {
-          color: #ffc107;
+
+        @keyframes fadeInUp {
+          from { opacity: 0; transform: translateY(20px); }
+          to   { opacity: 1; transform: translateY(0); }
         }
+
+        .news-hero-content .highlight { color: #ffc107; }
+
+        .news-hero-content p {
+          font-size: 1.05rem;
+          opacity: 0.92;
+          margin-bottom: 1rem;
+          max-width: 680px;
+          margin-left: auto;
+          margin-right: auto;
+          line-height: 1.65;
+          animation: fadeInUp 0.7s ease 0.2s both;
+        }
+
         .hero-stats {
           display: flex;
           justify-content: center;
-          gap: 2rem;
-          margin-top: 1.5rem;
+          gap: 2.5rem;
+          margin-top: 2rem;
           flex-wrap: wrap;
+          animation: fadeInUp 0.7s ease 0.3s both;
         }
+
         .hero-stat {
           text-align: center;
         }
+
         .hero-stat .stat-number {
           display: block;
-          font-size: 1.5rem;
-          font-weight: 700;
+          font-size: 1.65rem;
+          font-weight: 800;
+          color: #ffc107;
+          letter-spacing: -0.5px;
         }
+
         .hero-stat .stat-label {
           font-size: 0.8rem;
-          opacity: 0.8;
+          opacity: 0.85;
+          letter-spacing: 0.5px;
+          text-transform: uppercase;
         }
-        
+
         /* Newsletter Bar */
         .newsletter-bar {
           background: #1a3a5c;
@@ -707,12 +681,11 @@ const NewsPage = () => {
         .newsletter-form-inline button:hover {
           transform: translateY(-2px);
         }
-        
+
         /* Search and Filter */
         .news-search-section {
           padding: 2rem 0;
           background: #f8f9fa;
-          color:blue;
         }
         .search-filter-container {
           display: flex;
@@ -785,6 +758,7 @@ const NewsPage = () => {
           cursor: pointer;
           transition: 0.3s;
           font-size: 0.85rem;
+          color: #475569;
         }
         .category-pill i {
           font-size: 0.9rem;
@@ -803,7 +777,7 @@ const NewsPage = () => {
         .category-pill.active .category-count {
           background: rgba(255,255,255,0.2);
         }
-        
+
         /* Featured News */
         .featured-news {
           padding: 3rem 0;
@@ -881,7 +855,7 @@ const NewsPage = () => {
           color: #1a3a5c;
           transform: translateX(5px);
         }
-        
+
         /* News Grid */
         .news-grid-section {
           padding: 3rem 0;
@@ -1004,7 +978,7 @@ const NewsPage = () => {
         .read-more:hover {
           transform: translateX(3px);
         }
-        
+
         /* Pagination */
         .pagination {
           display: flex;
@@ -1053,77 +1027,7 @@ const NewsPage = () => {
           padding: 0 5px;
           color: #999;
         }
-        
-        /* Upcoming Events */
-        .upcoming-events {
-          padding: 3rem 0;
-        }
-        .section-title {
-          text-align: center;
-          margin-bottom: 2rem;
-        }
-        .section-title h2 {
-          font-size: 1.8rem;
-          color: #1a3a5c;
-        }
-        .underline {
-          width: 80px;
-          height: 3px;
-          background: #ffc107;
-          margin: 0.5rem auto;
-        }
-        .events-list {
-          max-width: 700px;
-          margin: 0 auto;
-        }
-        .event-item {
-          display: flex;
-          gap: 1rem;
-          background: white;
-          padding: 1rem;
-          border-radius: 12px;
-          margin-bottom: 1rem;
-          box-shadow: 0 2px 8px rgba(0,0,0,0.05);
-        }
-        .event-date {
-          text-align: center;
-          background: #1a3a5c;
-          color: white;
-          padding: 0.8rem;
-          border-radius: 12px;
-          min-width: 70px;
-        }
-        .event-day {
-          display: block;
-          font-size: 1.2rem;
-          font-weight: 700;
-        }
-        .event-month {
-          font-size: 0.7rem;
-        }
-        .event-details {
-          flex: 1;
-        }
-        .event-details h3 {
-          margin-bottom: 0.3rem;
-          color: #1a3a5c;
-        }
-        .event-details p {
-          font-size: 0.8rem;
-          color: #666;
-        }
-        .event-status {
-          display: inline-block;
-          font-size: 0.7rem;
-          padding: 2px 8px;
-          border-radius: 20px;
-          margin-top: 0.3rem;
-        }
-        .event-status.upcoming {
-          background: #e8f5e9;
-          color: #4caf50;
-        }
-        
+
         /* Modal */
         .news-modal {
           position: fixed;
@@ -1205,7 +1109,7 @@ const NewsPage = () => {
         .modal-print-btn {
           background: #f0f2f5;
         }
-        
+
         /* No News Section */
         .no-news-section {
           padding: 4rem 0;
@@ -1237,12 +1141,17 @@ const NewsPage = () => {
           border-radius: 30px;
           cursor: pointer;
         }
-        
+
         /* Responsive */
         @media (max-width: 768px) {
-          .news-hero-content h1 {
-            font-size: 1.8rem;
-          }
+          .news-hero { padding: 3.5rem 0 3rem; }
+          .news-hero-content h1 { font-size: 1.8rem; }
+          .news-hero-content p { font-size: 0.9rem; }
+
+          .hero-stats { gap: 1.5rem; margin-top: 1.5rem; }
+          .hero-stat .stat-number { font-size: 1.35rem; }
+          .hero-stat .stat-label { font-size: 0.72rem; }
+
           .featured-card {
             grid-template-columns: 1fr;
           }
@@ -1280,6 +1189,13 @@ const NewsPage = () => {
             width: 32px;
             height: 32px;
           }
+        }
+
+        @media (max-width: 480px) {
+          .news-hero-content h1 { font-size: 1.5rem; }
+          .news-hero-content p { font-size: 0.85rem; }
+          .hero-stats { gap: 1rem; }
+          .hero-stat .stat-number { font-size: 1.2rem; }
         }
       `}</style>
     </>
