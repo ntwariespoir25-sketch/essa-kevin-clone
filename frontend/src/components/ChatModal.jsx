@@ -103,7 +103,7 @@ const response = await fetch(`${API_URL}/api/messages/conversation/${otherUserId
         title: 'Incomplete Message',
         text: 'Please fill both subject and message fields.',
         icon: 'warning',
-        confirmButtonColor: '#1a3a5c'
+        confirmButtonColor:'var(--navy)'
       });
       return;
     }
@@ -147,7 +147,7 @@ const response = await fetch(`${API_URL}/api/messages/conversation/${otherUserId
         title: 'Error',
         text: 'Failed to send message. Please try again.',
         icon: 'error',
-        confirmButtonColor: '#1a3a5c'
+        confirmButtonColor:'var(--navy)'
       });
     } finally {
       setLoading(false);
@@ -186,7 +186,7 @@ const response = await fetch(`${API_URL}/api/messages/conversation/${otherUserId
         title: 'Error',
         text: 'Failed to send message. Please try again.',
         icon: 'error',
-        confirmButtonColor: '#1a3a5c'
+        confirmButtonColor:'var(--navy)'
       });
     }
   };

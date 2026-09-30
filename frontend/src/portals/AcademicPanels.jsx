@@ -23,8 +23,8 @@ const DAYS = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'
 const EXAM_TYPES = ['CAT', 'Midterm', 'Final', 'Quiz', 'Assignment', 'Practical', 'Other'];
 
 const inputStyle = {
-  width: '100%', padding: '8px 11px', border: '1.5px solid #e0e0e0', borderRadius: 8,
-  fontSize: 13, fontFamily: 'inherit', outline: 'none', boxSizing: 'border-box', background: 'white'
+  width: '100%', padding: '8px 11px', border:'1.5px solid var(--surface-sunken-2)', borderRadius: 8,
+  fontSize: 13, fontFamily: 'inherit', outline: 'none', boxSizing: 'border-box', background:'var(--surface-card)'
 };
 const Inp = (p) => <input {...p} style={{ ...inputStyle, ...p.style }} />;
 const Sel = ({ children, ...p }) => <select {...p} style={{ ...inputStyle, ...p.style }}>{children}</select>;
@@ -33,8 +33,8 @@ const Panel = ({ title, sub, actions, children }) => (
   <div>
     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: 12, marginBottom: 18 }}>
       <div>
-        <h2 style={{ margin: 0, fontSize: 19, color: '#1a3a5c', fontFamily: 'Georgia, serif' }}>{title}</h2>
-        {sub && <p style={{ margin: '5px 0 0', fontSize: 12.5, color: '#888', maxWidth: 640, lineHeight: 1.5 }}>{sub}</p>}
+        <h2 style={{ margin: 0, fontSize: 19, color:'var(--navy)', fontFamily: 'Georgia, serif' }}>{title}</h2>
+        {sub && <p style={{ margin: '5px 0 0', fontSize: 12.5, color:'var(--text-faint)', maxWidth: 640, lineHeight: 1.5 }}>{sub}</p>}
       </div>
       {actions && <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>{actions}</div>}
     </div>
@@ -43,12 +43,12 @@ const Panel = ({ title, sub, actions, children }) => (
 );
 
 const Card = ({ children, style }) => (
-  <div style={{ background: 'white', borderRadius: 14, padding: 18, boxShadow: '0 2px 10px rgba(0,0,0,.05)', border: '1px solid #f0f0f0', ...style }}>{children}</div>
+  <div style={{ background:'var(--surface-card)', borderRadius: 14, padding: 18, boxShadow: '0 2px 10px rgba(0,0,0,.05)', border:'1px solid var(--surface-page)', ...style }}>{children}</div>
 );
 
 const Btn = ({ children, onClick, icon, color = '#1a3a5c', small, danger, disabled }) => (
   <button onClick={onClick} disabled={disabled} style={{
-    background: danger ? '#e74c3c' : disabled ? '#ccc' : color, color: 'white', border: 'none',
+    background: danger ? '#e74c3c' : disabled ? '#ccc' : color, color:'var(--on-solid)', border: 'none',
     borderRadius: 8, padding: small ? '6px 12px' : '8px 16px', fontSize: small ? 12 : 13,
     fontWeight: 600, cursor: disabled ? 'not-allowed' : 'pointer', display: 'inline-flex',
     alignItems: 'center', gap: 6, fontFamily: 'inherit'
@@ -56,32 +56,32 @@ const Btn = ({ children, onClick, icon, color = '#1a3a5c', small, danger, disabl
 );
 
 const Table = ({ cols, rows, empty = 'Nothing to show yet' }) => (
-  <div style={{ overflowX: 'auto', borderRadius: 10, border: '1px solid #f0f0f0' }}>
+  <div style={{ overflowX: 'auto', borderRadius: 10, border:'1px solid var(--surface-page)' }}>
     <table style={{ width: '100%', borderCollapse: 'collapse', minWidth: 520 }}>
       <thead>
-        <tr style={{ background: '#f7f9fb' }}>
-          {cols.map((c, i) => <th key={i} style={{ padding: '9px 13px', textAlign: 'left', fontSize: 10.5, fontWeight: 700, color: '#888', letterSpacing: .8, borderBottom: '1px solid #eee', whiteSpace: 'nowrap' }}>{c.toUpperCase()}</th>)}
+        <tr style={{ background:'var(--surface-muted)' }}>
+          {cols.map((c, i) => <th key={i} style={{ padding: '9px 13px', textAlign: 'left', fontSize: 10.5, fontWeight: 700, color:'var(--text-faint)', letterSpacing: .8, borderBottom:'1px solid var(--border)', whiteSpace: 'nowrap' }}>{c.toUpperCase()}</th>)}
         </tr>
       </thead>
       <tbody>
         {rows.length === 0
-          ? <tr><td colSpan={cols.length} style={{ textAlign: 'center', padding: 30, color: '#bbb', fontSize: 13 }}>{empty}</td></tr>
-          : rows.map((r, i) => <tr key={i} style={{ borderBottom: '1px solid #f5f5f5' }}>{r}</tr>)}
+          ? <tr><td colSpan={cols.length} style={{ textAlign: 'center', padding: 30, color:'var(--text-faint-2)', fontSize: 13 }}>{empty}</td></tr>
+          : rows.map((r, i) => <tr key={i} style={{ borderBottom:'1px solid var(--surface-muted)' }}>{r}</tr>)}
       </tbody>
     </table>
   </div>
 );
-const TD = ({ children, style }) => <td style={{ padding: '9px 13px', fontSize: 13, color: '#333', ...style }}>{children}</td>;
+const TD = ({ children, style }) => <td style={{ padding: '9px 13px', fontSize: 13, color:'var(--text-body)', ...style }}>{children}</td>;
 
 const Tag = ({ text, color = '#1a3a5c', bg = '#eef2f6' }) => (
   <span style={{ display: 'inline-block', padding: '2px 8px', borderRadius: 20, fontSize: 10.5, fontWeight: 700, color, background: bg }}>{text}</span>
 );
 
 const Metric = ({ label, value, sub, color = '#1a3a5c' }) => (
-  <div style={{ background: 'white', borderRadius: 12, padding: '14px 16px', border: '1px solid #f0f0f0' }}>
-    <div style={{ fontSize: 11, color: '#888', fontWeight: 600, letterSpacing: .4 }}>{label.toUpperCase()}</div>
+  <div style={{ background:'var(--surface-card)', borderRadius: 12, padding: '14px 16px', border:'1px solid var(--surface-page)' }}>
+    <div style={{ fontSize: 11, color:'var(--text-faint)', fontWeight: 600, letterSpacing: .4 }}>{label.toUpperCase()}</div>
     <div style={{ fontSize: 24, fontWeight: 700, color, fontFamily: 'Georgia, serif', marginTop: 4 }}>{value ?? '—'}</div>
-    {sub && <div style={{ fontSize: 11, color: '#999', marginTop: 2 }}>{sub}</div>}
+    {sub && <div style={{ fontSize: 11, color:'var(--text-faint)', marginTop: 2 }}>{sub}</div>}
   </div>
 );
 
@@ -90,7 +90,7 @@ const Bar = ({ value, max, color = '#27ae60' }) => (
     <div style={{ flex: 1, height: 7, background: '#eef1f4', borderRadius: 4, overflow: 'hidden', minWidth: 60 }}>
       <div style={{ width: `${max ? (value / max) * 100 : 0}%`, height: '100%', background: color, borderRadius: 4, transition: 'width .3s' }} />
     </div>
-    <span style={{ fontSize: 12, fontWeight: 700, color: '#555', minWidth: 34, textAlign: 'right' }}>{value ?? 0}%</span>
+    <span style={{ fontSize: 12, fontWeight: 700, color:'var(--text-2)', minWidth: 34, textAlign: 'right' }}>{value ?? 0}%</span>
   </div>
 );
 
@@ -142,24 +142,24 @@ export const TimetablePanel = ({ classes, teachers }) => {
     >
       <Card style={{ marginBottom: 18 }}>
         <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap', alignItems: 'flex-end', marginBottom: 12 }}>
-          <label style={{ fontSize: 11, fontWeight: 700, color: '#666' }}>DAY
+          <label style={{ fontSize: 11, fontWeight: 700, color:'var(--text-secondary)' }}>DAY
             <Sel value={form.dayOfWeek} onChange={e => setForm({ ...form, dayOfWeek: e.target.value })} style={{ marginTop: 4, width: 150 }}>
               {DAYS.map((d, i) => <option key={d} value={i + 1}>{d}</option>)}
             </Sel>
           </label>
-          <label style={{ fontSize: 11, fontWeight: 700, color: '#666' }}>PERIOD
+          <label style={{ fontSize: 11, fontWeight: 700, color:'var(--text-secondary)' }}>PERIOD
             <Inp type="number" min="1" max="12" value={form.period} onChange={e => setForm({ ...form, period: e.target.value })} style={{ marginTop: 4, width: 80 }} />
           </label>
-          <label style={{ fontSize: 11, fontWeight: 700, color: '#666' }}>SUBJECT
+          <label style={{ fontSize: 11, fontWeight: 700, color:'var(--text-secondary)' }}>SUBJECT
             <Inp value={form.subject} onChange={e => setForm({ ...form, subject: e.target.value })} placeholder="e.g. Mathematics" style={{ marginTop: 4, width: 170 }} />
           </label>
-          <label style={{ fontSize: 11, fontWeight: 700, color: '#666' }}>TEACHER
+          <label style={{ fontSize: 11, fontWeight: 700, color:'var(--text-secondary)' }}>TEACHER
             <Sel value={form.teacherId} onChange={e => setForm({ ...form, teacherId: e.target.value })} style={{ marginTop: 4, width: 170 }}>
               <option value="">— Unassigned —</option>
               {teachers.map(t => <option key={t._id} value={t._id}>{t.fullName}</option>)}
             </Sel>
           </label>
-          <label style={{ fontSize: 11, fontWeight: 700, color: '#666' }}>ROOM
+          <label style={{ fontSize: 11, fontWeight: 700, color:'var(--text-secondary)' }}>ROOM
             <Inp value={form.room} onChange={e => setForm({ ...form, room: e.target.value })} placeholder="e.g. B12" style={{ marginTop: 4, width: 100 }} />
           </label>
           <Btn icon="fas fa-plus" onClick={add} disabled={busy}>Add slot</Btn>
@@ -175,25 +175,25 @@ export const TimetablePanel = ({ classes, teachers }) => {
         <table style={{ width: '100%', borderCollapse: 'collapse', minWidth: 720 }}>
           <thead>
             <tr>
-              <th style={{ padding: '9px', fontSize: 10.5, color: '#888', textAlign: 'left', width: 60 }}>PERIOD</th>
-              {DAYS.map(d => <th key={d} style={{ padding: '9px', fontSize: 10.5, color: '#888', textAlign: 'left' }}>{d.toUpperCase()}</th>)}
+              <th style={{ padding: '9px', fontSize: 10.5, color:'var(--text-faint)', textAlign: 'left', width: 60 }}>PERIOD</th>
+              {DAYS.map(d => <th key={d} style={{ padding: '9px', fontSize: 10.5, color:'var(--text-faint)', textAlign: 'left' }}>{d.toUpperCase()}</th>)}
             </tr>
           </thead>
           <tbody>
             {periods.map(p => (
-              <tr key={p} style={{ borderBottom: '1px solid #f5f5f5' }}>
-                <TD style={{ fontWeight: 700, color: '#999' }}>{p}</TD>
+              <tr key={p} style={{ borderBottom:'1px solid var(--surface-muted)' }}>
+                <TD style={{ fontWeight: 700, color:'var(--text-faint)' }}>{p}</TD>
                 {DAYS.map((_, di) => {
                   const e = entries.find(x => x.dayOfWeek === di + 1 && x.period === p);
                   return (
                     <td key={di} style={{ padding: '5px' }}>
                       {e ? (
                         <div style={{ background: '#eef4fb', borderLeft: '3px solid #3498db', borderRadius: 6, padding: '6px 8px' }}>
-                          <div style={{ fontSize: 12, fontWeight: 700, color: '#1a3a5c' }}>{e.subject}</div>
-                          <div style={{ fontSize: 10.5, color: '#777' }}>{e.teacherName || 'Unassigned'}{e.room ? ` · ${e.room}` : ''}</div>
+                          <div style={{ fontSize: 12, fontWeight: 700, color:'var(--navy)' }}>{e.subject}</div>
+                          <div style={{ fontSize: 10.5, color:'var(--text-faint)' }}>{e.teacherName || 'Unassigned'}{e.room ? ` · ${e.room}` : ''}</div>
                           <button onClick={() => remove(e._id)} title="Remove" style={{ background: 'none', border: 'none', color: '#c0392b', cursor: 'pointer', fontSize: 10, padding: 0, marginTop: 2 }}><i className="fas fa-times" /></button>
                         </div>
-                      ) : <div style={{ padding: '6px 8px', fontSize: 11, color: '#ddd' }}>—</div>}
+                      ) : <div style={{ padding: '6px 8px', fontSize: 11, color:'var(--border)' }}>—</div>}
                     </td>
                   );
                 })}
@@ -235,16 +235,16 @@ export const SubjectAllocationPanel = ({ classes, teachers }) => {
     >
       <Card style={{ marginBottom: 18 }}>
         <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap', alignItems: 'flex-end' }}>
-          <label style={{ fontSize: 11, fontWeight: 700, color: '#666' }}>SUBJECT
+          <label style={{ fontSize: 11, fontWeight: 700, color:'var(--text-secondary)' }}>SUBJECT
             <Inp value={form.subject} onChange={e => setForm({ ...form, subject: e.target.value })} placeholder="e.g. Biology" style={{ marginTop: 4, width: 180 }} />
           </label>
-          <label style={{ fontSize: 11, fontWeight: 700, color: '#666' }}>TEACHER
+          <label style={{ fontSize: 11, fontWeight: 700, color:'var(--text-secondary)' }}>TEACHER
             <Sel value={form.teacherId} onChange={e => setForm({ ...form, teacherId: e.target.value })} style={{ marginTop: 4, width: 180 }}>
               <option value="">— Unassigned —</option>
               {teachers.map(t => <option key={t._id} value={t._id}>{t.fullName}</option>)}
             </Sel>
           </label>
-          <label style={{ fontSize: 11, fontWeight: 700, color: '#666' }}>PERIODS / WEEK
+          <label style={{ fontSize: 11, fontWeight: 700, color:'var(--text-secondary)' }}>PERIODS / WEEK
             <Inp type="number" min="0" value={form.periodsPerWeek} onChange={e => setForm({ ...form, periodsPerWeek: e.target.value })} style={{ marginTop: 4, width: 120 }} />
           </label>
           <Btn icon="fas fa-plus" onClick={add}>Allocate</Btn>
@@ -324,27 +324,27 @@ export const ExamsPanel = ({ classes }) => {
 
       <Card style={{ marginBottom: 18 }}>
         <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap', alignItems: 'flex-end' }}>
-          <label style={{ fontSize: 11, fontWeight: 700, color: '#666' }}>NAME
+          <label style={{ fontSize: 11, fontWeight: 700, color:'var(--text-secondary)' }}>NAME
             <Inp value={form.name} onChange={e => setForm({ ...form, name: e.target.value })} placeholder="e.g. Term 1 Midterm" style={{ marginTop: 4, width: 190 }} />
           </label>
-          <label style={{ fontSize: 11, fontWeight: 700, color: '#666' }}>TYPE
+          <label style={{ fontSize: 11, fontWeight: 700, color:'var(--text-secondary)' }}>TYPE
             <Sel value={form.type} onChange={e => setForm({ ...form, type: e.target.value })} style={{ marginTop: 4, width: 120 }}>
               {EXAM_TYPES.map(t => <option key={t}>{t}</option>)}
             </Sel>
           </label>
-          <label style={{ fontSize: 11, fontWeight: 700, color: '#666' }}>WEIGHT %
+          <label style={{ fontSize: 11, fontWeight: 700, color:'var(--text-secondary)' }}>WEIGHT %
             <Inp type="number" min="0" max="100" value={form.weight} onChange={e => setForm({ ...form, weight: e.target.value })} style={{ marginTop: 4, width: 90 }} />
           </label>
-          <label style={{ fontSize: 11, fontWeight: 700, color: '#666' }}>MAX SCORE
+          <label style={{ fontSize: 11, fontWeight: 700, color:'var(--text-secondary)' }}>MAX SCORE
             <Inp type="number" min="1" value={form.maxScore} onChange={e => setForm({ ...form, maxScore: e.target.value })} style={{ marginTop: 4, width: 100 }} />
           </label>
-          <label style={{ fontSize: 11, fontWeight: 700, color: '#666' }}>DATE
+          <label style={{ fontSize: 11, fontWeight: 700, color:'var(--text-secondary)' }}>DATE
             <Inp type="date" value={form.examDate} onChange={e => setForm({ ...form, examDate: e.target.value })} style={{ marginTop: 4, width: 150 }} />
           </label>
           <Btn icon="fas fa-plus" onClick={create} disabled={busy}>Create exam</Btn>
         </div>
         <div style={{ marginTop: 12 }}>
-          <div style={{ fontSize: 11, fontWeight: 700, color: '#666', marginBottom: 6 }}>CLASSES THIS EXAM COVERS</div>
+          <div style={{ fontSize: 11, fontWeight: 700, color:'var(--text-secondary)', marginBottom: 6 }}>CLASSES THIS EXAM COVERS</div>
           <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
             {classes.map(c => {
               const on = form.classIds.includes(c._id);
@@ -354,7 +354,7 @@ export const ExamsPanel = ({ classes }) => {
                   classIds: on ? form.classIds.filter(id => id !== c._id) : [...form.classIds, c._id]
                 })} style={{
                   padding: '5px 12px', borderRadius: 20, fontSize: 12, fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit',
-                  border: `1.5px solid ${on ? '#1a3a5c' : '#e0e0e0'}`, background: on ? '#1a3a5c' : 'white', color: on ? 'white' : '#666'
+                  border: `1.5px solid ${on ? '#1a3a5c' : '#e0e0e0'}`, background: on ? '#1a3a5c' : 'var(--surface-card)', color: on ? 'var(--on-solid)' : '#666'
                 }}>{classLabel(c)}</button>
               );
             })}
@@ -430,7 +430,7 @@ export const ReportCardsPanel = ({ classes }) => {
         cols={['Pos', 'Student', 'Class', 'Subjects', 'Average', 'Grade', 'GPA', 'Attendance', '']}
         rows={(data?.reportCards || []).map(r => (
           <tr key={r.studentId}>
-            <TD style={{ fontWeight: 700, color: '#b8930a' }}>{r.position}</TD>
+            <TD style={{ fontWeight: 700, color:'var(--tint-amber-text)' }}>{r.position}</TD>
             <TD style={{ fontWeight: 600 }}>{r.name}</TD>
             <TD>{r.className}</TD>
             <TD>
@@ -469,11 +469,11 @@ export const ReportCardsPanel = ({ classes }) => {
 
       {open && (
         <div onClick={() => setOpen(null)} style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,.5)', zIndex: 3000, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 16 }}>
-          <div onClick={e => e.stopPropagation()} style={{ background: 'white', borderRadius: 16, maxWidth: 640, width: '100%', maxHeight: '90vh', overflow: 'auto', padding: 24 }}>
+          <div onClick={e => e.stopPropagation()} style={{ background:'var(--surface-card)', borderRadius: 16, maxWidth: 640, width: '100%', maxHeight: '90vh', overflow: 'auto', padding: 24 }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
               <div>
-                <h3 style={{ margin: 0, fontFamily: 'Georgia, serif', color: '#1a3a5c' }}>{open.name}</h3>
-                <div style={{ fontSize: 12, color: '#888' }}>{open.className} · {term} {year} · Position {open.position}</div>
+                <h3 style={{ margin: 0, fontFamily: 'Georgia, serif', color:'var(--navy)' }}>{open.name}</h3>
+                <div style={{ fontSize: 12, color:'var(--text-faint)' }}>{open.className} · {term} {year} · Position {open.position}</div>
               </div>
               <Btn small icon="fas fa-times" color="#6c757d" onClick={() => setOpen(null)} />
             </div>
@@ -546,23 +546,23 @@ export const PromotionPanel = ({ classes }) => {
     >
       <Card style={{ marginBottom: 18 }}>
         <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap', alignItems: 'flex-end' }}>
-          <label style={{ fontSize: 11, fontWeight: 700, color: '#666' }}>FROM
+          <label style={{ fontSize: 11, fontWeight: 700, color:'var(--text-secondary)' }}>FROM
             <Sel value={fromClassId} onChange={e => { setFromClassId(e.target.value); setPreview(null); }} style={{ marginTop: 4, width: 170 }}>
               <option value="">— Select —</option>
               {classes.map(c => <option key={c._id} value={c._id}>{classLabel(c)}</option>)}
             </Sel>
           </label>
-          <i className="fas fa-arrow-right" style={{ color: '#ccc', marginBottom: 10 }} />
-          <label style={{ fontSize: 11, fontWeight: 700, color: '#666' }}>TO
+          <i className="fas fa-arrow-right" style={{ color:'var(--border-strong)', marginBottom: 10 }} />
+          <label style={{ fontSize: 11, fontWeight: 700, color:'var(--text-secondary)' }}>TO
             <Sel value={toClassId} onChange={e => { setToClassId(e.target.value); setPreview(null); }} style={{ marginTop: 4, width: 170 }}>
               <option value="">— Select —</option>
               {classes.filter(c => c._id !== fromClassId).map(c => <option key={c._id} value={c._id}>{classLabel(c)}</option>)}
             </Sel>
           </label>
-          <label style={{ fontSize: 11, fontWeight: 700, color: '#666' }}>MIN AVG
+          <label style={{ fontSize: 11, fontWeight: 700, color:'var(--text-secondary)' }}>MIN AVG
             <Inp type="number" value={minAverage} onChange={e => setMinAverage(e.target.value)} placeholder="e.g. 50" style={{ marginTop: 4, width: 95 }} />
           </label>
-          <label style={{ fontSize: 11, fontWeight: 700, color: '#666' }}>MAX AVG
+          <label style={{ fontSize: 11, fontWeight: 700, color:'var(--text-secondary)' }}>MAX AVG
             <Inp type="number" value={maxAverage} onChange={e => setMaxAverage(e.target.value)} placeholder="e.g. 100" style={{ marginTop: 4, width: 95 }} />
           </label>
           <Btn icon="fas fa-eye" color="#3498db" onClick={runPreview}>Preview</Btn>
@@ -594,7 +594,7 @@ export const PromotionPanel = ({ classes }) => {
         </Card>
       )}
 
-      <h3 style={{ fontSize: 14, color: '#1a3a5c', fontFamily: 'Georgia, serif', margin: '0 0 10px' }}>Enrollment history ({year})</h3>
+      <h3 style={{ fontSize: 14, color:'var(--navy)', fontFamily: 'Georgia, serif', margin: '0 0 10px' }}>Enrollment history ({year})</h3>
       <Table
         cols={['Date', 'Student', 'From', 'To', 'Outcome', 'Average', 'By']}
         rows={history.map(h => (
@@ -664,9 +664,9 @@ export const AnalyticsPanel = ({ classes }) => {
 
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(320px,1fr))', gap: 18, marginBottom: 18 }}>
             <Card>
-              <h3 style={{ margin: '0 0 12px', fontSize: 14, color: '#1a3a5c', fontFamily: 'Georgia, serif' }}>Daily attendance (last 30 days)</h3>
+              <h3 style={{ margin: '0 0 12px', fontSize: 14, color:'var(--navy)', fontFamily: 'Georgia, serif' }}>Daily attendance (last 30 days)</h3>
               {attendance.daily.length === 0
-                ? <p style={{ fontSize: 13, color: '#bbb' }}>No attendance recorded in this period.</p>
+                ? <p style={{ fontSize: 13, color:'var(--text-faint-2)' }}>No attendance recorded in this period.</p>
                 : (
                   <div style={{ display: 'flex', alignItems: 'flex-end', gap: 3, height: 130, overflowX: 'auto' }}>
                     {attendance.daily.map(d => {
@@ -678,7 +678,7 @@ export const AnalyticsPanel = ({ classes }) => {
                             <div style={{ height: absentH, background: '#e74c3c', borderRadius: '2px 2px 0 0' }} />
                             <div style={{ height: presentH, background: '#27ae60' }} />
                           </div>
-                          <div style={{ fontSize: 8, color: '#aaa', textAlign: 'center', marginTop: 3 }}>{d.date.slice(8)}</div>
+                          <div style={{ fontSize: 8, color:'var(--text-faint)', textAlign: 'center', marginTop: 3 }}>{d.date.slice(8)}</div>
                         </div>
                       );
                     })}
@@ -687,12 +687,12 @@ export const AnalyticsPanel = ({ classes }) => {
             </Card>
 
             <Card>
-              <h3 style={{ margin: '0 0 12px', fontSize: 14, color: '#1a3a5c', fontFamily: 'Georgia, serif' }}>Attendance by class (weakest first)</h3>
+              <h3 style={{ margin: '0 0 12px', fontSize: 14, color:'var(--navy)', fontFamily: 'Georgia, serif' }}>Attendance by class (weakest first)</h3>
               {attendance.byClass.length === 0
-                ? <p style={{ fontSize: 13, color: '#bbb' }}>No data.</p>
+                ? <p style={{ fontSize: 13, color:'var(--text-faint-2)' }}>No data.</p>
                 : attendance.byClass.map(c => (
                   <div key={c.classId} style={{ marginBottom: 9 }}>
-                    <div style={{ fontSize: 12, fontWeight: 600, color: '#555', marginBottom: 3 }}>{c.className} <span style={{ color: '#aaa', fontWeight: 400 }}>({c.absent} absent)</span></div>
+                    <div style={{ fontSize: 12, fontWeight: 600, color:'var(--text-2)', marginBottom: 3 }}>{c.className} <span style={{ color:'var(--text-faint)', fontWeight: 400 }}>({c.absent} absent)</span></div>
                     <Bar value={c.rate} color={c.rate >= 90 ? '#27ae60' : c.rate >= 75 ? '#f39c12' : '#e74c3c'} />
                   </div>
                 ))}
@@ -701,7 +701,7 @@ export const AnalyticsPanel = ({ classes }) => {
 
           {attendance.chronicAbsentees.length > 0 && (
             <Card style={{ marginBottom: 18 }}>
-              <h3 style={{ margin: '0 0 10px', fontSize: 14, color: '#1a3a5c', fontFamily: 'Georgia, serif' }}>Most absent</h3>
+              <h3 style={{ margin: '0 0 10px', fontSize: 14, color:'var(--navy)', fontFamily: 'Georgia, serif' }}>Most absent</h3>
               <Table
                 cols={['Student', 'Code', 'Class', 'Absences']}
                 rows={attendance.chronicAbsentees.map(s => (
@@ -719,12 +719,12 @@ export const AnalyticsPanel = ({ classes }) => {
       )}
 
       <Card style={{ marginBottom: 18 }}>
-        <h3 style={{ margin: '0 0 12px', fontSize: 14, color: '#1a3a5c', fontFamily: 'Georgia, serif' }}>Term-over-term change</h3>
+        <h3 style={{ margin: '0 0 12px', fontSize: 14, color:'var(--navy)', fontFamily: 'Georgia, serif' }}>Term-over-term change</h3>
         {comparison.length === 0
-          ? <p style={{ fontSize: 13, color: '#bbb' }}>No graded results to compare yet.</p>
+          ? <p style={{ fontSize: 13, color:'var(--text-faint-2)' }}>No graded results to compare yet.</p>
           : comparison.map(c => (
-            <div key={c.classId} style={{ display: 'flex', alignItems: 'center', gap: 14, padding: '9px 0', borderBottom: '1px solid #f5f5f5' }}>
-              <div style={{ width: 130, fontSize: 13, fontWeight: 600, color: '#1a3a5c' }}>{c.className}</div>
+            <div key={c.classId} style={{ display: 'flex', alignItems: 'center', gap: 14, padding: '9px 0', borderBottom:'1px solid var(--surface-muted)' }}>
+              <div style={{ width: 130, fontSize: 13, fontWeight: 600, color:'var(--navy)' }}>{c.className}</div>
               <div style={{ flex: 1, display: 'flex', gap: 6, flexWrap: 'wrap' }}>
                 {c.series.map((s, i) => (
                   <Tag key={i} text={`${s.term} ${s.year}: ${s.average}`} bg="#f4f6f8" color="#555" />
@@ -740,7 +740,7 @@ export const AnalyticsPanel = ({ classes }) => {
       </Card>
 
       <Card>
-        <h3 style={{ margin: '0 0 12px', fontSize: 14, color: '#1a3a5c', fontFamily: 'Georgia, serif' }}>At-risk students · {term} {year}</h3>
+        <h3 style={{ margin: '0 0 12px', fontSize: 14, color:'var(--navy)', fontFamily: 'Georgia, serif' }}>At-risk students · {term} {year}</h3>
         <Table
           cols={['Student', 'Code', 'Class', 'Attendance', 'Average', 'Severity', 'Why']}
           rows={risk.map(s => (
@@ -751,7 +751,7 @@ export const AnalyticsPanel = ({ classes }) => {
               <TD style={{ minWidth: 110 }}>{s.attendanceRate !== null ? <Bar value={s.attendanceRate} color={s.attendanceRate >= 80 ? '#27ae60' : '#e67e22'} /> : '—'}</TD>
               <TD style={{ fontWeight: 700 }}>{s.average ?? '—'}</TD>
               <TD><Tag text={s.severity} color="#fff" bg={s.severity === 'high' ? '#e74c3c' : '#f39c12'} /></TD>
-              <TD style={{ fontSize: 12, color: '#777' }}>{s.reasons.join(' · ')}</TD>
+              <TD style={{ fontSize: 12, color:'var(--text-faint)' }}>{s.reasons.join(' · ')}</TD>
             </tr>
           ))}
           empty="No students are currently at risk"
@@ -808,13 +808,13 @@ export const LessonReviewPanel = () => {
       </div>
 
       {plans.length === 0
-        ? <Card><p style={{ fontSize: 13, color: '#bbb', margin: 0, textAlign: 'center', padding: 20 }}>No lesson plans match this filter.</p></Card>
+        ? <Card><p style={{ fontSize: 13, color:'var(--text-faint-2)', margin: 0, textAlign: 'center', padding: 20 }}>No lesson plans match this filter.</p></Card>
         : plans.map(p => (
           <Card key={p._id} style={{ marginBottom: 12 }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', gap: 12, flexWrap: 'wrap', marginBottom: 8 }}>
               <div>
-                <div style={{ fontSize: 15, fontWeight: 700, color: '#1a3a5c' }}>{p.title}</div>
-                <div style={{ fontSize: 12, color: '#888', marginTop: 2 }}>
+                <div style={{ fontSize: 15, fontWeight: 700, color:'var(--navy)' }}>{p.title}</div>
+                <div style={{ fontSize: 12, color:'var(--text-faint)', marginTop: 2 }}>
                   {p.subject || 'No subject'} · {p.className || 'No class'} · {p.teacherName || 'Unknown teacher'}
                   {p.week ? ` · ${p.week}` : ''}
                 </div>
@@ -825,9 +825,9 @@ export const LessonReviewPanel = () => {
                 bg={p.status === 'approved' ? '#e8f5e9' : p.status === 'rejected' ? '#fdecea' : p.status === 'submitted' ? '#fff3e0' : '#f0f0f0'}
               />
             </div>
-            {p.objectives && <p style={{ fontSize: 13, color: '#555', margin: '0 0 8px', lineHeight: 1.5 }}>{p.objectives}</p>}
+            {p.objectives && <p style={{ fontSize: 13, color:'var(--text-2)', margin: '0 0 8px', lineHeight: 1.5 }}>{p.objectives}</p>}
             {p.reviewNotes && (
-              <p style={{ fontSize: 12, color: '#777', background: '#f8f9fb', padding: '8px 11px', borderRadius: 7, margin: '0 0 8px' }}>
+              <p style={{ fontSize: 12, color:'var(--text-faint)', background: '#f8f9fb', padding: '8px 11px', borderRadius: 7, margin: '0 0 8px' }}>
                 <b>Review note:</b> {p.reviewNotes}
                 {p.reviewedByName ? ` — ${p.reviewedByName}` : ''}
               </p>
@@ -890,11 +890,11 @@ export const SdmsPanel = ({ classes }) => {
           <tr key={s._id}>
             <TD style={{ fontWeight: 600 }}>
               {s.fullName}
-              <div style={{ fontSize: 11, color: '#999', fontWeight: 400 }}>{s.studentId}</div>
+              <div style={{ fontSize: 11, color:'var(--text-faint)', fontWeight: 400 }}>{s.studentId}</div>
             </TD>
             <TD>
               {issued[s._id] || s.sdmsCode
-                ? <code style={{ background: '#f4f6f8', padding: '3px 8px', borderRadius: 5, fontSize: 12.5, letterSpacing: 1, fontWeight: 700, color: '#1a3a5c' }}>{issued[s._id] || s.sdmsCode}</code>
+                ? <code style={{ background:'var(--surface-muted)', padding: '3px 8px', borderRadius: 5, fontSize: 12.5, letterSpacing: 1, fontWeight: 700, color:'var(--navy)' }}>{issued[s._id] || s.sdmsCode}</code>
                 : <Tag text="Not issued" color="#e74c3c" bg="#fdecea" />}
             </TD>
             <TD>{s.classId ? classLabel(s.classId) : '—'}</TD>

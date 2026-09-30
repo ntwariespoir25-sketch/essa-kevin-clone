@@ -78,6 +78,68 @@
   color-scheme: light;
 }
 
+/*
+ * Portal palette bridge.
+ *
+ * The portals were written with hardcoded inline colours. Rather than rewrite
+ * every call site by hand, a codemod pointed them at the tokens below, keeping
+ * the light values byte-identical to what shipped so the light theme does not
+ * shift at all. These names exist because the originals were slightly different
+ * greys for the same idea (four different "muted surface" values, five different
+ * "faint text" values) - collapsing them is most of the visual tidying.
+ *
+ * Saturated action colours (#27ae60, #e74c3c, #ffc107 and friends) are NOT
+ * here on purpose. They are brand accents used as button fills, they are legible
+ * on both backgrounds, and re-tinting them would change how the school looks.
+ */
+:root {
+  /* Surfaces, each holding the exact grey the portals shipped so that turning on
+     the theme does not shift the light rendering at all. Where several greys were
+     doing the same job they now share one token, and the value kept is the one
+     that was used most often. */
+  --surface-page: #f0f0f0;
+  --surface-card: #ffffff;
+  --surface-raised: #fafbff;
+  --surface-muted: #f5f5f5;
+  --surface-sunken-2: #e0e0e0;
+  --surface-navy-tint: #f0f3f8;
+  --surface-lilac: #b8b8d0;
+  --surface-tint-primary: #e8f0fe;
+
+  /* Pale status tints behind badges and inline notices */
+  --tint-success: #e8f5e9;
+  --tint-danger: #fdecea;
+  --tint-warning: #fff3e0;
+  --tint-primary: #e3f2fd;
+  --tint-purple: #f3e5f5;
+  --tint-amber: #fff8e1;
+  --tint-info: #e0f7fa;
+  --tint-danger-line: #ff8a80;
+  --tint-amber-line: #ffe082;
+  --tint-amber-text: #7a5c00;
+
+  /* Text ramp. --text-faint deliberately absorbs four near-identical greys that
+     were all doing this one job; see the codemod for the counts. */
+  --text-body: #333333;
+  --text-2: #555555;
+  --text-secondary: #666666;
+  --text-faint: #888888;
+  --text-faint-2: #bbbbbb;
+
+  /* Lines */
+  --border: #eeeeee;
+  --border-strong: #cccccc;
+
+  /* Navy chrome: kept identical in both themes, it is already dark */
+  --navy: #1a3a5c;
+  --navy-deep: #0d1f33;
+  --navy-mid: #2c5f8a;
+  --accent-blue: #4a90e2;
+
+  /* Text sitting on a saturated fill - white in both themes on purpose */
+  --on-solid: #ffffff;
+}
+
 [data-theme='dark'] {
   --brand: #2f9e68;
   --brand-strong: #248257;
@@ -112,6 +174,48 @@
   --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.4);
   --shadow: 0 4px 14px rgba(0, 0, 0, 0.45);
   --shadow-lg: 0 14px 36px rgba(0, 0, 0, 0.55);
+
+  /* Portal palette bridge, dark values. The light values above are unchanged so
+     the light theme looks exactly as it did before the codemod. */
+  --surface-page: #0f1216;
+  --surface-card: #181c22;
+  --surface-raised: #1f242c;
+  --surface-muted: #1b2027;
+  --surface-sunken-2: #12161b;
+  --surface-navy-tint: #1a2230;
+  --surface-lilac: #262b3d;
+  --surface-tint-primary: rgba(96, 165, 250, 0.14);
+
+  /* Tints become translucent fills rather than pale ones, so the text on top
+     keeps its contrast ratio instead of going dark-on-dark. */
+  --tint-success: rgba(74, 222, 128, 0.14);
+  --tint-danger: rgba(248, 113, 113, 0.14);
+  --tint-warning: rgba(251, 191, 36, 0.14);
+  --tint-primary: rgba(96, 165, 250, 0.14);
+  --tint-purple: rgba(192, 132, 252, 0.14);
+  --tint-amber: rgba(251, 191, 36, 0.13);
+  --tint-info: rgba(34, 211, 238, 0.14);
+  --tint-danger-line: rgba(248, 113, 113, 0.5);
+  --tint-amber-line: rgba(251, 191, 36, 0.42);
+  --tint-amber-text: #fbbf24;
+
+  --text-body: #e7ebef;
+  --text-2: #c3ccd6;
+  --text-secondary: #a3adba;
+  --text-faint: #8b95a1;
+  --text-faint-2: #7a8593;
+
+  --border: #2a313b;
+  --border-strong: #3a424e;
+
+  --on-solid: #ffffff;
+
+  /* Accent fills stay put: they are brand colours used on saturated buttons, so
+     a dark-mode "adjustment" would just be a different brand. */
+  --accent-blue: #4a90e2;
+  --navy: #1a3a5c;
+  --navy-deep: #0d1f33;
+  --navy-mid: #2c5f8a;
 
   color-scheme: dark;
 }

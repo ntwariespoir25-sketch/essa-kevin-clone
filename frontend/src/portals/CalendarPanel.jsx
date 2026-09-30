@@ -28,20 +28,20 @@ const AUDIENCES = ['all', 'students', 'teachers', 'parents', 'staff'];
 const catColour = (c) => (CATEGORIES.find(x => x.value === c) || CATEGORIES[0]).color;
 
 const inputStyle = {
-  width: '100%', padding: '8px 11px', border: '1.5px solid #e0e0e0', borderRadius: 8,
-  fontSize: 13, fontFamily: 'inherit', outline: 'none', boxSizing: 'border-box', background: 'white'
+  width: '100%', padding: '8px 11px', border:'1.5px solid var(--surface-sunken-2)', borderRadius: 8,
+  fontSize: 13, fontFamily: 'inherit', outline: 'none', boxSizing: 'border-box', background:'var(--surface-card)'
 };
 const Inp = (p) => <input {...p} style={{ ...inputStyle, ...p.style }} />;
 const Sel = ({ children, ...p }) => <select {...p} style={{ ...inputStyle, ...p.style }}>{children}</select>;
 const Txt = (p) => <textarea {...p} style={{ ...inputStyle, minHeight: 64, resize: 'vertical', ...p.style }} />;
 
 const Card = ({ children, style }) => (
-  <div style={{ background: 'white', borderRadius: 14, padding: 18, boxShadow: '0 2px 10px rgba(0,0,0,.05)', border: '1px solid #f0f0f0', ...style }}>{children}</div>
+  <div style={{ background:'var(--surface-card)', borderRadius: 14, padding: 18, boxShadow: '0 2px 10px rgba(0,0,0,.05)', border:'1px solid var(--surface-page)', ...style }}>{children}</div>
 );
 
 const Btn = ({ children, onClick, icon, color = '#1a3a5c', small, danger, disabled }) => (
   <button onClick={onClick} disabled={disabled} style={{
-    background: danger ? '#e74c3c' : disabled ? '#ccc' : color, color: 'white', border: 'none',
+    background: danger ? '#e74c3c' : disabled ? '#ccc' : color, color:'var(--on-solid)', border: 'none',
     borderRadius: 8, padding: small ? '6px 12px' : '8px 16px', fontSize: small ? 12 : 13,
     fontWeight: 600, cursor: disabled ? 'not-allowed' : 'pointer', display: 'inline-flex',
     alignItems: 'center', gap: 6, fontFamily: 'inherit'
@@ -49,7 +49,7 @@ const Btn = ({ children, onClick, icon, color = '#1a3a5c', small, danger, disabl
 );
 
 const Lbl = ({ children }) => (
-  <div style={{ fontSize: 11, fontWeight: 700, color: '#666', marginBottom: 5 }}>{children.toUpperCase()}</div>
+  <div style={{ fontSize: 11, fontWeight: 700, color:'var(--text-secondary)', marginBottom: 5 }}>{children.toUpperCase()}</div>
 );
 
 const monthName = (d) => d.toLocaleDateString('en-RW', { month: 'long', year: 'numeric' });
@@ -117,14 +117,14 @@ export const CalendarPanel = () => {
     <div>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: 12, marginBottom: 18 }}>
         <div>
-          <h2 style={{ margin: 0, fontSize: 19, color: '#1a3a5c', fontFamily: 'Georgia, serif' }}>School Calendar</h2>
-          <p style={{ margin: '5px 0 0', fontSize: 12.5, color: '#888', maxWidth: 620, lineHeight: 1.5 }}>
+          <h2 style={{ margin: 0, fontSize: 19, color:'var(--navy)', fontFamily: 'Georgia, serif' }}>School Calendar</h2>
+          <p style={{ margin: '5px 0 0', fontSize: 12.5, color:'var(--text-faint)', maxWidth: 620, lineHeight: 1.5 }}>
             Exams, holidays, meetings and sports in one place. Everything here is visible to the whole school.
           </p>
         </div>
         <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
           <Btn small icon="fas fa-chevron-left" color="#6c757d" onClick={() => shift(-1)} />
-          <span style={{ fontSize: 14, fontWeight: 700, color: '#1a3a5c', minWidth: 160, textAlign: 'center' }}>{monthName(cursor)}</span>
+          <span style={{ fontSize: 14, fontWeight: 700, color:'var(--navy)', minWidth: 160, textAlign: 'center' }}>{monthName(cursor)}</span>
           <Btn small icon="fas fa-chevron-right" color="#6c757d" onClick={() => shift(1)} />
           <Btn small icon="fas fa-calendar-day" onClick={() => setCursor(new Date())}>Today</Btn>
           <Btn small icon="fas fa-plus" color="#27ae60" onClick={() => setOpen(true)}>Add event</Btn>
@@ -133,9 +133,9 @@ export const CalendarPanel = () => {
 
       <div style={{ display: 'grid', gridTemplateColumns: 'minmax(0,2fr) minmax(240px,1fr)', gap: 18, alignItems: 'start' }}>
         <Card style={{ padding: 0, overflow: 'hidden' }}>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(7,1fr)', background: '#f7f9fb', borderBottom: '1px solid #eee' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(7,1fr)', background:'var(--surface-muted)', borderBottom:'1px solid var(--border)' }}>
             {['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'].map(d => (
-              <div key={d} style={{ padding: '8px', fontSize: 10, fontWeight: 700, color: '#888', textAlign: 'center', letterSpacing: .5 }}>{d.toUpperCase()}</div>
+              <div key={d} style={{ padding: '8px', fontSize: 10, fontWeight: 700, color:'var(--text-faint)', textAlign: 'center', letterSpacing: .5 }}>{d.toUpperCase()}</div>
             ))}
           </div>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(7,1fr)' }}>
@@ -149,7 +149,7 @@ export const CalendarPanel = () => {
                   onClick={() => { setSelected(day); setForm(f => ({ ...f, date: dayKey(day) })); }}
                   style={{
                     minHeight: 86, padding: 5, textAlign: 'left', cursor: 'pointer', fontFamily: 'inherit',
-                    background: isToday ? '#fffdf5' : inMonth ? 'white' : '#fafbfc',
+                    background: isToday ? '#fffdf5' : inMonth ? 'var(--surface-card)' : '#fafbfc',
                     border: 'none', borderRight: '1px solid #f2f4f6', borderBottom: '1px solid #f2f4f6'
                   }}
                 >
@@ -168,7 +168,7 @@ export const CalendarPanel = () => {
                       {e.time ? `${e.time} ` : ''}{e.title}
                     </div>
                   ))}
-                  {list.length > 2 && <div style={{ fontSize: 9, color: '#999', paddingLeft: 4 }}>+{list.length - 2} more</div>}
+                  {list.length > 2 && <div style={{ fontSize: 9, color:'var(--text-faint)', paddingLeft: 4 }}>+{list.length - 2} more</div>}
                 </button>
               );
             })}
@@ -177,31 +177,31 @@ export const CalendarPanel = () => {
 
         <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
           <Card>
-            <h3 style={{ margin: '0 0 10px', fontSize: 13, color: '#1a3a5c', fontFamily: 'Georgia, serif' }}>Coming up</h3>
+            <h3 style={{ margin: '0 0 10px', fontSize: 13, color:'var(--navy)', fontFamily: 'Georgia, serif' }}>Coming up</h3>
             {upcoming.length === 0
-              ? <p style={{ fontSize: 12, color: '#bbb', margin: 0 }}>Nothing scheduled.</p>
+              ? <p style={{ fontSize: 12, color:'var(--text-faint-2)', margin: 0 }}>Nothing scheduled.</p>
               : upcoming.map(e => (
-                <div key={e._id} style={{ display: 'flex', gap: 9, padding: '7px 0', borderBottom: '1px solid #f5f5f5' }}>
+                <div key={e._id} style={{ display: 'flex', gap: 9, padding: '7px 0', borderBottom:'1px solid var(--surface-muted)' }}>
                   <div style={{ width: 4, borderRadius: 2, background: catColour(e.category), flexShrink: 0 }} />
                   <div style={{ flex: 1, minWidth: 0 }}>
-                    <div style={{ fontSize: 12.5, fontWeight: 600, color: '#333' }}>{e.title}</div>
-                    <div style={{ fontSize: 11, color: '#888' }}>
+                    <div style={{ fontSize: 12.5, fontWeight: 600, color:'var(--text-body)' }}>{e.title}</div>
+                    <div style={{ fontSize: 11, color:'var(--text-faint)' }}>
                       {new Date(e.date).toLocaleDateString('en-RW', { day: '2-digit', month: 'short' })}
                       {e.time ? ` · ${e.time}` : ''}
                     </div>
                   </div>
-                  <button onClick={() => remove(e._id)} title="Remove" style={{ background: 'none', border: 'none', color: '#ccc', cursor: 'pointer', fontSize: 11, height: 20 }}><i className="fas fa-times" /></button>
+                  <button onClick={() => remove(e._id)} title="Remove" style={{ background: 'none', border: 'none', color:'var(--border-strong)', cursor: 'pointer', fontSize: 11, height: 20 }}><i className="fas fa-times" /></button>
                 </div>
               ))}
           </Card>
 
           <Card>
-            <h3 style={{ margin: '0 0 8px', fontSize: 13, color: '#1a3a5c', fontFamily: 'Georgia, serif' }}>Categories</h3>
+            <h3 style={{ margin: '0 0 8px', fontSize: 13, color:'var(--navy)', fontFamily: 'Georgia, serif' }}>Categories</h3>
             {CATEGORIES.map(c => (
-              <div key={c.value} style={{ display: 'flex', alignItems: 'center', gap: 7, fontSize: 12, color: '#666', padding: '3px 0' }}>
+              <div key={c.value} style={{ display: 'flex', alignItems: 'center', gap: 7, fontSize: 12, color:'var(--text-secondary)', padding: '3px 0' }}>
                 <span style={{ width: 10, height: 10, borderRadius: 3, background: c.color }} />
                 {c.label}
-                <span style={{ marginLeft: 'auto', color: '#bbb' }}>{events.filter(e => e.category === c.value).length}</span>
+                <span style={{ marginLeft: 'auto', color:'var(--text-faint-2)' }}>{events.filter(e => e.category === c.value).length}</span>
               </div>
             ))}
           </Card>
@@ -210,8 +210,8 @@ export const CalendarPanel = () => {
 
       {open && (
         <div onClick={() => setOpen(false)} style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,.5)', zIndex: 3000, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 16 }}>
-          <div onClick={e => e.stopPropagation()} style={{ background: 'white', borderRadius: 16, width: '100%', maxWidth: 480, padding: 22, maxHeight: '90vh', overflow: 'auto' }}>
-            <h3 style={{ margin: '0 0 16px', fontSize: 16, color: '#1a3a5c', fontFamily: 'Georgia, serif' }}>
+          <div onClick={e => e.stopPropagation()} style={{ background:'var(--surface-card)', borderRadius: 16, width: '100%', maxWidth: 480, padding: 22, maxHeight: '90vh', overflow: 'auto' }}>
+            <h3 style={{ margin: '0 0 16px', fontSize: 16, color:'var(--navy)', fontFamily: 'Georgia, serif' }}>
               {selected ? `Add event — ${selected.toLocaleDateString('en-RW', { day: '2-digit', month: 'long' })}` : 'Add event'}
             </h3>
             <div style={{ marginBottom: 12 }}><Lbl>Title</Lbl><Inp value={form.title} onChange={e => setForm({ ...form, title: e.target.value })} placeholder="e.g. Term 2 examinations begin" /></div>
@@ -235,14 +235,14 @@ export const CalendarPanel = () => {
                   return (
                     <button key={a} onClick={() => setForm({ ...form, audience: on ? form.audience.filter(x => x !== a) : [...form.audience, a] })} style={{
                       padding: '5px 11px', borderRadius: 20, fontSize: 11.5, fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit',
-                      border: `1.5px solid ${on ? '#1a3a5c' : '#e0e0e0'}`, background: on ? '#1a3a5c' : 'white', color: on ? 'white' : '#666'
+                      border: `1.5px solid ${on ? '#1a3a5c' : '#e0e0e0'}`, background: on ? '#1a3a5c' : 'var(--surface-card)', color: on ? 'var(--on-solid)' : '#666'
                     }}>{a === 'all' ? 'Everyone' : a[0].toUpperCase() + a.slice(1)}</button>
                   );
                 })}
               </div>
             </div>
             <div style={{ marginBottom: 16 }}><Lbl>Description</Lbl><Txt value={form.description} onChange={e => setForm({ ...form, description: e.target.value })} /></div>
-            <label style={{ display: 'flex', alignItems: 'center', gap: 7, fontSize: 12.5, color: '#555', marginBottom: 16 }}>
+            <label style={{ display: 'flex', alignItems: 'center', gap: 7, fontSize: 12.5, color:'var(--text-2)', marginBottom: 16 }}>
               <input type="checkbox" checked={form.permissionRequired} onChange={e => setForm({ ...form, permissionRequired: e.target.checked })} />
               Needs parent permission to attend
             </label>

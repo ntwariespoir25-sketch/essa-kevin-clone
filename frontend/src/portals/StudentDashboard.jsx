@@ -354,13 +354,13 @@ const StudentDashboard = () => {
 
         {/* Stats Grid */}
         <div className="stats-grid">
-          <div className="stat-card"><div className="stat-icon" style={{ background: '#e3f2fd' }}><i className="fas fa-tasks" style={{ color: '#3498db' }}></i></div>
+          <div className="stat-card"><div className="stat-icon" style={{ background:'var(--tint-primary)' }}><i className="fas fa-tasks" style={{ color: '#3498db' }}></i></div>
             <div className="stat-info"><h3>{totalAssignments}</h3><p>Total Assignments</p><span className="stat-trend">{completedAssignments} completed</span></div></div>
-          <div className="stat-card"><div className="stat-icon" style={{ background: '#e8f5e9' }}><i className="fas fa-chart-line" style={{ color: '#27ae60' }}></i></div>
+          <div className="stat-card"><div className="stat-icon" style={{ background:'var(--tint-success)' }}><i className="fas fa-chart-line" style={{ color: '#27ae60' }}></i></div>
             <div className="stat-info"><h3>{avgGrade}%</h3><p>Average Grade</p><span className="stat-trend">{avgGrade >= 80 ? 'Excellent' : avgGrade >= 60 ? 'Good' : 'Needs Improvement'}</span></div></div>
-          <div className="stat-card"><div className="stat-icon" style={{ background: '#fff3e0' }}><i className="fas fa-calendar-check" style={{ color: '#f39c12' }}></i></div>
+          <div className="stat-card"><div className="stat-icon" style={{ background:'var(--tint-warning)' }}><i className="fas fa-calendar-check" style={{ color: '#f39c12' }}></i></div>
             <div className="stat-info"><h3>{attendanceRate}%</h3><p>Attendance Rate</p><span className="stat-trend">{attendanceRate >= 80 ? 'Good Standing' : 'Low Attendance'}</span></div></div>
-          <div className="stat-card"><div className="stat-icon" style={{ background: '#fdecea' }}><i className="fas fa-money-bill-wave" style={{ color: '#e74c3c' }}></i></div>
+          <div className="stat-card"><div className="stat-icon" style={{ background:'var(--tint-danger)' }}><i className="fas fa-money-bill-wave" style={{ color: '#e74c3c' }}></i></div>
             <div className="stat-info"><h3>{feeBalance.toLocaleString()} RWF</h3><p>Balance Due</p><span className="stat-trend">{feeBalance === 0 ? 'Paid in Full' : 'Payment Due'}</span></div></div>
         </div>
 

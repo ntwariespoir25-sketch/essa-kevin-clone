@@ -33,10 +33,10 @@ const Modal = ({ open, onClose, title, children, width = 520 }) => {
   return (
     <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,.5)', zIndex: 2000, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 16 }}
       onClick={e => e.target === e.currentTarget && onClose()}>
-      <div style={{ background: 'white', borderRadius: 16, width: '100%', maxWidth: width, maxHeight: '90vh', overflow: 'auto', boxShadow: '0 24px 80px rgba(0,0,0,.25)' }}>
-        <div style={{ padding: '18px 22px', borderBottom: '1px solid #eee', display: 'flex', justifyContent: 'space-between', alignItems: 'center', position: 'sticky', top: 0, background: 'white', zIndex: 1, borderRadius: '16px 16px 0 0' }}>
-          <h3 style={{ margin: 0, fontSize: 16, color: '#1a3a5c', fontFamily: 'Georgia, serif' }}>{title}</h3>
-          <button onClick={onClose} style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: 22, color: '#999', lineHeight: 1 }}>×</button>
+      <div style={{ background:'var(--surface-card)', borderRadius: 16, width: '100%', maxWidth: width, maxHeight: '90vh', overflow: 'auto', boxShadow: '0 24px 80px rgba(0,0,0,.25)' }}>
+        <div style={{ padding: '18px 22px', borderBottom:'1px solid var(--border)', display: 'flex', justifyContent: 'space-between', alignItems: 'center', position: 'sticky', top: 0, background:'var(--surface-card)', zIndex: 1, borderRadius: '16px 16px 0 0' }}>
+          <h3 style={{ margin: 0, fontSize: 16, color:'var(--navy)', fontFamily: 'Georgia, serif' }}>{title}</h3>
+          <button onClick={onClose} style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: 22, color:'var(--text-faint)', lineHeight: 1 }}>×</button>
         </div>
         <div style={{ padding: '20px 22px' }}>{children}</div>
       </div>
@@ -46,20 +46,20 @@ const Modal = ({ open, onClose, title, children, width = 520 }) => {
 
 const Field = ({ label, children, required }) => (
   <div style={{ marginBottom: 14 }}>
-    <label style={{ display: 'block', fontSize: 11, fontWeight: 700, color: '#666', marginBottom: 5, letterSpacing: .5 }}>
+    <label style={{ display: 'block', fontSize: 11, fontWeight: 700, color:'var(--text-secondary)', marginBottom: 5, letterSpacing: .5 }}>
       {label?.toUpperCase()}{required && <span style={{ color: '#e74c3c' }}> *</span>}
     </label>
     {children}
   </div>
 );
 
-const ist = { width: '100%', padding: '9px 12px', border: '1.5px solid #e0e0e0', borderRadius: 8, fontSize: 14, fontFamily: 'inherit', outline: 'none', boxSizing: 'border-box', transition: 'border-color .2s' };
+const ist = { width: '100%', padding: '9px 12px', border:'1.5px solid var(--surface-sunken-2)', borderRadius: 8, fontSize: 14, fontFamily: 'inherit', outline: 'none', boxSizing: 'border-box', transition: 'border-color .2s' };
 
 const Inp = (props) => <input {...props} style={{ ...ist, ...props.style }} onFocus={e => e.target.style.borderColor = '#1a3a5c'} onBlur={e => e.target.style.borderColor = '#e0e0e0'} />;
-const Sel = ({ children, ...props }) => <select {...props} style={{ ...ist, background: 'white', ...props.style }}>{children}</select>;
+const Sel = ({ children, ...props }) => <select {...props} style={{ ...ist, background:'var(--surface-card)', ...props.style }}>{children}</select>;
 const Txt = (props) => <textarea {...props} style={{ ...ist, resize: 'vertical', minHeight: 80, ...props.style }} onFocus={e => e.target.style.borderColor = '#1a3a5c'} onBlur={e => e.target.style.borderColor = '#e0e0e0'} />;
 
-const Btn = ({ children, onClick, icon, color = '#1a3a5c', textColor = 'white', small, danger, disabled, style: s }) => {
+const Btn = ({ children, onClick, icon, color = '#1a3a5c', textColor = 'var(--on-solid)', small, danger, disabled, style: s }) => {
   const bg = danger ? '#e74c3c' : disabled ? '#ccc' : color;
   return (
     <button onClick={onClick} disabled={disabled} style={{ background: bg, color: textColor, border: 'none', borderRadius: 8, padding: small ? '6px 13px' : '9px 18px', fontSize: small ? 12 : 13, fontWeight: 600, cursor: disabled ? 'not-allowed' : 'pointer', display: 'inline-flex', alignItems: 'center', gap: 6, transition: 'filter .2s, transform .2s', whiteSpace: 'nowrap', ...s }}
@@ -71,34 +71,34 @@ const Btn = ({ children, onClick, icon, color = '#1a3a5c', textColor = 'white', 
 };
 
 const Table = ({ cols, rows, emptyMsg = 'No data found' }) => (
-  <div style={{ overflowX: 'auto', borderRadius: 10, border: '1px solid #f0f0f0' }}>
+  <div style={{ overflowX: 'auto', borderRadius: 10, border:'1px solid var(--surface-page)' }}>
     <table style={{ width: '100%', borderCollapse: 'collapse', minWidth: 500 }}>
-      <thead><tr style={{ background: '#f7f9fb' }}>
-        {cols.map((c, i) => <th key={i} style={{ padding: '10px 14px', textAlign: 'left', fontSize: 11, fontWeight: 700, color: '#888', letterSpacing: .8, borderBottom: '1px solid #eee', whiteSpace: 'nowrap' }}>{c.toUpperCase()}</th>)}
+      <thead><tr style={{ background:'var(--surface-muted)' }}>
+        {cols.map((c, i) => <th key={i} style={{ padding: '10px 14px', textAlign: 'left', fontSize: 11, fontWeight: 700, color:'var(--text-faint)', letterSpacing: .8, borderBottom:'1px solid var(--border)', whiteSpace: 'nowrap' }}>{c.toUpperCase()}</th>)}
       </tr></thead>
       <tbody>
         {rows.length === 0
-          ? <tr><td colSpan={cols.length} style={{ textAlign: 'center', padding: 36, color: '#bbb', fontSize: 13 }}>{emptyMsg}</td></tr>
-          : rows.map((row, i) => <tr key={i} style={{ borderBottom: '1px solid #f5f5f5' }} onMouseEnter={e => e.currentTarget.style.background = '#fafbff'} onMouseLeave={e => e.currentTarget.style.background = ''}>{row}</tr>)}
+          ? <tr><td colSpan={cols.length} style={{ textAlign: 'center', padding: 36, color:'var(--text-faint-2)', fontSize: 13 }}>{emptyMsg}</td></tr>
+          : rows.map((row, i) => <tr key={i} style={{ borderBottom:'1px solid var(--surface-muted)' }} onMouseEnter={e => e.currentTarget.style.background = '#fafbff'} onMouseLeave={e => e.currentTarget.style.background = ''}>{row}</tr>)}
       </tbody>
     </table>
   </div>
 );
 
-const TD = ({ children, style }) => <td style={{ padding: '10px 14px', fontSize: 13, color: '#333', ...style }}>{children}</td>;
+const TD = ({ children, style }) => <td style={{ padding: '10px 14px', fontSize: 13, color:'var(--text-body)', ...style }}>{children}</td>;
 
 // Role badge helper
 const roleBadge = (role) => {
   const map = {
-    super_admin:      { label: 'Super Admin', color: '#ffc107', bg: '#fff8e1' },
-    academic_admin:   { label: 'Academic Admin', color: '#27ae60', bg: '#e8f5e9' },
-    discipline_admin: { label: 'Discipline Admin', color: '#e74c3c', bg: '#fdecea' },
-    accounts_admin:   { label: 'Accounts Admin', color: '#3498db', bg: '#e3f2fd' },
-    teacher:          { label: 'Teacher', color: '#9b59b6', bg: '#f3e5f5' },
-    student:          { label: 'Student', color: '#1abc9c', bg: '#e0f7fa' },
-    parent:           { label: 'Parent', color: '#e67e22', bg: '#fff3e0' },
+    super_admin:      { label: 'Super Admin', color: '#ffc107', bg:'var(--tint-amber)' },
+    academic_admin:   { label: 'Academic Admin', color: '#27ae60', bg:'var(--tint-success)' },
+    discipline_admin: { label: 'Discipline Admin', color: '#e74c3c', bg:'var(--tint-danger)' },
+    accounts_admin:   { label: 'Accounts Admin', color: '#3498db', bg:'var(--tint-primary)' },
+    teacher:          { label: 'Teacher', color: '#9b59b6', bg:'var(--tint-purple)' },
+    student:          { label: 'Student', color: '#1abc9c', bg:'var(--tint-info)' },
+    parent:           { label: 'Parent', color: '#e67e22', bg:'var(--tint-warning)' },
   };
-  return map[role] || { label: role || '—', color: '#666', bg: '#f0f0f0' };
+  return map[role] || { label: role || '—', color:'var(--text-secondary)', bg:'var(--surface-page)' };
 };
 
 // ═══════════════════════════════════════════════════════════════════
@@ -438,13 +438,13 @@ const AccountsAdminDashboard = () => {
   }, { total: 0, paid: 0 });
 
   const statusColor = (status) => ({
-    paid: { color: '#27ae60', bg: '#e8f5e9' },
-    partial: { color: '#f39c12', bg: '#fff3e0' },
-    issued: { color: '#3498db', bg: '#e3f2fd' },
-    draft: { color: '#888', bg: '#f0f0f0' },
-    overdue: { color: '#e74c3c', bg: '#fdecea' },
-    canceled: { color: '#999', bg: '#eee' }
-  }[status] || { color: '#666', bg: '#f0f0f0' });
+    paid: { color: '#27ae60', bg:'var(--tint-success)' },
+    partial: { color: '#f39c12', bg:'var(--tint-warning)' },
+    issued: { color: '#3498db', bg:'var(--tint-primary)' },
+    draft: { color:'var(--text-faint)', bg:'var(--surface-page)' },
+    overdue: { color: '#e74c3c', bg:'var(--tint-danger)' },
+    canceled: { color:'var(--text-faint)', bg:'var(--border)' }
+  }[status] || { color:'var(--text-secondary)', bg:'var(--surface-page)' });
 
   const totalIncome = income.reduce((s, i) => s + (i.amount || 0), 0);
   const totalExpenses = expenses.reduce((s, e) => s + (e.amount || 0), 0);
@@ -513,7 +513,7 @@ const AccountsAdminDashboard = () => {
   const sideW = isMobile ? 0 : sidebarOpen ? 260 : 72;
 
   if (loading) return (
-    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', height: '100vh', background: 'linear-gradient(135deg,#0d2b42,#1a3a5c)', color: 'white', gap: 20 }}>
+    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', height: '100vh', background:'linear-gradient(135deg,var(--navy-deep),var(--navy))', color:'var(--on-solid)', gap: 20 }}>
       <div style={{ width: 44, height: 44, border: '3px solid rgba(255,255,255,.15)', borderTopColor: '#ffc107', borderRadius: '50%', animation: 'spin .8s linear infinite' }} />
       <p style={{ margin: 0, fontSize: 16 }}>Loading...</p>
       <style>{`@keyframes spin{to{transform:rotate(360deg)}}`}</style>
@@ -521,7 +521,7 @@ const AccountsAdminDashboard = () => {
   );
 
   return (
-    <div style={{ display: 'flex', minHeight: '100vh', background: '#f0f3f8', fontFamily: "'DM Sans', -apple-system, sans-serif" }}>
+    <div style={{ display: 'flex', minHeight: '100vh', background:'var(--surface-navy-tint)', fontFamily: "'DM Sans', -apple-system, sans-serif" }}>
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&display=swap');
         @keyframes spin{to{transform:rotate(360deg)}}
@@ -536,10 +536,10 @@ const AccountsAdminDashboard = () => {
       {isMobile && mobileOpen && <div onClick={() => setMobileOpen(false)} style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,.45)', zIndex: 998 }} />}
 
       {/* ─── SIDEBAR ─── */}
-      <aside style={{ position: 'fixed', top: 0, left: 0, bottom: 0, zIndex: 999, width: isMobile ? (mobileOpen ? 260 : 0) : sideW, background: 'linear-gradient(180deg,#0d1f33 0%,#1a3a5c 100%)', color: 'white', display: 'flex', flexDirection: 'column', transition: 'width .3s', overflow: 'hidden', boxShadow: '3px 0 20px rgba(0,0,0,.18)' }}>
+      <aside style={{ position: 'fixed', top: 0, left: 0, bottom: 0, zIndex: 999, width: isMobile ? (mobileOpen ? 260 : 0) : sideW, background:'linear-gradient(180deg,var(--navy-deep) 0%,var(--navy) 100%)', color:'var(--on-solid)', display: 'flex', flexDirection: 'column', transition: 'width .3s', overflow: 'hidden', boxShadow: '3px 0 20px rgba(0,0,0,.18)' }}>
         <div style={{ padding: '20px 16px', borderBottom: '1px solid rgba(255,255,255,.08)', display: 'flex', alignItems: 'center', gap: 11, flexShrink: 0 }}>
           <div style={{ width: 38, height: 38, background: '#ffc107', borderRadius: 11, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-            <i className="fas fa-coins" style={{ fontSize: 16, color: '#1a3a5c' }} />
+            <i className="fas fa-coins" style={{ fontSize: 16, color:'var(--navy)' }} />
           </div>
           {(sidebarOpen || isMobile) && <div><div style={{ fontFamily: 'Georgia, serif', fontSize: 15, fontWeight: 600 }}>ESSA Portal</div><div style={{ fontSize: 10, opacity: .6, letterSpacing: 1 }}>ACCOUNTS ADMIN</div></div>}
           {!isMobile && <button onClick={() => setSidebarOpen(!sidebarOpen)} style={{ marginLeft: 'auto', background: 'none', border: 'none', color: 'rgba(255,255,255,.4)', cursor: 'pointer', fontSize: 13, flexShrink: 0 }}><i className={`fas fa-chevron-${sidebarOpen ? 'left' : 'right'}`} /></button>}
@@ -557,7 +557,7 @@ const AccountsAdminDashboard = () => {
           onNavigate={() => isMobile && setMobileOpen(false)}
         />
         <div style={{ padding: 12, borderTop: '1px solid rgba(255,255,255,.08)', flexShrink: 0 }}>
-          <button onClick={() => { localStorage.clear(); navigate('/portal/login'); }} style={{ display: 'flex', alignItems: 'center', gap: 10, width: '100%', padding: '9px 12px', background: 'rgba(231,76,60,.2)', border: '1px solid rgba(231,76,60,.3)', borderRadius: 9, color: '#ff8a80', cursor: 'pointer', fontSize: 13 }}>
+          <button onClick={() => { localStorage.clear(); navigate('/portal/login'); }} style={{ display: 'flex', alignItems: 'center', gap: 10, width: '100%', padding: '9px 12px', background: 'rgba(231,76,60,.2)', border: '1px solid rgba(231,76,60,.3)', borderRadius: 9, color:'var(--tint-danger-line)', cursor: 'pointer', fontSize: 13 }}>
             <i className="fas fa-sign-out-alt" style={{ fontSize: 13 }} />{(sidebarOpen || isMobile) && 'Logout'}
           </button>
         </div>
@@ -565,26 +565,26 @@ const AccountsAdminDashboard = () => {
 
       {/* ─── MAIN ─── */}
       <main style={{ flex: 1, marginLeft: isMobile ? 0 : sideW, transition: 'margin-left .3s', minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
-        <div style={{ background: 'white', padding: '11px 22px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid #eee', position: 'sticky', top: 0, zIndex: 100, boxShadow: '0 1px 8px rgba(0,0,0,.05)' }}>
+        <div style={{ background:'var(--surface-card)', padding: '11px 22px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom:'1px solid var(--border)', position: 'sticky', top: 0, zIndex: 100, boxShadow: '0 1px 8px rgba(0,0,0,.05)' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-            {isMobile && <button onClick={() => setMobileOpen(!mobileOpen)} style={{ background: '#1a3a5c', color: 'white', border: 'none', padding: '7px 10px', borderRadius: 8, cursor: 'pointer' }}><i className="fas fa-bars" /></button>}
+            {isMobile && <button onClick={() => setMobileOpen(!mobileOpen)} style={{ background:'var(--navy)', color:'var(--on-solid)', border: 'none', padding: '7px 10px', borderRadius: 8, cursor: 'pointer' }}><i className="fas fa-bars" /></button>}
             <div>
-              <div style={{ fontSize: 10, color: '#aaa', letterSpacing: .5 }}>ESSA NYARUGUNGA</div>
-              <div style={{ fontSize: 15, fontWeight: 600, color: '#1a3a5c', fontFamily: 'Georgia, serif' }}>{menuItems.find(m => m.id === activeTab)?.label || 'Dashboard'}</div>
+              <div style={{ fontSize: 10, color:'var(--text-faint)', letterSpacing: .5 }}>ESSA NYARUGUNGA</div>
+              <div style={{ fontSize: 15, fontWeight: 600, color:'var(--navy)', fontFamily: 'Georgia, serif' }}>{menuItems.find(m => m.id === activeTab)?.label || 'Dashboard'}</div>
             </div>
           </div>
           <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
             <ThemeToggle color="#1a3a5c" border="#e5e7eb" />
-            {unread > 0 && <div style={{ background: '#fdecea', color: '#e74c3c', borderRadius: 20, fontSize: 12, fontWeight: 700, padding: '4px 10px' }}>{unread} new msg</div>}
+            {unread > 0 && <div style={{ background:'var(--tint-danger)', color: '#e74c3c', borderRadius: 20, fontSize: 12, fontWeight: 700, padding: '4px 10px' }}>{unread} new msg</div>}
             <Avatar name={userName} size={32} />
-            <div className="hide-m"><div style={{ fontSize: 12, fontWeight: 600, color: '#333' }}>{userName}</div><div style={{ fontSize: 10, color: '#ffc107' }}>ACCOUNTS ADMIN</div></div>
+            <div className="hide-m"><div style={{ fontSize: 12, fontWeight: 600, color:'var(--text-body)' }}>{userName}</div><div style={{ fontSize: 10, color: '#ffc107' }}>ACCOUNTS ADMIN</div></div>
           </div>
         </div>
         <div style={{ flex: 1, padding: 20, overflowY: 'auto' }} className="tab-anim">
           {/* ══ OVERVIEW ══ */}
           {activeTab === 'overview' && (
             <div>
-              <div style={{ background: 'linear-gradient(135deg,#0d1f33,#1a3a5c)', borderRadius: 18, padding: '22px 26px', marginBottom: 20, color: 'white', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 14, boxShadow: '0 6px 24px rgba(26,58,92,.35)' }}>
+              <div style={{ background:'linear-gradient(135deg,var(--navy-deep),var(--navy))', borderRadius: 18, padding: '22px 26px', marginBottom: 20, color:'var(--on-solid)', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 14, boxShadow: '0 6px 24px rgba(26,58,92,.35)' }}>
                 <div>
                   <div style={{ fontSize: 19, fontWeight: 600, fontFamily: 'Georgia, serif', marginBottom: 4 }}>Welcome, {userName.split(' ')[0]}! 💰</div>
                   <div style={{ fontSize: 12, opacity: .75 }}>{new Date().toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}</div>
@@ -598,22 +598,22 @@ const AccountsAdminDashboard = () => {
               {/* Stats cards */}
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(180px,1fr))', gap: 14, marginBottom: 20 }}>
                 {[
-                  { icon: 'fas fa-chart-pie', label: 'Total Budget', value: fmtAmt(budget.total), accent: '#1a3a5c', bg: '#e8f0fb', action: () => setBudgetModal(true) },
-                  { icon: 'fas fa-arrow-down', label: 'Total Income', value: fmtAmt(totalIncome), accent: '#27ae60', bg: '#e8f5e9', action: () => setIncomeModal(true) },
-                  { icon: 'fas fa-arrow-up', label: 'Total Expenses', value: fmtAmt(totalExpenses), accent: '#e74c3c', bg: '#fdecea', action: () => setExpenseModal(true) },
-                  { icon: 'fas fa-balance-scale', label: 'Net Balance', value: fmtAmt(totalIncome - totalExpenses), accent: totalIncome - totalExpenses >= 0 ? '#27ae60' : '#e74c3c', bg: '#f8f9fa' },
-                  { icon: 'fas fa-wallet', label: 'Pending Salaries', value: pendingSalaries, accent: '#f39c12', bg: '#fff3e0', action: () => setActiveTab('salaries') },
-                  { icon: 'fas fa-credit-card', label: 'Fee Payments', value: feePayments.length, accent: '#3498db', bg: '#e3f2fd', action: () => setActiveTab('fees') },
+                  { icon: 'fas fa-chart-pie', label: 'Total Budget', value: fmtAmt(budget.total), accent:'var(--navy)', bg:'var(--surface-navy-tint)', action: () => setBudgetModal(true) },
+                  { icon: 'fas fa-arrow-down', label: 'Total Income', value: fmtAmt(totalIncome), accent: '#27ae60', bg:'var(--tint-success)', action: () => setIncomeModal(true) },
+                  { icon: 'fas fa-arrow-up', label: 'Total Expenses', value: fmtAmt(totalExpenses), accent: '#e74c3c', bg:'var(--tint-danger)', action: () => setExpenseModal(true) },
+                  { icon: 'fas fa-balance-scale', label: 'Net Balance', value: fmtAmt(totalIncome - totalExpenses), accent: totalIncome - totalExpenses >= 0 ? '#27ae60' : '#e74c3c', bg:'var(--surface-muted)' },
+                  { icon: 'fas fa-wallet', label: 'Pending Salaries', value: pendingSalaries, accent: '#f39c12', bg:'var(--tint-warning)', action: () => setActiveTab('salaries') },
+                  { icon: 'fas fa-credit-card', label: 'Fee Payments', value: feePayments.length, accent: '#3498db', bg:'var(--tint-primary)', action: () => setActiveTab('fees') },
                 ].map((s, i) => (
-                  <div key={i} onClick={s.action} style={{ background: 'white', borderRadius: 14, padding: '16px 18px', display: 'flex', alignItems: 'center', gap: 12, boxShadow: '0 2px 10px rgba(0,0,0,.05)', cursor: s.action ? 'pointer' : 'default', transition: 'transform .2s', border: '1px solid #f0f0f0' }}
+                  <div key={i} onClick={s.action} style={{ background:'var(--surface-card)', borderRadius: 14, padding: '16px 18px', display: 'flex', alignItems: 'center', gap: 12, boxShadow: '0 2px 10px rgba(0,0,0,.05)', cursor: s.action ? 'pointer' : 'default', transition: 'transform .2s', border:'1px solid var(--surface-page)' }}
                     onMouseEnter={e => { if (s.action) { e.currentTarget.style.transform = 'translateY(-3px)'; e.currentTarget.style.boxShadow = '0 8px 24px rgba(0,0,0,.1)'; } }}
                     onMouseLeave={e => { e.currentTarget.style.transform = ''; e.currentTarget.style.boxShadow = '0 2px 10px rgba(0,0,0,.05)'; }}>
                     <div style={{ width: 44, height: 44, borderRadius: 12, background: s.bg, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
                       <i className={s.icon} style={{ fontSize: 18, color: s.accent }} />
                     </div>
                     <div>
-                      <div style={{ fontSize: 18, fontWeight: 700, color: '#1a3a5c', lineHeight: 1, fontFamily: 'Georgia, serif' }}>{s.value}</div>
-                      <div style={{ fontSize: 11, color: '#888', marginTop: 3 }}>{s.label}</div>
+                      <div style={{ fontSize: 18, fontWeight: 700, color:'var(--navy)', lineHeight: 1, fontFamily: 'Georgia, serif' }}>{s.value}</div>
+                      <div style={{ fontSize: 11, color:'var(--text-faint)', marginTop: 3 }}>{s.label}</div>
                     </div>
                   </div>
                 ))}
@@ -630,24 +630,24 @@ const AccountsAdminDashboard = () => {
               </div>
 
               {/* Recent transactions */}
-              <div style={{ background: 'white', borderRadius: 14, padding: 18, boxShadow: '0 2px 10px rgba(0,0,0,.05)' }}>
-                <h3 style={{ margin: '0 0 14px', fontSize: 14, color: '#1a3a5c', fontWeight: 600 }}><i className="fas fa-history" style={{ marginRight: 7, color: '#3498db' }} />Recent Transactions</h3>
+              <div style={{ background:'var(--surface-card)', borderRadius: 14, padding: 18, boxShadow: '0 2px 10px rgba(0,0,0,.05)' }}>
+                <h3 style={{ margin: '0 0 14px', fontSize: 14, color:'var(--navy)', fontWeight: 600 }}><i className="fas fa-history" style={{ marginRight: 7, color: '#3498db' }} />Recent Transactions</h3>
                 {[...income.map(i => ({ ...i, _type: 'income' })), ...expenses.map(e => ({ ...e, _type: 'expense' }))]
                   .sort((a, b) => new Date(b.date) - new Date(a.date)).slice(0, 8).map(t => (
-                    <div key={t._id} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '9px 0', borderBottom: '1px solid #f5f5f5' }}>
+                    <div key={t._id} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '9px 0', borderBottom:'1px solid var(--surface-muted)' }}>
                       <div style={{ width: 34, height: 34, borderRadius: 10, background: t._type === 'income' ? '#e8f5e9' : '#fdecea', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
                         <i className={`fas fa-arrow-${t._type === 'income' ? 'down' : 'up'}`} style={{ fontSize: 13, color: t._type === 'income' ? '#27ae60' : '#e74c3c' }} />
                       </div>
                       <div style={{ flex: 1 }}>
                         <div style={{ fontSize: 13, fontWeight: 600 }}>{t.source || t.category}</div>
-                        <div style={{ fontSize: 11, color: '#aaa' }}>{fmt(t.date)} {t.description ? '· ' + t.description : ''}</div>
+                        <div style={{ fontSize: 11, color:'var(--text-faint)' }}>{fmt(t.date)} {t.description ? '· ' + t.description : ''}</div>
                       </div>
                       <div style={{ fontSize: 14, fontWeight: 700, color: t._type === 'income' ? '#27ae60' : '#e74c3c' }}>
                         {t._type === 'income' ? '+' : '-'}{fmtAmt(t.amount)}
                       </div>
                     </div>
                   ))}
-                {income.length === 0 && expenses.length === 0 && <p style={{ textAlign: 'center', color: '#bbb', fontSize: 13, padding: 20 }}>No transactions yet</p>}
+                {income.length === 0 && expenses.length === 0 && <p style={{ textAlign: 'center', color:'var(--text-faint-2)', fontSize: 13, padding: 20 }}>No transactions yet</p>}
               </div>
             </div>
           )}
@@ -655,22 +655,22 @@ const AccountsAdminDashboard = () => {
           {/* ══ BUDGET ══ */}
           {activeTab === 'budget' && (
             <div>
-              <div style={{ marginBottom: 18 }}><h2 style={{ margin: 0, fontSize: 19, color: '#1a3a5c', fontFamily: 'Georgia, serif' }}>Budget & Financial Overview</h2></div>
+              <div style={{ marginBottom: 18 }}><h2 style={{ margin: 0, fontSize: 19, color:'var(--navy)', fontFamily: 'Georgia, serif' }}>Budget & Financial Overview</h2></div>
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(200px,1fr))', gap: 14, marginBottom: 20 }}>
                 {[
-                  { label: 'Total Budget', value: fmtAmt(budget.total), color: '#1a3a5c', action: () => setBudgetModal(true), actionLabel: 'Edit' },
+                  { label: 'Total Budget', value: fmtAmt(budget.total), color:'var(--navy)', action: () => setBudgetModal(true), actionLabel: 'Edit' },
                   { label: 'Total Income', value: fmtAmt(totalIncome), color: '#27ae60', action: () => setIncomeModal(true), actionLabel: '+ Add' },
                   { label: 'Total Expenses', value: fmtAmt(totalExpenses), color: '#e74c3c', action: () => setExpenseModal(true), actionLabel: '+ Add' },
                 ].map((c, i) => (
-                  <div key={i} style={{ background: 'white', borderRadius: 14, padding: '18px 20px', textAlign: 'center', boxShadow: '0 2px 10px rgba(0,0,0,.05)' }}>
-                    <div style={{ fontSize: 12, color: '#888', marginBottom: 6 }}>{c.label}</div>
+                  <div key={i} style={{ background:'var(--surface-card)', borderRadius: 14, padding: '18px 20px', textAlign: 'center', boxShadow: '0 2px 10px rgba(0,0,0,.05)' }}>
+                    <div style={{ fontSize: 12, color:'var(--text-faint)', marginBottom: 6 }}>{c.label}</div>
                     <div style={{ fontSize: 20, fontWeight: 700, color: c.color, fontFamily: 'Georgia, serif', marginBottom: 10 }}>{c.value}</div>
                     <Btn small onClick={c.action} color={c.color}>{c.actionLabel}</Btn>
                   </div>
                 ))}
               </div>
-              <div style={{ background: 'white', borderRadius: 14, padding: 20, marginBottom: 18, boxShadow: '0 2px 10px rgba(0,0,0,.05)' }}>
-                <h3 style={{ margin: '0 0 14px', fontSize: 14, color: '#1a3a5c', fontWeight: 600 }}>Budget Utilisation</h3>
+              <div style={{ background:'var(--surface-card)', borderRadius: 14, padding: 20, marginBottom: 18, boxShadow: '0 2px 10px rgba(0,0,0,.05)' }}>
+                <h3 style={{ margin: '0 0 14px', fontSize: 14, color:'var(--navy)', fontWeight: 600 }}>Budget Utilisation</h3>
                 {[
                   { label: 'Spent', value: totalExpenses, total: budget.total || 1, color: '#e74c3c' },
                   { label: 'Remaining', value: Math.max(0, (budget.total || 0) - totalExpenses), total: budget.total || 1, color: '#27ae60' },
@@ -679,14 +679,14 @@ const AccountsAdminDashboard = () => {
                     <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 4, fontSize: 13 }}>
                       <span>{b.label}</span><span style={{ fontWeight: 700, color: b.color }}>{fmtAmt(b.value)}</span>
                     </div>
-                    <div style={{ height: 10, background: '#f0f0f0', borderRadius: 5, overflow: 'hidden' }}>
+                    <div style={{ height: 10, background:'var(--surface-page)', borderRadius: 5, overflow: 'hidden' }}>
                       <div style={{ height: '100%', width: `${Math.min(100, (b.value / b.total) * 100)}%`, background: b.color, borderRadius: 5 }} />
                     </div>
                   </div>
                 ))}
               </div>
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(340px,1fr))', gap: 18 }}>
-                <div style={{ background: 'white', borderRadius: 14, padding: 18, boxShadow: '0 2px 10px rgba(0,0,0,.05)' }}>
+                <div style={{ background:'var(--surface-card)', borderRadius: 14, padding: 18, boxShadow: '0 2px 10px rgba(0,0,0,.05)' }}>
                   <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 14 }}>
                     <h3 style={{ margin: 0, fontSize: 14, color: '#27ae60', fontWeight: 600 }}><i className="fas fa-arrow-down" style={{ marginRight: 7 }} />Income</h3>
                     <Btn small onClick={() => setIncomeModal(true)} icon="fas fa-plus" color="#27ae60">Add</Btn>
@@ -694,14 +694,14 @@ const AccountsAdminDashboard = () => {
                   <Table cols={['Date', 'Source', 'Amount']} emptyMsg="No income recorded"
                     rows={income.slice(0, 10).map(i => (
                       <React.Fragment key={i._id}>
-                        <TD style={{ fontSize: 12, color: '#aaa' }}>{fmt(i.date)}</TD>
-                        <TD><div style={{ fontWeight: 600, fontSize: 13 }}>{i.source}</div><div style={{ fontSize: 11, color: '#aaa' }}>{i.description}</div></TD>
+                        <TD style={{ fontSize: 12, color:'var(--text-faint)' }}>{fmt(i.date)}</TD>
+                        <TD><div style={{ fontWeight: 600, fontSize: 13 }}>{i.source}</div><div style={{ fontSize: 11, color:'var(--text-faint)' }}>{i.description}</div></TD>
                         <TD><span style={{ fontWeight: 700, color: '#27ae60' }}>+{fmtAmt(i.amount)}</span></TD>
                       </React.Fragment>
                     ))}
                   />
                 </div>
-                <div style={{ background: 'white', borderRadius: 14, padding: 18, boxShadow: '0 2px 10px rgba(0,0,0,.05)' }}>
+                <div style={{ background:'var(--surface-card)', borderRadius: 14, padding: 18, boxShadow: '0 2px 10px rgba(0,0,0,.05)' }}>
                   <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 14 }}>
                     <h3 style={{ margin: 0, fontSize: 14, color: '#e74c3c', fontWeight: 600 }}><i className="fas fa-arrow-up" style={{ marginRight: 7 }} />Expenses</h3>
                     <Btn small onClick={() => setExpenseModal(true)} icon="fas fa-plus" color="#e74c3c">Add</Btn>
@@ -709,8 +709,8 @@ const AccountsAdminDashboard = () => {
                   <Table cols={['Date', 'Category', 'Amount']} emptyMsg="No expenses recorded"
                     rows={expenses.slice(0, 10).map(e => (
                       <React.Fragment key={e._id}>
-                        <TD style={{ fontSize: 12, color: '#aaa' }}>{fmt(e.date)}</TD>
-                        <TD><div style={{ fontWeight: 600, fontSize: 13 }}>{e.category}</div><div style={{ fontSize: 11, color: '#aaa' }}>{e.description}</div></TD>
+                        <TD style={{ fontSize: 12, color:'var(--text-faint)' }}>{fmt(e.date)}</TD>
+                        <TD><div style={{ fontWeight: 600, fontSize: 13 }}>{e.category}</div><div style={{ fontSize: 11, color:'var(--text-faint)' }}>{e.description}</div></TD>
                         <TD><span style={{ fontWeight: 700, color: '#e74c3c' }}>-{fmtAmt(e.amount)}</span></TD>
                       </React.Fragment>
                     ))}
@@ -724,7 +724,7 @@ const AccountsAdminDashboard = () => {
           {activeTab === 'fees' && (
             <div>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 18, flexWrap: 'wrap', gap: 10 }}>
-                <div><h2 style={{ margin: 0, fontSize: 19, color: '#1a3a5c', fontFamily: 'Georgia, serif' }}>Fee Management</h2></div>
+                <div><h2 style={{ margin: 0, fontSize: 19, color:'var(--navy)', fontFamily: 'Georgia, serif' }}>Fee Management</h2></div>
                 <div style={{ display: 'flex', gap: 10 }}>
                   <Btn onClick={() => setFeeModal(true)} icon="fas fa-plus" color="#3498db">Create Fee Structure</Btn>
                   <Btn onClick={() => setPaymentModal(true)} icon="fas fa-credit-card" color="#27ae60">Record Payment</Btn>
@@ -732,28 +732,28 @@ const AccountsAdminDashboard = () => {
               </div>
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill,minmax(280px,1fr))', gap: 14, marginBottom: 20 }}>
                 {feeStructures.map(fee => (
-                  <div key={fee._id} style={{ background: 'white', borderRadius: 12, padding: '16px 18px', borderLeft: '4px solid #f39c12', boxShadow: '0 2px 8px rgba(0,0,0,.05)' }}>
+                  <div key={fee._id} style={{ background:'var(--surface-card)', borderRadius: 12, padding: '16px 18px', borderLeft: '4px solid #f39c12', boxShadow: '0 2px 8px rgba(0,0,0,.05)' }}>
                     <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 8 }}>
-                      <h3 style={{ margin: 0, fontSize: 14, color: '#1a3a5c' }}>{fee.feeType}</h3>
-                      <button onClick={() => deleteFee(fee._id)} style={{ background: '#fdecea', border: 'none', borderRadius: 6, padding: '4px 8px', cursor: 'pointer', color: '#e74c3c', fontSize: 11 }}><i className="fas fa-trash" /></button>
+                      <h3 style={{ margin: 0, fontSize: 14, color:'var(--navy)' }}>{fee.feeType}</h3>
+                      <button onClick={() => deleteFee(fee._id)} style={{ background:'var(--tint-danger)', border: 'none', borderRadius: 6, padding: '4px 8px', cursor: 'pointer', color: '#e74c3c', fontSize: 11 }}><i className="fas fa-trash" /></button>
                     </div>
                     <div style={{ fontSize: 20, fontWeight: 700, color: '#27ae60', marginBottom: 8, fontFamily: 'Georgia, serif' }}>{fmtAmt(fee.amount)}</div>
-                    <div style={{ fontSize: 11, color: '#888' }}>{fee.classId ? `Class: ${fee.classId.grade || ''} ${fee.classId.className || ''}` : 'All classes'}</div>
+                    <div style={{ fontSize: 11, color:'var(--text-faint)' }}>{fee.classId ? `Class: ${fee.classId.grade || ''} ${fee.classId.className || ''}` : 'All classes'}</div>
                     {fee.dueDate && <div style={{ fontSize: 11, color: '#e74c3c', marginTop: 4 }}>Due: {fmt(fee.dueDate)}</div>}
-                    {fee.description && <div style={{ fontSize: 11, color: '#aaa', marginTop: 4 }}>{fee.description}</div>}
+                    {fee.description && <div style={{ fontSize: 11, color:'var(--text-faint)', marginTop: 4 }}>{fee.description}</div>}
                   </div>
                 ))}
-                {feeStructures.length === 0 && <div style={{ textAlign: 'center', padding: 40, color: '#bbb', background: 'white', borderRadius: 12, fontSize: 13, gridColumn: '1/-1' }}>No fee structures created yet</div>}
+                {feeStructures.length === 0 && <div style={{ textAlign: 'center', padding: 40, color:'var(--text-faint-2)', background:'var(--surface-card)', borderRadius: 12, fontSize: 13, gridColumn: '1/-1' }}>No fee structures created yet</div>}
               </div>
-              <div style={{ background: 'white', borderRadius: 14, padding: 18, boxShadow: '0 2px 10px rgba(0,0,0,.05)' }}>
+              <div style={{ background:'var(--surface-card)', borderRadius: 14, padding: 18, boxShadow: '0 2px 10px rgba(0,0,0,.05)' }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 14 }}>
-                  <h3 style={{ margin: 0, fontSize: 14, color: '#1a3a5c', fontWeight: 600 }}><i className="fas fa-credit-card" style={{ marginRight: 7, color: '#27ae60' }} />Recent Payments</h3>
+                  <h3 style={{ margin: 0, fontSize: 14, color:'var(--navy)', fontWeight: 600 }}><i className="fas fa-credit-card" style={{ marginRight: 7, color: '#27ae60' }} />Recent Payments</h3>
                   <Btn small onClick={() => setPaymentModal(true)} icon="fas fa-plus" color="#27ae60">Record Payment</Btn>
                 </div>
                 <Table cols={['Date', 'Student', 'Fee Type', 'Amount', 'Receipt']} emptyMsg="No payments recorded yet"
                   rows={feePayments.slice(0, 15).map(p => (
                     <React.Fragment key={p._id}>
-                      <TD style={{ fontSize: 12, color: '#aaa' }}>{fmt(p.paymentDate)}</TD>
+                      <TD style={{ fontSize: 12, color:'var(--text-faint)' }}>{fmt(p.paymentDate)}</TD>
                       <TD><div style={{ fontWeight: 600, fontSize: 13 }}>{p.studentName || p.studentId?.fullName || '—'}</div></TD>
                       <TD style={{ fontSize: 12 }}>{p.feeType}</TD>
                       <TD><span style={{ fontWeight: 700, color: '#27ae60' }}>{fmtAmt(p.amount)}</span></TD>
@@ -774,8 +774,8 @@ const AccountsAdminDashboard = () => {
             <div>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 18, flexWrap: 'wrap', gap: 10 }}>
                 <div>
-                  <h2 style={{ margin: 0, fontSize: 19, color: '#1a3a5c', fontFamily: 'Georgia, serif' }}>Invoices & Fee Analytics</h2>
-                  <p style={{ margin: '3px 0 0', fontSize: 12, color: '#888' }}>
+                  <h2 style={{ margin: 0, fontSize: 19, color:'var(--navy)', fontFamily: 'Georgia, serif' }}>Invoices & Fee Analytics</h2>
+                  <p style={{ margin: '3px 0 0', fontSize: 12, color:'var(--text-faint)' }}>
                     {visibleInvoices.length} invoice(s) · collected {fmtAmt(invoiceTotals.paid)} of {fmtAmt(invoiceTotals.total)}
                   </p>
                 </div>
@@ -794,20 +794,20 @@ const AccountsAdminDashboard = () => {
               {analytics?.summary && (
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(170px,1fr))', gap: 14, marginBottom: 20 }}>
                   {[
-                    { label: 'Expected', value: fmtAmt(analytics.summary.totalExpected), accent: '#1a3a5c', bg: '#e8f0fb' },
-                    { label: 'Collected', value: fmtAmt(analytics.summary.totalCollected), accent: '#27ae60', bg: '#e8f5e9' },
-                    { label: 'Outstanding', value: fmtAmt(analytics.summary.balance), accent: '#e74c3c', bg: '#fdecea' },
-                    { label: 'Collection Rate', value: `${analytics.summary.collectionRate}%`, accent: '#3498db', bg: '#e3f2fd' },
-                    { label: 'Overdue', value: analytics.summary.overdue || 0, accent: '#e74c3c', bg: '#fdecea' },
-                    { label: 'Paid Invoices', value: analytics.summary.paid || 0, accent: '#27ae60', bg: '#e8f5e9' },
+                    { label: 'Expected', value: fmtAmt(analytics.summary.totalExpected), accent:'var(--navy)', bg:'var(--surface-navy-tint)' },
+                    { label: 'Collected', value: fmtAmt(analytics.summary.totalCollected), accent: '#27ae60', bg:'var(--tint-success)' },
+                    { label: 'Outstanding', value: fmtAmt(analytics.summary.balance), accent: '#e74c3c', bg:'var(--tint-danger)' },
+                    { label: 'Collection Rate', value: `${analytics.summary.collectionRate}%`, accent: '#3498db', bg:'var(--tint-primary)' },
+                    { label: 'Overdue', value: analytics.summary.overdue || 0, accent: '#e74c3c', bg:'var(--tint-danger)' },
+                    { label: 'Paid Invoices', value: analytics.summary.paid || 0, accent: '#27ae60', bg:'var(--tint-success)' },
                   ].map((s, i) => (
-                    <div key={i} style={{ background: 'white', borderRadius: 14, padding: '16px 18px', display: 'flex', alignItems: 'center', gap: 12, boxShadow: '0 2px 10px rgba(0,0,0,.05)', border: '1px solid #f0f0f0' }}>
+                    <div key={i} style={{ background:'var(--surface-card)', borderRadius: 14, padding: '16px 18px', display: 'flex', alignItems: 'center', gap: 12, boxShadow: '0 2px 10px rgba(0,0,0,.05)', border:'1px solid var(--surface-page)' }}>
                       <div style={{ width: 40, height: 40, borderRadius: 12, background: s.bg, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
                         <i className="fas fa-coins" style={{ fontSize: 16, color: s.accent }} />
                       </div>
                       <div>
-                        <div style={{ fontSize: 16, fontWeight: 700, color: '#1a3a5c', lineHeight: 1, fontFamily: 'Georgia, serif' }}>{s.value}</div>
-                        <div style={{ fontSize: 11, color: '#888', marginTop: 3 }}>{s.label}</div>
+                        <div style={{ fontSize: 16, fontWeight: 700, color:'var(--navy)', lineHeight: 1, fontFamily: 'Georgia, serif' }}>{s.value}</div>
+                        <div style={{ fontSize: 11, color:'var(--text-faint)', marginTop: 3 }}>{s.label}</div>
                       </div>
                     </div>
                   ))}
@@ -815,8 +815,8 @@ const AccountsAdminDashboard = () => {
               )}
 
               {financialSummary && (
-                <div style={{ background: 'white', borderRadius: 14, padding: 18, marginBottom: 20, boxShadow: '0 2px 10px rgba(0,0,0,.05)' }}>
-                  <h3 style={{ margin: '0 0 12px', fontSize: 14, color: '#1a3a5c', fontWeight: 600 }}>
+                <div style={{ background:'var(--surface-card)', borderRadius: 14, padding: 18, marginBottom: 20, boxShadow: '0 2px 10px rgba(0,0,0,.05)' }}>
+                  <h3 style={{ margin: '0 0 12px', fontSize: 14, color:'var(--navy)', fontWeight: 600 }}>
                     <i className="fas fa-scale-balanced" style={{ marginRight: 7, color: '#3498db' }} />Financial Summary
                   </h3>
                   <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(150px,1fr))', gap: 12, fontSize: 13 }}>
@@ -827,8 +827,8 @@ const AccountsAdminDashboard = () => {
                       ['Completed Payments', financialSummary.completedPayments ?? '—'],
                     ].map(([k, v]) => (
                       <div key={k}>
-                        <div style={{ fontSize: 11, color: '#888' }}>{k}</div>
-                        <div style={{ fontWeight: 700, color: '#1a3a5c' }}>{v}</div>
+                        <div style={{ fontSize: 11, color:'var(--text-faint)' }}>{k}</div>
+                        <div style={{ fontWeight: 700, color:'var(--navy)' }}>{v}</div>
                       </div>
                     ))}
                   </div>
@@ -836,8 +836,8 @@ const AccountsAdminDashboard = () => {
               )}
 
               {analytics?.monthlyTrend?.length > 0 && (
-                <div style={{ background: 'white', borderRadius: 14, padding: 18, marginBottom: 20, boxShadow: '0 2px 10px rgba(0,0,0,.05)' }}>
-                  <h3 style={{ margin: '0 0 14px', fontSize: 14, color: '#1a3a5c', fontWeight: 600 }}>
+                <div style={{ background:'var(--surface-card)', borderRadius: 14, padding: 18, marginBottom: 20, boxShadow: '0 2px 10px rgba(0,0,0,.05)' }}>
+                  <h3 style={{ margin: '0 0 14px', fontSize: 14, color:'var(--navy)', fontWeight: 600 }}>
                     <i className="fas fa-chart-bar" style={{ marginRight: 7, color: '#27ae60' }} />Collection Trend (6 months)
                   </h3>
                   <div style={{ display: 'flex', alignItems: 'flex-end', gap: 12, height: 140 }}>
@@ -845,9 +845,9 @@ const AccountsAdminDashboard = () => {
                       const max = Math.max(1, ...analytics.monthlyTrend.map(m => m.amount));
                       return analytics.monthlyTrend.map(m => (
                         <div key={m.label} style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 6 }}>
-                          <div style={{ fontSize: 10, color: '#888' }}>{(m.amount / 1000).toFixed(0)}k</div>
+                          <div style={{ fontSize: 10, color:'var(--text-faint)' }}>{(m.amount / 1000).toFixed(0)}k</div>
                           <div title={fmtAmt(m.amount)} style={{ width: '100%', maxWidth: 54, height: `${Math.max(4, Math.round((m.amount / max) * 100))}%`, background: 'linear-gradient(180deg,#27ae60,#1e8449)', borderRadius: '6px 6px 0 0' }} />
-                          <div style={{ fontSize: 11, color: '#666' }}>{m.label}</div>
+                          <div style={{ fontSize: 11, color:'var(--text-secondary)' }}>{m.label}</div>
                         </div>
                       ));
                     })()}
@@ -855,8 +855,8 @@ const AccountsAdminDashboard = () => {
                 </div>
               )}
 
-              <div style={{ background: 'white', borderRadius: 14, padding: 18, marginBottom: 20, boxShadow: '0 2px 10px rgba(0,0,0,.05)' }}>
-                <h3 style={{ margin: '0 0 14px', fontSize: 14, color: '#1a3a5c', fontWeight: 600 }}>
+              <div style={{ background:'var(--surface-card)', borderRadius: 14, padding: 18, marginBottom: 20, boxShadow: '0 2px 10px rgba(0,0,0,.05)' }}>
+                <h3 style={{ margin: '0 0 14px', fontSize: 14, color:'var(--navy)', fontWeight: 600 }}>
                   <i className="fas fa-chalkboard" style={{ marginRight: 7, color: '#9b59b6' }} />Collection by Class
                 </h3>
                 <Table cols={['Class', 'Invoices', 'Expected', 'Collected', 'Balance', 'Rate']} emptyMsg="No invoice data for this year"
@@ -874,8 +874,8 @@ const AccountsAdminDashboard = () => {
               </div>
 
               {analytics?.arrears?.length > 0 && (
-                <div style={{ background: 'white', borderRadius: 14, padding: 18, marginBottom: 20, boxShadow: '0 2px 10px rgba(0,0,0,.05)' }}>
-                  <h3 style={{ margin: '0 0 14px', fontSize: 14, color: '#1a3a5c', fontWeight: 600 }}>
+                <div style={{ background:'var(--surface-card)', borderRadius: 14, padding: 18, marginBottom: 20, boxShadow: '0 2px 10px rgba(0,0,0,.05)' }}>
+                  <h3 style={{ margin: '0 0 14px', fontSize: 14, color:'var(--navy)', fontWeight: 600 }}>
                     <i className="fas fa-exclamation-triangle" style={{ marginRight: 7, color: '#e74c3c' }} />Top Debtors
                   </h3>
                   <Table cols={['Student', 'Class', 'Term', 'Balance']} emptyMsg="No outstanding balances"
@@ -891,13 +891,13 @@ const AccountsAdminDashboard = () => {
                 </div>
               )}
 
-              <div style={{ background: 'white', borderRadius: 14, padding: 18, boxShadow: '0 2px 10px rgba(0,0,0,.05)' }}>
+              <div style={{ background:'var(--surface-card)', borderRadius: 14, padding: 18, boxShadow: '0 2px 10px rgba(0,0,0,.05)' }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 14, flexWrap: 'wrap', gap: 10 }}>
-                  <h3 style={{ margin: 0, fontSize: 14, color: '#1a3a5c', fontWeight: 600 }}>
-                    <i className="fas fa-file-invoice" style={{ marginRight: 7, color: '#1a3a5c' }} />Invoices — {invoiceTerm} {invoiceYear}
+                  <h3 style={{ margin: 0, fontSize: 14, color:'var(--navy)', fontWeight: 600 }}>
+                    <i className="fas fa-file-invoice" style={{ marginRight: 7, color:'var(--navy)' }} />Invoices — {invoiceTerm} {invoiceYear}
                   </h3>
                   <input value={recordSearch} onChange={e => setRecordSearch(e.target.value)} placeholder="Filter by student or status..."
-                    style={{ padding: '8px 12px', border: '1.5px solid #e0e0e0', borderRadius: 8, fontSize: 13, outline: 'none' }} />
+                    style={{ padding: '8px 12px', border:'1.5px solid var(--surface-sunken-2)', borderRadius: 8, fontSize: 13, outline: 'none' }} />
                 </div>
                 <Table cols={['Student', 'Class', 'Total', 'Paid', 'Balance', 'Status', 'Actions']}
                   emptyMsg={`No invoices for ${invoiceTerm} ${invoiceYear}. Use "Generate Invoices" to create them from the fee structures.`}
@@ -933,7 +933,7 @@ const AccountsAdminDashboard = () => {
           {activeTab === 'salaries' && (
             <div>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 18, flexWrap: 'wrap', gap: 10 }}>
-                <div><h2 style={{ margin: 0, fontSize: 19, color: '#1a3a5c', fontFamily: 'Georgia, serif' }}>Teacher Salaries</h2><p style={{ margin: '3px 0 0', fontSize: 12, color: '#888' }}>{pendingSalaries} pending approval</p></div>
+                <div><h2 style={{ margin: 0, fontSize: 19, color:'var(--navy)', fontFamily: 'Georgia, serif' }}>Teacher Salaries</h2><p style={{ margin: '3px 0 0', fontSize: 12, color:'var(--text-faint)' }}>{pendingSalaries} pending approval</p></div>
                 <Btn onClick={() => setSalaryModal(true)} icon="fas fa-plus" color="#1a3a5c">Add Salary Record</Btn>
               </div>
               <div style={{ display: 'flex', gap: 12, marginBottom: 18, flexWrap: 'wrap' }}>
@@ -949,7 +949,7 @@ const AccountsAdminDashboard = () => {
                   </div>
                 ))}
               </div>
-              <div style={{ background: 'white', borderRadius: 14, boxShadow: '0 2px 10px rgba(0,0,0,.05)' }}>
+              <div style={{ background:'var(--surface-card)', borderRadius: 14, boxShadow: '0 2px 10px rgba(0,0,0,.05)' }}>
                 <Table cols={['Teacher', 'Subject', 'Month / Year', 'Amount', 'Status', 'Actions']} emptyMsg="No salary records yet"
                   rows={salaries.map(s => (
                     <React.Fragment key={s._id}>
@@ -970,17 +970,17 @@ const AccountsAdminDashboard = () => {
           {activeTab === 'records' && (
             <div>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 18, flexWrap: 'wrap', gap: 10 }}>
-                <div><h2 style={{ margin: 0, fontSize: 19, color: '#1a3a5c', fontFamily: 'Georgia, serif' }}>Financial Records</h2><p style={{ margin: '3px 0 0', fontSize: 12, color: '#888' }}>{filteredRecords.length} transactions</p></div>
-                <input value={recordSearch} onChange={e => setRecordSearch(e.target.value)} placeholder="Search records..." style={{ padding: '8px 12px', border: '1.5px solid #e0e0e0', borderRadius: 8, fontSize: 13, outline: 'none', width: 220 }} />
+                <div><h2 style={{ margin: 0, fontSize: 19, color:'var(--navy)', fontFamily: 'Georgia, serif' }}>Financial Records</h2><p style={{ margin: '3px 0 0', fontSize: 12, color:'var(--text-faint)' }}>{filteredRecords.length} transactions</p></div>
+                <input value={recordSearch} onChange={e => setRecordSearch(e.target.value)} placeholder="Search records..." style={{ padding: '8px 12px', border:'1.5px solid var(--surface-sunken-2)', borderRadius: 8, fontSize: 13, outline: 'none', width: 220 }} />
               </div>
-              <div style={{ background: 'white', borderRadius: 14, boxShadow: '0 2px 10px rgba(0,0,0,.05)' }}>
+              <div style={{ background:'var(--surface-card)', borderRadius: 14, boxShadow: '0 2px 10px rgba(0,0,0,.05)' }}>
                 <Table cols={['Date', 'Type', 'Source / Category', 'Description', 'Reference', 'Amount']} emptyMsg="No records found"
                   rows={filteredRecords.map(t => (
                     <React.Fragment key={t._id}>
-                      <TD style={{ fontSize: 12, color: '#aaa' }}>{fmt(t.date)}</TD>
+                      <TD style={{ fontSize: 12, color:'var(--text-faint)' }}>{fmt(t.date)}</TD>
                       <TD><Badge text={t._type} color={t._type === 'income' ? '#27ae60' : '#e74c3c'} bg={t._type === 'income' ? '#e8f5e9' : '#fdecea'} /></TD>
                       <TD><span style={{ fontWeight: 600, fontSize: 13 }}>{t.source || t.category}</span></TD>
-                      <TD style={{ fontSize: 12, color: '#666' }}>{t.description || '—'}</TD>
+                      <TD style={{ fontSize: 12, color:'var(--text-secondary)' }}>{t.description || '—'}</TD>
                       <TD style={{ fontSize: 12, color: '#3498db' }}>{t.reference || '—'}</TD>
                       <TD><span style={{ fontWeight: 700, color: t._type === 'income' ? '#27ae60' : '#e74c3c' }}>{t._type === 'income' ? '+' : '-'}{fmtAmt(t.amount)}</span></TD>
                     </React.Fragment>
@@ -995,15 +995,15 @@ const AccountsAdminDashboard = () => {
             <div>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20, flexWrap: 'wrap', gap: 10 }}>
                 <div>
-                  <h2 style={{ margin: 0, fontSize: 19, color: '#1a3a5c', fontFamily: 'Georgia, serif' }}>School Announcements</h2>
-                  <p style={{ margin: '4px 0 0', fontSize: 12, color: '#888' }}>
+                  <h2 style={{ margin: 0, fontSize: 19, color:'var(--navy)', fontFamily: 'Georgia, serif' }}>School Announcements</h2>
+                  <p style={{ margin: '4px 0 0', fontSize: 12, color:'var(--text-faint)' }}>
                     {announcements.length} total announcements
                   </p>
                 </div>
               </div>
               <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
                 {announcements.length === 0 && (
-                  <div style={{ textAlign: 'center', padding: 60, color: '#bbb', background: 'white', borderRadius: 16 }}>
+                  <div style={{ textAlign: 'center', padding: 60, color:'var(--text-faint-2)', background:'var(--surface-card)', borderRadius: 16 }}>
                     <i className="fas fa-bullhorn" style={{ fontSize: 36, marginBottom: 12, display: 'block', opacity: .3 }} />
                     No announcements yet
                   </div>
@@ -1014,22 +1014,22 @@ const AccountsAdminDashboard = () => {
                   const pBg = priority === 'urgent' ? '#fdecea' : priority === 'high' ? '#fff3e0' : '#e8f5e9';
                   return (
                     <div key={ann._id} style={{
-                      background: 'white', borderRadius: 14, padding: '18px 20px',
+                      background:'var(--surface-card)', borderRadius: 14, padding: '18px 20px',
                       borderLeft: `4px solid ${pColor}`, boxShadow: '0 2px 10px rgba(0,0,0,.05)',
                     }}>
                       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 10, flexWrap: 'wrap', gap: 10 }}>
                         <div>
-                          <h3 style={{ margin: 0, fontSize: 15, color: '#1a3a5c' }}>{ann.title || 'Untitled'}</h3>
+                          <h3 style={{ margin: 0, fontSize: 15, color:'var(--navy)' }}>{ann.title || 'Untitled'}</h3>
                           <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginTop: 6 }}>
                             <Badge text={priority} color={pColor} bg={pBg} />
                             <Badge text={ann.audience === 'all' ? 'All Users' : (ann.audience || 'All Users')} color="#888" bg="#f5f5f5" />
                           </div>
                         </div>
                         <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                          <span style={{ fontSize: 11, color: '#aaa' }}>{ann.createdAt ? fmt(ann.createdAt) : 'Just now'}</span>
+                          <span style={{ fontSize: 11, color:'var(--text-faint)' }}>{ann.createdAt ? fmt(ann.createdAt) : 'Just now'}</span>
                         </div>
                       </div>
-                      <p style={{ margin: 0, fontSize: 13, color: '#555', lineHeight: 1.7 }}>{ann.content || 'No content provided'}</p>
+                      <p style={{ margin: 0, fontSize: 13, color:'var(--text-2)', lineHeight: 1.7 }}>{ann.content || 'No content provided'}</p>
                     </div>
                   );
                 })}
@@ -1039,36 +1039,36 @@ const AccountsAdminDashboard = () => {
 
           {/* ══ MESSAGES ══ */}
           {activeTab === 'messages' && (
-            <div style={{ background: 'white', borderRadius: 16, boxShadow: '0 2px 12px rgba(0,0,0,.06)',
+            <div style={{ background:'var(--surface-card)', borderRadius: 16, boxShadow: '0 2px 12px rgba(0,0,0,.06)',
               overflow: 'hidden', height: 'calc(100vh - 150px)', display: 'flex', flexDirection: 'column' }}>
               {/* tabs */}
-              <div style={{ padding: '14px 20px', borderBottom: '1px solid #eee', display: 'flex', gap: 10, alignItems: 'center', flexWrap: 'wrap' }}>
+              <div style={{ padding: '14px 20px', borderBottom:'1px solid var(--border)', display: 'flex', gap: 10, alignItems: 'center', flexWrap: 'wrap' }}>
                 {['inbox', 'compose'].map(t => (
                   <button key={t} onClick={() => { setMsgTab(t); if (t === 'compose') { setSelectedUser(null); setMessages([]); } }}
                     style={{
                       padding: '7px 18px', borderRadius: 30, border: 'none', cursor: 'pointer', fontSize: 13, fontWeight: 600,
-                      background: msgTab === t ? '#1a3a5c' : '#f0f3f8', color: msgTab === t ? 'white' : '#666',
+                      background: msgTab === t ? '#1a3a5c' : '#f0f3f8', color: msgTab === t ? 'var(--on-solid)' : '#666',
                       transition: 'all .2s',
                     }}>
-                    {t === 'inbox' ? <><i className="fas fa-inbox" style={{ marginRight: 6 }} />Inbox{unread > 0 && <span style={{ marginLeft: 6, background: '#e74c3c', color: 'white', borderRadius: 20, fontSize: 10, padding: '1px 7px' }}>{unread}</span>}</> : <><i className="fas fa-pen" style={{ marginRight: 6 }} />New Message</>}
+                    {t === 'inbox' ? <><i className="fas fa-inbox" style={{ marginRight: 6 }} />Inbox{unread > 0 && <span style={{ marginLeft: 6, background: '#e74c3c', color:'var(--on-solid)', borderRadius: 20, fontSize: 10, padding: '1px 7px' }}>{unread}</span>}</> : <><i className="fas fa-pen" style={{ marginRight: 6 }} />New Message</>}
                   </button>
                 ))}
               </div>
               {msgTab === 'inbox' ? (
                 <div style={{ flex: 1, display: 'flex', overflow: 'hidden' }}>
                   {/* user list */}
-                  <div style={{ width: 280, borderRight: '1px solid #eee', display: 'flex', flexDirection: 'column', background: '#fafbff', flexShrink: 0, overflow: 'hidden' }}>
-                    <div style={{ padding: '12px 14px', borderBottom: '1px solid #eee' }}>
+                  <div style={{ width: 280, borderRight:'1px solid var(--border)', display: 'flex', flexDirection: 'column', background:'var(--surface-raised)', flexShrink: 0, overflow: 'hidden' }}>
+                    <div style={{ padding: '12px 14px', borderBottom:'1px solid var(--border)' }}>
                       <div style={{ position: 'relative' }}>
-                        <i className="fas fa-search" style={{ position: 'absolute', left: 10, top: '50%', transform: 'translateY(-50%)', color: '#ccc', fontSize: 12 }} />
+                        <i className="fas fa-search" style={{ position: 'absolute', left: 10, top: '50%', transform: 'translateY(-50%)', color:'var(--border-strong)', fontSize: 12 }} />
                         <input value={msgSearch} onChange={e => setMsgSearch(e.target.value)}
                           placeholder="Search users..." style={{ width: '100%', padding: '7px 10px 7px 30px',
-                          border: '1px solid #eee', borderRadius: 20, fontSize: 12, boxSizing: 'border-box',
-                          background: 'white', outline: 'none' }} />
+                          border:'1px solid var(--border)', borderRadius: 20, fontSize: 12, boxSizing: 'border-box',
+                          background:'var(--surface-card)', outline: 'none' }} />
                       </div>
                     </div>
                     <div style={{ flex: 1, overflowY: 'auto' }}>
-                      {filteredUsers.length === 0 && <div style={{ textAlign: 'center', padding: 30, color: '#ccc', fontSize: 13 }}>No users found</div>}
+                      {filteredUsers.length === 0 && <div style={{ textAlign: 'center', padding: 30, color:'var(--border-strong)', fontSize: 13 }}>No users found</div>}
                       {filteredUsers.map(u => (
                         <div key={u._id} onClick={() => { setSelectedUser(u); fetchConversation(u._id); }}
                           style={{
@@ -1079,7 +1079,7 @@ const AccountsAdminDashboard = () => {
                           }}>
                           <Avatar name={u.fullName} size={36} img={u.profileImage} />
                           <div style={{ overflow: 'hidden' }}>
-                            <div style={{ fontSize: 13, fontWeight: 600, color: '#333', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{u.fullName}</div>
+                            <div style={{ fontSize: 13, fontWeight: 600, color:'var(--text-body)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{u.fullName}</div>
                             <div style={{ fontSize: 10, color: '#ffc107', fontWeight: 700, letterSpacing: .3 }}>{roleBadge(u.role).label}</div>
                           </div>
                         </div>
@@ -1090,16 +1090,16 @@ const AccountsAdminDashboard = () => {
                   <div style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
                     {selectedUser ? (
                       <>
-                        <div style={{ padding: '14px 18px', borderBottom: '1px solid #eee', display: 'flex', alignItems: 'center', gap: 12, background: 'white' }}>
+                        <div style={{ padding: '14px 18px', borderBottom:'1px solid var(--border)', display: 'flex', alignItems: 'center', gap: 12, background:'var(--surface-card)' }}>
                           <Avatar name={selectedUser.fullName} size={40} img={selectedUser.profileImage} />
                           <div>
-                            <div style={{ fontWeight: 600, fontSize: 14, color: '#1a3a5c' }}>{selectedUser.fullName}</div>
+                            <div style={{ fontWeight: 600, fontSize: 14, color:'var(--navy)' }}>{selectedUser.fullName}</div>
                             <div style={{ fontSize: 11, color: '#ffc107', fontWeight: 700 }}>{roleBadge(selectedUser.role).label}</div>
                           </div>
                         </div>
-                        <div style={{ flex: 1, overflowY: 'auto', padding: 18, display: 'flex', flexDirection: 'column', gap: 12, background: '#f8f9ff' }}>
+                        <div style={{ flex: 1, overflowY: 'auto', padding: 18, display: 'flex', flexDirection: 'column', gap: 12, background:'var(--surface-raised)' }}>
                           {messages.length === 0 && (
-                            <div style={{ textAlign: 'center', color: '#ccc', paddingTop: 40 }}>
+                            <div style={{ textAlign: 'center', color:'var(--border-strong)', paddingTop: 40 }}>
                               <i className="fas fa-comments" style={{ fontSize: 32, marginBottom: 8, display: 'block' }} />
                               <div style={{ fontSize: 13 }}>Start a conversation with {selectedUser.fullName}</div>
                             </div>
@@ -1112,22 +1112,22 @@ const AccountsAdminDashboard = () => {
                           ))}
                           <div ref={messagesEndRef} />
                         </div>
-                        <div style={{ padding: '12px 16px', borderTop: '1px solid #eee', display: 'flex', gap: 10, background: 'white', alignItems: 'flex-end' }}>
+                        <div style={{ padding: '12px 16px', borderTop:'1px solid var(--border)', display: 'flex', gap: 10, background:'var(--surface-card)', alignItems: 'flex-end' }}>
                           <textarea value={msgText} onChange={e => setMsgText(e.target.value)}
                             placeholder={`Message ${selectedUser.fullName}...`}
                             rows={2} onKeyDown={e => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMessage(); } }}
-                            style={{ flex: 1, padding: '10px 14px', border: '1.5px solid #e0e0e0', borderRadius: 12,
+                            style={{ flex: 1, padding: '10px 14px', border:'1.5px solid var(--surface-sunken-2)', borderRadius: 12,
                               resize: 'none', fontFamily: 'inherit', fontSize: 13, outline: 'none', boxSizing: 'border-box' }} />
                           <button onClick={sendMessage} disabled={!msgText.trim()}
                             style={{ width: 42, height: 42, background: msgText.trim() ? '#1a3a5c' : '#ddd',
                               border: 'none', borderRadius: '50%', cursor: msgText.trim() ? 'pointer' : 'default',
-                              color: 'white', fontSize: 16, transition: 'all .2s', flexShrink: 0 }}>
+                              color:'var(--on-solid)', fontSize: 16, transition: 'all .2s', flexShrink: 0 }}>
                             <i className="fas fa-paper-plane" />
                           </button>
                         </div>
                       </>
                     ) : (
-                      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', color: '#ccc', gap: 12 }}>
+                      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', color:'var(--border-strong)', gap: 12 }}>
                         <i className="fas fa-comments" style={{ fontSize: 48, opacity: .3 }} />
                         <div style={{ fontSize: 14 }}>Select a user to start messaging</div>
                       </div>
@@ -1137,7 +1137,7 @@ const AccountsAdminDashboard = () => {
               ) : (
                 /* compose */
                 <div style={{ flex: 1, padding: 28, maxWidth: 600, margin: '0 auto', width: '100%', overflowY: 'auto' }}>
-                  <h3 style={{ margin: '0 0 20px', color: '#1a3a5c', fontFamily: 'Georgia, serif' }}>New Message</h3>
+                  <h3 style={{ margin: '0 0 20px', color:'var(--navy)', fontFamily: 'Georgia, serif' }}>New Message</h3>
                   <Field label="Recipient" required>
                     <Sel value={selectedUser?._id || ''} onChange={e => {
                       const u = msgUsers.find(x => x._id === e.target.value);
@@ -1165,14 +1165,14 @@ const AccountsAdminDashboard = () => {
           {/* ══ PROFILE ══ */}
           {activeTab === 'profile' && (
             <div style={{ maxWidth: 580, margin: '0 auto' }}>
-              <div style={{ background: 'linear-gradient(135deg,#0d1f33,#1a3a5c)', borderRadius: 18, padding: 28, textAlign: 'center', marginBottom: 16, color: 'white' }}>
+              <div style={{ background:'linear-gradient(135deg,var(--navy-deep),var(--navy))', borderRadius: 18, padding: 28, textAlign: 'center', marginBottom: 16, color:'var(--on-solid)' }}>
                 <Avatar name={userName} size={68} bg='rgba(255,193,7,.2)' color='#ffc107' />
                 <h2 style={{ margin: '12px 0 3px', fontFamily: 'Georgia, serif', fontSize: 20 }}>{userName}</h2>
                 <div style={{ fontSize: 11, opacity: .7, letterSpacing: 1 }}>ACCOUNTS ADMINISTRATOR</div>
                 <div style={{ fontSize: 12, opacity: .6, marginTop: 4 }}>{localStorage.getItem('userEmail') || 'accounts@essa.rw'}</div>
               </div>
-              <div style={{ background: 'white', borderRadius: 14, padding: 22, boxShadow: '0 2px 10px rgba(0,0,0,.05)' }}>
-                <h3 style={{ margin: '0 0 16px', fontSize: 15, color: '#1a3a5c', fontFamily: 'Georgia, serif' }}><i className="fas fa-lock" style={{ color: '#ffc107', marginRight: 8 }} />Change Password</h3>
+              <div style={{ background:'var(--surface-card)', borderRadius: 14, padding: 22, boxShadow: '0 2px 10px rgba(0,0,0,.05)' }}>
+                <h3 style={{ margin: '0 0 16px', fontSize: 15, color:'var(--navy)', fontFamily: 'Georgia, serif' }}><i className="fas fa-lock" style={{ color: '#ffc107', marginRight: 8 }} />Change Password</h3>
                 {[['currentPw', 'Current Password'], ['newPw', 'New Password'], ['confirmPw', 'Confirm Password']].map(([id, label]) => (
                   <Field key={id} label={label} required><Inp type="password" id={id} placeholder={`Enter ${label.toLowerCase()}`} /></Field>
                 ))}

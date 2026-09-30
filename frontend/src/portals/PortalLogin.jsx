@@ -35,7 +35,7 @@ const PortalLogin = () => {
         title: 'Missing Credentials',
         text: 'Please enter both email and password.',
         icon: 'warning',
-        confirmButtonColor: '#1a3a5c',
+        confirmButtonColor:'var(--navy)',
       });
       return;
     }
@@ -98,7 +98,7 @@ const PortalLogin = () => {
           title: 'Login Failed',
           text: data.message || 'Invalid email or password',
           icon: 'error',
-          confirmButtonColor: '#1a3a5c',
+          confirmButtonColor:'var(--navy)',
         });
       }
     } catch (error) {
@@ -107,7 +107,7 @@ const PortalLogin = () => {
         title: 'Connection Error',
         text: 'Please check your internet connection and Try again!!.',
         icon: 'error',
-        confirmButtonColor: '#1a3a5c',
+        confirmButtonColor:'var(--navy)',
       });
     } finally {
       setIsLoading(false);
@@ -117,7 +117,7 @@ const PortalLogin = () => {
   const handleSdmsLogin = async (e) => {
     e.preventDefault();
     if (!sdmsCode.trim()) {
-      Swal.fire({ title: 'SDMS Code Required', text: 'Enter the code printed on your SDMS card.', icon: 'warning', confirmButtonColor: '#1a3a5c' });
+      Swal.fire({ title: 'SDMS Code Required', text: 'Enter the code printed on your SDMS card.', icon: 'warning', confirmButtonColor:'var(--navy)' });
       return;
     }
     setIsLoading(true);
@@ -130,7 +130,7 @@ const PortalLogin = () => {
       const data = await response.json();
 
       if (!response.ok) {
-        Swal.fire({ title: 'Login Failed', text: data.message || 'Invalid SDMS code', icon: 'error', confirmButtonColor: '#1a3a5c' });
+        Swal.fire({ title: 'Login Failed', text: data.message || 'Invalid SDMS code', icon: 'error', confirmButtonColor:'var(--navy)' });
         return;
       }
 
@@ -155,7 +155,7 @@ const PortalLogin = () => {
       Swal.fire({ title: 'Welcome!', text: `Signed in as ${data.fullName}`, icon: 'success', timer: 1200, showConfirmButton: false });
       setTimeout(() => navigate('/portal/student'), 1200);
     } catch {
-      Swal.fire({ title: 'Connection Error', text: 'Please check your internet connection and try again.', icon: 'error', confirmButtonColor: '#1a3a5c' });
+      Swal.fire({ title: 'Connection Error', text: 'Please check your internet connection and try again.', icon: 'error', confirmButtonColor:'var(--navy)' });
     } finally {
       setIsLoading(false);
     }
@@ -164,7 +164,7 @@ const PortalLogin = () => {
   const handleRequestOtp = async (e) => {
     e.preventDefault();
     if (!otpPhone) {
-      Swal.fire({ title: 'Phone Required', text: 'Enter the phone number registered at the school.', icon: 'warning', confirmButtonColor: '#1a3a5c' });
+      Swal.fire({ title: 'Phone Required', text: 'Enter the phone number registered at the school.', icon: 'warning', confirmButtonColor:'var(--navy)' });
       return;
     }
     setIsLoading(true);
@@ -185,10 +185,10 @@ const PortalLogin = () => {
           showConfirmButton: false,
         });
       } else {
-        Swal.fire({ title: 'Failed', text: data.message || 'Could not send OTP', icon: 'error', confirmButtonColor: '#1a3a5c' });
+        Swal.fire({ title: 'Failed', text: data.message || 'Could not send OTP', icon: 'error', confirmButtonColor:'var(--navy)' });
       }
     } catch {
-      Swal.fire({ title: 'Connection Error', text: 'Please check your internet connection and try again.', icon: 'error', confirmButtonColor: '#1a3a5c' });
+      Swal.fire({ title: 'Connection Error', text: 'Please check your internet connection and try again.', icon: 'error', confirmButtonColor:'var(--navy)' });
     } finally {
       setIsLoading(false);
     }
@@ -197,7 +197,7 @@ const PortalLogin = () => {
   const handleVerifyOtp = async (e) => {
     e.preventDefault();
     if (!otpPhone || otpCode.length !== 6) {
-      Swal.fire({ title: 'Incomplete', text: 'Enter your phone and the 6-digit code.', icon: 'warning', confirmButtonColor: '#1a3a5c' });
+      Swal.fire({ title: 'Incomplete', text: 'Enter your phone and the 6-digit code.', icon: 'warning', confirmButtonColor:'var(--navy)' });
       return;
     }
     setIsLoading(true);
@@ -217,10 +217,10 @@ const PortalLogin = () => {
         Swal.fire({ title: 'Welcome!', text: `Linked to ${data.children.length} child(ren).`, icon: 'success', timer: 1500, showConfirmButton: false });
         setTimeout(() => navigate('/portal/parent'), 1500);
       } else {
-        Swal.fire({ title: 'Verification Failed', text: data.message || 'Invalid or expired code', icon: 'error', confirmButtonColor: '#1a3a5c' });
+        Swal.fire({ title: 'Verification Failed', text: data.message || 'Invalid or expired code', icon: 'error', confirmButtonColor:'var(--navy)' });
       }
     } catch {
-      Swal.fire({ title: 'Connection Error', text: 'Please check your internet connection and try again.', icon: 'error', confirmButtonColor: '#1a3a5c' });
+      Swal.fire({ title: 'Connection Error', text: 'Please check your internet connection and try again.', icon: 'error', confirmButtonColor:'var(--navy)' });
     } finally {
       setIsLoading(false);
     }
@@ -232,7 +232,7 @@ const PortalLogin = () => {
       title: 'Reset Password',
       text: 'Contact your administrator to reset your password.',
       icon: 'info',
-      confirmButtonColor: '#1a3a5c',
+      confirmButtonColor:'var(--navy)',
     });
   };
 

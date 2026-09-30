@@ -13,7 +13,7 @@ const Footer = () => {
         title: 'Successfully Subscribed!',
         text: `Thank you for subscribing with ${email}. You'll receive updates from ESSA Nyarugunga.`,
         icon: 'success',
-        confirmButtonColor: '#4a90e2',
+        confirmButtonColor:'var(--accent-blue)',
         confirmButtonText: 'Great!',
         timer: 3000,
         timerProgressBar: true
@@ -24,7 +24,7 @@ const Footer = () => {
         title: 'Email Required',
         text: 'Please enter a valid email address to subscribe.',
         icon: 'warning',
-        confirmButtonColor: '#4a90e2',
+        confirmButtonColor:'var(--accent-blue)',
         confirmButtonText: 'OK'
       });
     }

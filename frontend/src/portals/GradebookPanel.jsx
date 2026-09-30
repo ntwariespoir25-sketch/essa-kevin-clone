@@ -27,12 +27,12 @@ const currentYear = () => {
 };
 
 const gradeColor = (grade) => ({
-  A: { color: '#1e8449', bg: '#e8f8ee' },
-  B: { color: '#2874a6', bg: '#eaf4fc' },
+  A: { color: '#1e8449', bg:'var(--tint-success)' },
+  B: { color:'var(--navy-mid)', bg:'var(--tint-primary)' },
   C: { color: '#b9770e', bg: '#fdf6e3' },
   D: { color: '#ca6f1e', bg: '#fef5e7' },
-  F: { color: '#c0392b', bg: '#fdeeec' }
-}[grade] || { color: '#888', bg: '#f0f0f0' });
+  F: { color: '#c0392b', bg:'var(--tint-danger)' }
+}[grade] || { color:'var(--text-faint)', bg:'var(--surface-page)' });
 
 const averageColor = (avg) => {
   if (avg === null || avg === undefined) return '#bbb';
@@ -78,7 +78,7 @@ const MarkCell = ({ value, max, onChange }) => {
         border: `1.5px solid ${outOfRange ? '#e74c3c' : '#e0e0e0'}`,
         borderRadius: 6, outline: 'none', boxSizing: 'border-box',
         fontFamily: 'inherit',
-        background: outOfRange ? '#fdeeec' : (text === '' ? '#fafbfc' : 'white')
+        background: outOfRange ? '#fdeeec' : (text === '' ? '#fafbfc' : 'var(--surface-card)')
       }}
     />
   );
@@ -204,20 +204,20 @@ export const GradebookPanel = () => {
     <div>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: 12, marginBottom: 18 }}>
         <div>
-          <h2 style={{ margin: 0, fontSize: 19, color: '#1a3a5c', fontFamily: 'Georgia, serif' }}>Gradebook</h2>
-          <p style={{ margin: '3px 0 0', fontSize: 12, color: '#888' }}>
+          <h2 style={{ margin: 0, fontSize: 19, color:'var(--navy)', fontFamily: 'Georgia, serif' }}>Gradebook</h2>
+          <p style={{ margin: '3px 0 0', fontSize: 12, color:'var(--text-faint)' }}>
             Weighted term averages, identical to the figures on report cards
           </p>
         </div>
         <div style={{ display: 'flex', gap: 8, alignItems: 'center', flexWrap: 'wrap' }}>
-          <select value={entryExam} onChange={e => setEntryExam(e.target.value)} style={{ padding: '7px 10px', border: '1.5px solid #e0e0e0', borderRadius: 8, fontSize: 12, fontFamily: 'inherit' }}>
+          <select value={entryExam} onChange={e => setEntryExam(e.target.value)} style={{ padding: '7px 10px', border:'1.5px solid var(--surface-sunken-2)', borderRadius: 8, fontSize: 12, fontFamily: 'inherit' }}>
             <option value="">Select assessment to enter marks…</option>
             {exams.map(e => <option key={e._id} value={e._id}>{e.name} ({e.type}, out of {e.maxScore})</option>)}
           </select>
           <button
             onClick={() => openEntry(entryExam)}
             disabled={!entryExam}
-            style={{ background: entryExam ? '#9b59b6' : '#ccc', color: 'white', border: 'none', borderRadius: 8, padding: '8px 15px', fontSize: 12, fontWeight: 600, cursor: entryExam ? 'pointer' : 'not-allowed', display: 'inline-flex', alignItems: 'center', gap: 6 }}
+            style={{ background: entryExam ? '#9b59b6' : '#ccc', color:'var(--on-solid)', border: 'none', borderRadius: 8, padding: '8px 15px', fontSize: 12, fontWeight: 600, cursor: entryExam ? 'pointer' : 'not-allowed', display: 'inline-flex', alignItems: 'center', gap: 6 }}
           >
             <i className="fas fa-table" style={{ fontSize: 12 }} />Enter Marks
           </button>
@@ -226,26 +226,26 @@ export const GradebookPanel = () => {
 
       <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap', marginBottom: 16, alignItems: 'flex-end' }}>
         <div>
-          <label style={{ display: 'block', fontSize: 10, fontWeight: 700, color: '#888', marginBottom: 4 }}>CLASS</label>
-          <select value={classId} onChange={e => setClassId(e.target.value)} style={{ padding: '8px 11px', border: '1.5px solid #e0e0e0', borderRadius: 8, fontSize: 13, fontFamily: 'inherit', minWidth: 170 }}>
+          <label style={{ display: 'block', fontSize: 10, fontWeight: 700, color:'var(--text-faint)', marginBottom: 4 }}>CLASS</label>
+          <select value={classId} onChange={e => setClassId(e.target.value)} style={{ padding: '8px 11px', border:'1.5px solid var(--surface-sunken-2)', borderRadius: 8, fontSize: 13, fontFamily: 'inherit', minWidth: 170 }}>
             <option value="">All my classes</option>
             {classes.map(c => <option key={c._id} value={c._id}>{c.grade} {c.className}</option>)}
           </select>
         </div>
         <div>
-          <label style={{ display: 'block', fontSize: 10, fontWeight: 700, color: '#888', marginBottom: 4 }}>TERM</label>
-          <select value={term} onChange={e => setTerm(e.target.value)} style={{ padding: '8px 11px', border: '1.5px solid #e0e0e0', borderRadius: 8, fontSize: 13, fontFamily: 'inherit' }}>
+          <label style={{ display: 'block', fontSize: 10, fontWeight: 700, color:'var(--text-faint)', marginBottom: 4 }}>TERM</label>
+          <select value={term} onChange={e => setTerm(e.target.value)} style={{ padding: '8px 11px', border:'1.5px solid var(--surface-sunken-2)', borderRadius: 8, fontSize: 13, fontFamily: 'inherit' }}>
             {TERMS.map(t => <option key={t} value={t}>{t}</option>)}
           </select>
         </div>
         <div>
-          <label style={{ display: 'block', fontSize: 10, fontWeight: 700, color: '#888', marginBottom: 4 }}>YEAR</label>
-          <input type="number" value={year} onChange={e => setYear(Number(e.target.value))} style={{ padding: '8px 11px', border: '1.5px solid #e0e0e0', borderRadius: 8, fontSize: 13, fontFamily: 'inherit', width: 95 }} />
+          <label style={{ display: 'block', fontSize: 10, fontWeight: 700, color:'var(--text-faint)', marginBottom: 4 }}>YEAR</label>
+          <input type="number" value={year} onChange={e => setYear(Number(e.target.value))} style={{ padding: '8px 11px', border:'1.5px solid var(--surface-sunken-2)', borderRadius: 8, fontSize: 13, fontFamily: 'inherit', width: 95 }} />
         </div>
         {book && book.subjects && book.subjects.length > 0 && (
           <div>
-            <label style={{ display: 'block', fontSize: 10, fontWeight: 700, color: '#888', marginBottom: 4 }}>SUBJECT</label>
-            <select value={subject} onChange={e => setSubject(e.target.value)} style={{ padding: '8px 11px', border: '1.5px solid #e0e0e0', borderRadius: 8, fontSize: 13, fontFamily: 'inherit', minWidth: 150 }}>
+            <label style={{ display: 'block', fontSize: 10, fontWeight: 700, color:'var(--text-faint)', marginBottom: 4 }}>SUBJECT</label>
+            <select value={subject} onChange={e => setSubject(e.target.value)} style={{ padding: '8px 11px', border:'1.5px solid var(--surface-sunken-2)', borderRadius: 8, fontSize: 13, fontFamily: 'inherit', minWidth: 150 }}>
               <option value="">All subjects</option>
               {book.subjects.map(s => <option key={s} value={s}>{s}</option>)}
             </select>
@@ -254,7 +254,7 @@ export const GradebookPanel = () => {
       </div>
 
       {noWeight && (
-        <div style={{ background: '#fff8e1', border: '1px solid #ffe082', borderLeft: '4px solid #ffc107', borderRadius: 10, padding: '11px 14px', fontSize: 12, color: '#7a5c00', marginBottom: 14 }}>
+        <div style={{ background:'var(--tint-amber)', border:'1px solid var(--tint-amber-line)', borderLeft: '4px solid #ffc107', borderRadius: 10, padding: '11px 14px', fontSize: 12, color:'var(--tint-amber-text)', marginBottom: 14 }}>
           <strong>No assessment weights set for this term.</strong> Averages below are a plain mean of percentages.
           Ask Academic Admin to set a weight on at least one assessment, otherwise every assessment counts the same
           regardless of whether it was a 10-mark quiz or the final paper.
@@ -262,30 +262,30 @@ export const GradebookPanel = () => {
       )}
 
       {loading && (
-        <div style={{ textAlign: 'center', padding: 40, color: '#aaa', fontSize: 13 }}>Loading gradebook…</div>
+        <div style={{ textAlign: 'center', padding: 40, color:'var(--text-faint)', fontSize: 13 }}>Loading gradebook…</div>
       )}
 
       {!loading && (
-        <div style={{ overflowX: 'auto', borderRadius: 10, border: '1px solid #f0f0f0', background: 'white' }}>
+        <div style={{ overflowX: 'auto', borderRadius: 10, border:'1px solid var(--surface-page)', background:'var(--surface-card)' }}>
           <table style={{ width: '100%', borderCollapse: 'collapse', minWidth: 640 }}>
             <thead>
-              <tr style={{ background: '#f7f9fb' }}>
+              <tr style={{ background:'var(--surface-muted)' }}>
                 {['#', 'Student', ...assessments.map(a => `${a.name} (${a.weight || 0}%)`), 'Average', 'Grade', 'Rank'].map((h, i) => (
-                  <th key={i} style={{ padding: '10px 12px', textAlign: 'left', fontSize: 10, fontWeight: 700, color: '#888', letterSpacing: .6, borderBottom: '1px solid #eee', whiteSpace: 'nowrap' }}>{h.toUpperCase()}</th>
+                  <th key={i} style={{ padding: '10px 12px', textAlign: 'left', fontSize: 10, fontWeight: 700, color:'var(--text-faint)', letterSpacing: .6, borderBottom:'1px solid var(--border)', whiteSpace: 'nowrap' }}>{h.toUpperCase()}</th>
                 ))}
               </tr>
             </thead>
             <tbody>
               {rows.length === 0 ? (
-                <tr><td colSpan={6 + assessments.length} style={{ textAlign: 'center', padding: 40, color: '#bbb', fontSize: 13 }}>
+                <tr><td colSpan={6 + assessments.length} style={{ textAlign: 'center', padding: 40, color:'var(--text-faint-2)', fontSize: 13 }}>
                   No graded students for this class and term yet.
                 </td></tr>
               ) : rows.map((r, i) => (
-                <tr key={r.studentId} style={{ borderBottom: '1px solid #f5f5f5' }}>
-                  <td style={{ padding: '9px 12px', fontSize: 12, color: '#999' }}>{i + 1}</td>
-                  <td style={{ padding: '9px 12px', fontSize: 13, color: '#1a3a5c', fontWeight: 600 }}>
+                <tr key={r.studentId} style={{ borderBottom:'1px solid var(--surface-muted)' }}>
+                  <td style={{ padding: '9px 12px', fontSize: 12, color:'var(--text-faint)' }}>{i + 1}</td>
+                  <td style={{ padding: '9px 12px', fontSize: 13, color:'var(--navy)', fontWeight: 600 }}>
                     {r.name}
-                    <div style={{ fontSize: 10, color: '#aaa', fontWeight: 400 }}>{r.className} · {r.studentCode}</div>
+                    <div style={{ fontSize: 10, color:'var(--text-faint)', fontWeight: 400 }}>{r.className} · {r.studentCode}</div>
                   </td>
                   {assessments.map(a => {
                     const cell = r.cells[String(a._id)];
@@ -303,22 +303,22 @@ export const GradebookPanel = () => {
                   <td style={{ padding: '9px 12px' }}>
                     <span style={{ display: 'inline-block', minWidth: 24, textAlign: 'center', padding: '2px 8px', borderRadius: 6, fontSize: 12, fontWeight: 700, ...gradeColor(r.grade) }}>{r.grade}</span>
                   </td>
-                  <td style={{ padding: '9px 12px', fontSize: 13, color: '#666' }}>{r.rank || '—'}</td>
+                  <td style={{ padding: '9px 12px', fontSize: 13, color:'var(--text-secondary)' }}>{r.rank || '—'}</td>
                 </tr>
               ))}
             </tbody>
             {rows.length > 0 && book.subjectTotals && book.subjectTotals.length > 0 && (
               <tfoot>
-                <tr style={{ background: '#f7f9fb', fontWeight: 700 }}>
-                  <td style={{ padding: '10px 12px', fontSize: 12, color: '#1a3a5c' }} colSpan={2}>CLASS MEAN</td>
-                  {assessments.map(a => <td key={a._id} style={{ padding: '10px 12px', fontSize: 12, color: '#888' }}>—</td>)}
-                  <td style={{ padding: '10px 12px', fontSize: 13, color: '#1a3a5c' }}>
+                <tr style={{ background:'var(--surface-muted)', fontWeight: 700 }}>
+                  <td style={{ padding: '10px 12px', fontSize: 12, color:'var(--navy)' }} colSpan={2}>CLASS MEAN</td>
+                  {assessments.map(a => <td key={a._id} style={{ padding: '10px 12px', fontSize: 12, color:'var(--text-faint)' }}>—</td>)}
+                  <td style={{ padding: '10px 12px', fontSize: 13, color:'var(--navy)' }}>
                     {(() => {
                       const vals = rows.map(r => r.average).filter(v => typeof v === 'number');
                       return vals.length ? `${Math.round(vals.reduce((a, b) => a + b, 0) / vals.length)}%` : '—';
                     })()}
                   </td>
-                  <td colSpan={2} style={{ padding: '10px 12px', fontSize: 12, color: '#888' }}>
+                  <td colSpan={2} style={{ padding: '10px 12px', fontSize: 12, color:'var(--text-faint)' }}>
                     {book.subjectTotals.map(s => `${s.subject}: ${s.mean === null ? '—' : `${s.mean}%`}`).join('  ·  ')}
                   </td>
                 </tr>
@@ -329,7 +329,7 @@ export const GradebookPanel = () => {
       )}
 
       {rows.length > 0 && (
-        <p style={{ margin: '10px 0 0', fontSize: 11, color: '#999' }}>
+        <p style={{ margin: '10px 0 0', fontSize: 11, color:'var(--text-faint)' }}>
           A blank cell means the student did not sit that assessment and is left out of the average.
           A recorded 0 is treated as a genuine zero.
         </p>
@@ -337,36 +337,36 @@ export const GradebookPanel = () => {
 
       {entryOpen && grid && (
         <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,.5)', zIndex: 2000, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 16 }} onClick={e => e.target === e.currentTarget && setEntryOpen(false)}>
-          <div style={{ background: 'white', borderRadius: 16, width: '100%', maxWidth: 680, maxHeight: '90vh', overflow: 'auto', boxShadow: '0 24px 80px rgba(0,0,0,.25)' }}>
-            <div style={{ padding: '18px 22px', borderBottom: '1px solid #eee', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-              <h3 style={{ margin: 0, fontSize: 16, color: '#1a3a5c', fontFamily: 'Georgia, serif' }}>
+          <div style={{ background:'var(--surface-card)', borderRadius: 16, width: '100%', maxWidth: 680, maxHeight: '90vh', overflow: 'auto', boxShadow: '0 24px 80px rgba(0,0,0,.25)' }}>
+            <div style={{ padding: '18px 22px', borderBottom:'1px solid var(--border)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <h3 style={{ margin: 0, fontSize: 16, color:'var(--navy)', fontFamily: 'Georgia, serif' }}>
                 Enter Marks — {grid.exam.name}
-                <span style={{ display: 'block', fontSize: 11, color: '#888', fontFamily: 'inherit', marginTop: 3 }}>
+                <span style={{ display: 'block', fontSize: 11, color:'var(--text-faint)', fontFamily: 'inherit', marginTop: 3 }}>
                   {grid.exam.type} · out of {grid.exam.maxScore} · {term} {entryYear}
                 </span>
               </h3>
-              <button onClick={() => setEntryOpen(false)} style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: 22, color: '#999', lineHeight: 1 }}>×</button>
+              <button onClick={() => setEntryOpen(false)} style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: 22, color:'var(--text-faint)', lineHeight: 1 }}>×</button>
             </div>
 
             <div style={{ padding: '18px 22px' }}>
               <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: 12, marginBottom: 16 }}>
                 <div>
-                  <label style={{ display: 'block', fontSize: 10, fontWeight: 700, color: '#888', marginBottom: 4 }}>SUBJECT *</label>
-                  <input value={entrySubject} onChange={e => setEntrySubject(e.target.value)} placeholder="e.g. Mathematics" style={{ width: '100%', padding: '9px 12px', border: '1.5px solid #e0e0e0', borderRadius: 8, fontSize: 13, fontFamily: 'inherit', boxSizing: 'border-box' }} />
+                  <label style={{ display: 'block', fontSize: 10, fontWeight: 700, color:'var(--text-faint)', marginBottom: 4 }}>SUBJECT *</label>
+                  <input value={entrySubject} onChange={e => setEntrySubject(e.target.value)} placeholder="e.g. Mathematics" style={{ width: '100%', padding: '9px 12px', border:'1.5px solid var(--surface-sunken-2)', borderRadius: 8, fontSize: 13, fontFamily: 'inherit', boxSizing: 'border-box' }} />
                 </div>
                 <div>
-                  <label style={{ display: 'block', fontSize: 10, fontWeight: 700, color: '#888', marginBottom: 4 }}>YEAR *</label>
-                  <input type="number" value={entryYear} onChange={e => setEntryYear(Number(e.target.value))} style={{ width: '100%', padding: '9px 12px', border: '1.5px solid #e0e0e0', borderRadius: 8, fontSize: 13, fontFamily: 'inherit', boxSizing: 'border-box' }} />
+                  <label style={{ display: 'block', fontSize: 10, fontWeight: 700, color:'var(--text-faint)', marginBottom: 4 }}>YEAR *</label>
+                  <input type="number" value={entryYear} onChange={e => setEntryYear(Number(e.target.value))} style={{ width: '100%', padding: '9px 12px', border:'1.5px solid var(--surface-sunken-2)', borderRadius: 8, fontSize: 13, fontFamily: 'inherit', boxSizing: 'border-box' }} />
                 </div>
               </div>
 
-              <div style={{ overflowX: 'auto', border: '1px solid #f0f0f0', borderRadius: 8 }}>
+              <div style={{ overflowX: 'auto', border:'1px solid var(--surface-page)', borderRadius: 8 }}>
                 <table style={{ width: '100%', borderCollapse: 'collapse' }}>
                   <thead>
-                    <tr style={{ background: '#f7f9fb' }}>
-                      <th style={{ padding: '9px 12px', textAlign: 'left', fontSize: 10, fontWeight: 700, color: '#888' }}>STUDENT</th>
-                      <th style={{ padding: '9px 12px', textAlign: 'center', fontSize: 10, fontWeight: 700, color: '#888' }}>SCORE / {grid.exam.maxScore}</th>
-                      <th style={{ padding: '9px 12px', textAlign: 'right', fontSize: 10, fontWeight: 700, color: '#888' }}>%</th>
+                    <tr style={{ background:'var(--surface-muted)' }}>
+                      <th style={{ padding: '9px 12px', textAlign: 'left', fontSize: 10, fontWeight: 700, color:'var(--text-faint)' }}>STUDENT</th>
+                      <th style={{ padding: '9px 12px', textAlign: 'center', fontSize: 10, fontWeight: 700, color:'var(--text-faint)' }}>SCORE / {grid.exam.maxScore}</th>
+                      <th style={{ padding: '9px 12px', textAlign: 'right', fontSize: 10, fontWeight: 700, color:'var(--text-faint)' }}>%</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -375,8 +375,8 @@ export const GradebookPanel = () => {
                       const has = raw !== '' && raw !== null && raw !== undefined;
                       const pct = has ? Math.round((Number(raw) / (grid.exam.maxScore || 100)) * 100) : null;
                       return (
-                        <tr key={s._id} style={{ borderBottom: '1px solid #f5f5f5' }}>
-                          <td style={{ padding: '7px 12px', fontSize: 13, color: '#1a3a5c' }}>{s.fullName}<div style={{ fontSize: 10, color: '#aaa' }}>{s.studentId}</div></td>
+                        <tr key={s._id} style={{ borderBottom:'1px solid var(--surface-muted)' }}>
+                          <td style={{ padding: '7px 12px', fontSize: 13, color:'var(--navy)' }}>{s.fullName}<div style={{ fontSize: 10, color:'var(--text-faint)' }}>{s.studentId}</div></td>
                           <td style={{ padding: '7px 12px', textAlign: 'center' }}>
                             <MarkCell value={marks[s._id]} max={grid.exam.maxScore || 100} onChange={v => setMarks(p => ({ ...p, [s._id]: v === null ? '' : v }))} />
                           </td>
@@ -385,21 +385,21 @@ export const GradebookPanel = () => {
                       );
                     })}
                     {(grid.students || []).length === 0 && (
-                      <tr><td colSpan={3} style={{ textAlign: 'center', padding: 30, color: '#bbb', fontSize: 13 }}>This exam has no classes with students yet.</td></tr>
+                      <tr><td colSpan={3} style={{ textAlign: 'center', padding: 30, color:'var(--text-faint-2)', fontSize: 13 }}>This exam has no classes with students yet.</td></tr>
                     )}
                   </tbody>
                 </table>
               </div>
 
-              <div style={{ background: '#eaf4fc', borderLeft: '3px solid #3498db', padding: '9px 12px', borderRadius: 6, fontSize: 11, color: '#1a5276', marginTop: 12 }}>
+              <div style={{ background:'var(--tint-primary)', borderLeft: '3px solid #3498db', padding: '9px 12px', borderRadius: 6, fontSize: 11, color: '#1a5276', marginTop: 12 }}>
                 Leave a cell blank for a student who did not sit the paper — it is excluded from the average.
                 Enter 0 only if they sat it and scored nothing. Saving again overwrites the previous marks for this
                 exam, subject and term.
               </div>
 
               <div style={{ display: 'flex', gap: 10, justifyContent: 'flex-end', marginTop: 16 }}>
-                <button onClick={() => setEntryOpen(false)} style={{ background: '#f0f0f0', color: '#666', border: 'none', borderRadius: 8, padding: '9px 18px', fontSize: 13, fontWeight: 600, cursor: 'pointer' }}>Cancel</button>
-                <button onClick={saveMarks} disabled={saving} style={{ background: saving ? '#ccc' : '#27ae60', color: 'white', border: 'none', borderRadius: 8, padding: '9px 18px', fontSize: 13, fontWeight: 600, cursor: saving ? 'not-allowed' : 'pointer' }}>
+                <button onClick={() => setEntryOpen(false)} style={{ background:'var(--surface-page)', color:'var(--text-secondary)', border: 'none', borderRadius: 8, padding: '9px 18px', fontSize: 13, fontWeight: 600, cursor: 'pointer' }}>Cancel</button>
+                <button onClick={saveMarks} disabled={saving} style={{ background: saving ? '#ccc' : '#27ae60', color:'var(--on-solid)', border: 'none', borderRadius: 8, padding: '9px 18px', fontSize: 13, fontWeight: 600, cursor: saving ? 'not-allowed' : 'pointer' }}>
                   {saving ? 'Saving…' : 'Save Marks'}
                 </button>
               </div>

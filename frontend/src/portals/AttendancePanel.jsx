@@ -17,10 +17,10 @@ const api = async (path, opts = {}) => {
 };
 
 const STATUSES = [
-  { value: 'present', label: 'Present', short: 'P', color: '#1e8449', bg: '#e8f8ee' },
-  { value: 'absent', label: 'Absent', short: 'A', color: '#c0392b', bg: '#fdeeec' },
+  { value: 'present', label: 'Present', short: 'P', color: '#1e8449', bg:'var(--tint-success)' },
+  { value: 'absent', label: 'Absent', short: 'A', color: '#c0392b', bg:'var(--tint-danger)' },
   { value: 'late', label: 'Late', short: 'L', color: '#b9770e', bg: '#fdf6e3' },
-  { value: 'excused', label: 'Excused', short: 'E', color: '#2874a6', bg: '#eaf4fc' },
+  { value: 'excused', label: 'Excused', short: 'E', color:'var(--navy-mid)', bg:'var(--tint-primary)' },
   { value: 'halfDay', label: 'Half Day', short: 'H', color: '#6c3483', bg: '#f4ecf7' }
 ];
 
@@ -42,10 +42,10 @@ const rateColor = (rate) => {
 // One student row in the register. The status buttons are exclusive, so a
 // mis-tap replaces the previous mark rather than needing a separate clear step.
 const RegisterRow = ({ student, status, onSet }) => (
-  <tr style={{ borderBottom: '1px solid #f5f5f5', background: status ? 'white' : '#fffdf5' }}>
-    <td style={{ padding: '9px 12px', fontSize: 13, color: '#1a3a5c', fontWeight: 600 }}>
+  <tr style={{ borderBottom:'1px solid var(--surface-muted)', background: status ? 'var(--surface-card)' : '#fffdf5' }}>
+    <td style={{ padding: '9px 12px', fontSize: 13, color:'var(--navy)', fontWeight: 600 }}>
       {student.fullName}
-      <div style={{ fontSize: 10, color: '#aaa', fontWeight: 400 }}>{student.code}</div>
+      <div style={{ fontSize: 10, color:'var(--text-faint)', fontWeight: 400 }}>{student.code}</div>
     </td>
     <td style={{ padding: '9px 12px' }}>
       <div style={{ display: 'flex', gap: 4, flexWrap: 'wrap' }}>
@@ -59,7 +59,7 @@ const RegisterRow = ({ student, status, onSet }) => (
               style={{
                 width: 30, height: 28, borderRadius: 6, cursor: 'pointer',
                 border: `1.5px solid ${on ? s.color : '#e0e0e0'}`,
-                background: on ? s.bg : 'white',
+                background: on ? s.bg : 'var(--surface-card)',
                 color: on ? s.color : '#aaa',
                 fontSize: 12, fontWeight: 700, fontFamily: 'inherit'
               }}
@@ -191,33 +191,33 @@ export const AttendancePanel = () => {
   return (
     <div>
       <div style={{ marginBottom: 18 }}>
-        <h2 style={{ margin: 0, fontSize: 19, color: '#1a3a5c', fontFamily: 'Georgia, serif' }}>Attendance</h2>
-        <p style={{ margin: '3px 0 0', fontSize: 12, color: '#888' }}>Daily register and chronic-absence reporting</p>
+        <h2 style={{ margin: 0, fontSize: 19, color:'var(--navy)', fontFamily: 'Georgia, serif' }}>Attendance</h2>
+        <p style={{ margin: '3px 0 0', fontSize: 12, color:'var(--text-faint)' }}>Daily register and chronic-absence reporting</p>
       </div>
 
       <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap', alignItems: 'flex-end', marginBottom: 16 }}>
         <div>
-          <label style={{ display: 'block', fontSize: 10, fontWeight: 700, color: '#888', marginBottom: 4 }}>CLASS</label>
-          <select value={classId} onChange={e => setClassId(e.target.value)} style={{ padding: '8px 11px', border: '1.5px solid #e0e0e0', borderRadius: 8, fontSize: 13, fontFamily: 'inherit', minWidth: 170 }}>
+          <label style={{ display: 'block', fontSize: 10, fontWeight: 700, color:'var(--text-faint)', marginBottom: 4 }}>CLASS</label>
+          <select value={classId} onChange={e => setClassId(e.target.value)} style={{ padding: '8px 11px', border:'1.5px solid var(--surface-sunken-2)', borderRadius: 8, fontSize: 13, fontFamily: 'inherit', minWidth: 170 }}>
             {classes.length === 0 && <option value="">No classes assigned</option>}
             {classes.map(c => <option key={c._id} value={c._id}>{c.grade} {c.className}</option>)}
           </select>
         </div>
         <div>
-          <label style={{ display: 'block', fontSize: 10, fontWeight: 700, color: '#888', marginBottom: 4 }}>DATE</label>
-          <input type="date" value={date} onChange={e => setDate(e.target.value)} style={{ padding: '8px 11px', border: '1.5px solid #e0e0e0', borderRadius: 8, fontSize: 13, fontFamily: 'inherit' }} />
+          <label style={{ display: 'block', fontSize: 10, fontWeight: 700, color:'var(--text-faint)', marginBottom: 4 }}>DATE</label>
+          <input type="date" value={date} onChange={e => setDate(e.target.value)} style={{ padding: '8px 11px', border:'1.5px solid var(--surface-sunken-2)', borderRadius: 8, fontSize: 13, fontFamily: 'inherit' }} />
         </div>
         <div style={{ display: 'flex', gap: 8 }}>
-          <button onClick={markAllPresent} style={{ background: '#f0f0f0', color: '#666', border: 'none', borderRadius: 8, padding: '8px 13px', fontSize: 12, fontWeight: 600, cursor: 'pointer' }}>All Present</button>
-          <button onClick={clearAll} style={{ background: '#f0f0f0', color: '#666', border: 'none', borderRadius: 8, padding: '8px 13px', fontSize: 12, fontWeight: 600, cursor: 'pointer' }}>Clear</button>
-          <button onClick={save} disabled={saving || !classId} style={{ background: saving || !classId ? '#ccc' : '#f39c12', color: 'white', border: 'none', borderRadius: 8, padding: '8px 16px', fontSize: 12, fontWeight: 600, cursor: saving ? 'not-allowed' : 'pointer' }}>
+          <button onClick={markAllPresent} style={{ background:'var(--surface-page)', color:'var(--text-secondary)', border: 'none', borderRadius: 8, padding: '8px 13px', fontSize: 12, fontWeight: 600, cursor: 'pointer' }}>All Present</button>
+          <button onClick={clearAll} style={{ background:'var(--surface-page)', color:'var(--text-secondary)', border: 'none', borderRadius: 8, padding: '8px 13px', fontSize: 12, fontWeight: 600, cursor: 'pointer' }}>Clear</button>
+          <button onClick={save} disabled={saving || !classId} style={{ background: saving || !classId ? '#ccc' : '#f39c12', color:'var(--on-solid)', border: 'none', borderRadius: 8, padding: '8px 16px', fontSize: 12, fontWeight: 600, cursor: saving ? 'not-allowed' : 'pointer' }}>
             {saving ? 'Saving…' : 'Save Register'}
           </button>
         </div>
       </div>
 
       {unmarked > 0 && students.length > 0 && (
-        <div style={{ background: '#fff8e1', border: '1px solid #ffe082', borderLeft: '4px solid #ffc107', borderRadius: 10, padding: '10px 14px', fontSize: 12, color: '#7a5c00', marginBottom: 14 }}>
+        <div style={{ background:'var(--tint-amber)', border:'1px solid var(--tint-amber-line)', borderLeft: '4px solid #ffc107', borderRadius: 10, padding: '10px 14px', fontSize: 12, color:'var(--tint-amber-text)', marginBottom: 14 }}>
           {unmarked} of {students.length} students not marked yet. Unmarked rows are left out of the day's record
           rather than being saved as absent.
         </div>
@@ -233,21 +233,21 @@ export const AttendancePanel = () => {
         </div>
       )}
 
-      {loading && <div style={{ textAlign: 'center', padding: 30, color: '#aaa', fontSize: 13 }}>Loading register…</div>}
+      {loading && <div style={{ textAlign: 'center', padding: 30, color:'var(--text-faint)', fontSize: 13 }}>Loading register…</div>}
 
       {!loading && (
-        <div style={{ overflowX: 'auto', borderRadius: 10, border: '1px solid #f0f0f0', background: 'white' }}>
+        <div style={{ overflowX: 'auto', borderRadius: 10, border:'1px solid var(--surface-page)', background:'var(--surface-card)' }}>
           <table style={{ width: '100%', borderCollapse: 'collapse', minWidth: 520 }}>
             <thead>
-              <tr style={{ background: '#f7f9fb' }}>
+              <tr style={{ background:'var(--surface-muted)' }}>
                 {['Student', 'Mark', 'Status'].map(h => (
-                  <th key={h} style={{ padding: '10px 12px', textAlign: 'left', fontSize: 10, fontWeight: 700, color: '#888', letterSpacing: .6, borderBottom: '1px solid #eee' }}>{h.toUpperCase()}</th>
+                  <th key={h} style={{ padding: '10px 12px', textAlign: 'left', fontSize: 10, fontWeight: 700, color:'var(--text-faint)', letterSpacing: .6, borderBottom:'1px solid var(--border)' }}>{h.toUpperCase()}</th>
                 ))}
               </tr>
             </thead>
             <tbody>
               {students.length === 0 ? (
-                <tr><td colSpan={3} style={{ textAlign: 'center', padding: 36, color: '#bbb', fontSize: 13 }}>No students in this class yet.</td></tr>
+                <tr><td colSpan={3} style={{ textAlign: 'center', padding: 36, color:'var(--text-faint-2)', fontSize: 13 }}>No students in this class yet.</td></tr>
               ) : students.map(s => (
                 <RegisterRow key={s.studentId} student={s} status={marks[s.studentId]} onSet={v => setStatus(s.studentId, v)} />
               ))}
@@ -256,7 +256,7 @@ export const AttendancePanel = () => {
         </div>
       )}
 
-      <div style={{ display: 'flex', gap: 6, alignItems: 'center', marginTop: 10, fontSize: 11, color: '#999', flexWrap: 'wrap' }}>
+      <div style={{ display: 'flex', gap: 6, alignItems: 'center', marginTop: 10, fontSize: 11, color:'var(--text-faint)', flexWrap: 'wrap' }}>
         {STATUSES.map(s => (
           <span key={s.value} style={{ display: 'inline-flex', alignItems: 'center', gap: 4 }}>
             <span style={{ width: 16, height: 16, borderRadius: 4, background: s.bg, color: s.color, fontSize: 9, fontWeight: 700, display: 'inline-flex', alignItems: 'center', justifyContent: 'center' }}>{s.short}</span>
@@ -267,31 +267,31 @@ export const AttendancePanel = () => {
       </div>
 
       {/* ══ ANALYTICS ══ */}
-      <div style={{ marginTop: 34, paddingTop: 24, borderTop: '1px solid #eee' }}>
+      <div style={{ marginTop: 34, paddingTop: 24, borderTop:'1px solid var(--border)' }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', flexWrap: 'wrap', gap: 12, marginBottom: 14 }}>
           <div>
-            <h3 style={{ margin: 0, fontSize: 16, color: '#1a3a5c', fontFamily: 'Georgia, serif' }}>Attendance Analytics</h3>
-            <p style={{ margin: '3px 0 0', fontSize: 12, color: '#888' }}>Chronic absentees over a date range</p>
+            <h3 style={{ margin: 0, fontSize: 16, color:'var(--navy)', fontFamily: 'Georgia, serif' }}>Attendance Analytics</h3>
+            <p style={{ margin: '3px 0 0', fontSize: 12, color:'var(--text-faint)' }}>Chronic absentees over a date range</p>
           </div>
           <div style={{ display: 'flex', gap: 8, alignItems: 'flex-end', flexWrap: 'wrap' }}>
             <div>
-              <label style={{ display: 'block', fontSize: 10, fontWeight: 700, color: '#888', marginBottom: 4 }}>FROM</label>
-              <input type="date" value={range.from} onChange={e => setRange(p => ({ ...p, from: e.target.value }))} style={{ padding: '7px 10px', border: '1.5px solid #e0e0e0', borderRadius: 8, fontSize: 12, fontFamily: 'inherit' }} />
+              <label style={{ display: 'block', fontSize: 10, fontWeight: 700, color:'var(--text-faint)', marginBottom: 4 }}>FROM</label>
+              <input type="date" value={range.from} onChange={e => setRange(p => ({ ...p, from: e.target.value }))} style={{ padding: '7px 10px', border:'1.5px solid var(--surface-sunken-2)', borderRadius: 8, fontSize: 12, fontFamily: 'inherit' }} />
             </div>
             <div>
-              <label style={{ display: 'block', fontSize: 10, fontWeight: 700, color: '#888', marginBottom: 4 }}>TO</label>
-              <input type="date" value={range.to} onChange={e => setRange(p => ({ ...p, to: e.target.value }))} style={{ padding: '7px 10px', border: '1.5px solid #e0e0e0', borderRadius: 8, fontSize: 12, fontFamily: 'inherit' }} />
+              <label style={{ display: 'block', fontSize: 10, fontWeight: 700, color:'var(--text-faint)', marginBottom: 4 }}>TO</label>
+              <input type="date" value={range.to} onChange={e => setRange(p => ({ ...p, to: e.target.value }))} style={{ padding: '7px 10px', border:'1.5px solid var(--surface-sunken-2)', borderRadius: 8, fontSize: 12, fontFamily: 'inherit' }} />
             </div>
             <div>
-              <label style={{ display: 'block', fontSize: 10, fontWeight: 700, color: '#888', marginBottom: 4 }}>CHRONIC BELOW</label>
-              <select value={threshold} onChange={e => setThreshold(Number(e.target.value))} style={{ padding: '7px 10px', border: '1.5px solid #e0e0e0', borderRadius: 8, fontSize: 12, fontFamily: 'inherit' }}>
+              <label style={{ display: 'block', fontSize: 10, fontWeight: 700, color:'var(--text-faint)', marginBottom: 4 }}>CHRONIC BELOW</label>
+              <select value={threshold} onChange={e => setThreshold(Number(e.target.value))} style={{ padding: '7px 10px', border:'1.5px solid var(--surface-sunken-2)', borderRadius: 8, fontSize: 12, fontFamily: 'inherit' }}>
                 {[60, 70, 75, 80, 85, 90].map(t => <option key={t} value={t}>{t}%</option>)}
               </select>
             </div>
           </div>
         </div>
 
-        {anLoading && <div style={{ textAlign: 'center', padding: 24, color: '#aaa', fontSize: 13 }}>Loading analytics…</div>}
+        {anLoading && <div style={{ textAlign: 'center', padding: 24, color:'var(--text-faint)', fontSize: 13 }}>Loading analytics…</div>}
 
         {!anLoading && analytics && (
           <>
@@ -302,40 +302,40 @@ export const AttendancePanel = () => {
                 { label: 'Below Class Average', value: analytics.summary.belowAverage, color: '#b9770e' },
                 { label: 'Never Marked', value: analytics.summary.unmarked, color: analytics.summary.unmarked > 0 ? '#b9770e' : '#999' }
               ].map(c => (
-                <div key={c.label} style={{ background: 'white', borderRadius: 12, padding: '14px 16px', border: '1px solid #f0f0f0' }}>
+                <div key={c.label} style={{ background:'var(--surface-card)', borderRadius: 12, padding: '14px 16px', border:'1px solid var(--surface-page)' }}>
                   <div style={{ fontSize: 22, fontWeight: 700, color: c.color, fontFamily: 'Georgia, serif' }}>{c.value}</div>
-                  <div style={{ fontSize: 11, color: '#888', marginTop: 2 }}>{c.label}</div>
+                  <div style={{ fontSize: 11, color:'var(--text-faint)', marginTop: 2 }}>{c.label}</div>
                 </div>
               ))}
             </div>
 
             {analytics.summary.unmarked > 0 && (
-              <div style={{ background: '#fff8e1', border: '1px solid #ffe082', borderLeft: '4px solid #ffc107', borderRadius: 10, padding: '10px 14px', fontSize: 12, color: '#7a5c00', marginBottom: 14 }}>
+              <div style={{ background:'var(--tint-amber)', border:'1px solid var(--tint-amber-line)', borderLeft: '4px solid #ffc107', borderRadius: 10, padding: '10px 14px', fontSize: 12, color:'var(--tint-amber-text)', marginBottom: 14 }}>
                 {analytics.summary.unmarked} student(s) have no attendance recorded in this range. They are excluded
                 from the class average and cannot be flagged as chronic — mark their registers first.
               </div>
             )}
 
-            <div style={{ overflowX: 'auto', borderRadius: 10, border: '1px solid #f0f0f0', background: 'white' }}>
+            <div style={{ overflowX: 'auto', borderRadius: 10, border:'1px solid var(--surface-page)', background:'var(--surface-card)' }}>
               <table style={{ width: '100%', borderCollapse: 'collapse', minWidth: 640 }}>
                 <thead>
-                  <tr style={{ background: '#f7f9fb' }}>
+                  <tr style={{ background:'var(--surface-muted)' }}>
                     {['Student', 'Days', 'Present', 'Absent', 'Late', 'Excused', 'Rate', 'Flag'].map(h => (
-                      <th key={h} style={{ padding: '10px 12px', textAlign: 'left', fontSize: 10, fontWeight: 700, color: '#888', letterSpacing: .6, borderBottom: '1px solid #eee' }}>{h.toUpperCase()}</th>
+                      <th key={h} style={{ padding: '10px 12px', textAlign: 'left', fontSize: 10, fontWeight: 700, color:'var(--text-faint)', letterSpacing: .6, borderBottom:'1px solid var(--border)' }}>{h.toUpperCase()}</th>
                     ))}
                   </tr>
                 </thead>
                 <tbody>
                   {analytics.students.length === 0 ? (
-                    <tr><td colSpan={8} style={{ textAlign: 'center', padding: 34, color: '#bbb', fontSize: 13 }}>No students in this class.</td></tr>
+                    <tr><td colSpan={8} style={{ textAlign: 'center', padding: 34, color:'var(--text-faint-2)', fontSize: 13 }}>No students in this class.</td></tr>
                   ) : analytics.students.map(s => (
-                    <tr key={String(s.studentId)} style={{ borderBottom: '1px solid #f5f5f5', background: s.chronic ? '#fdeeec' : 'transparent' }}>
-                      <td style={{ padding: '9px 12px', fontSize: 13, color: '#1a3a5c', fontWeight: 600 }}>{s.name}<div style={{ fontSize: 10, color: '#aaa', fontWeight: 400 }}>{s.code}</div></td>
-                      <td style={{ padding: '9px 12px', fontSize: 13, color: '#666' }}>{s.total}</td>
+                    <tr key={String(s.studentId)} style={{ borderBottom:'1px solid var(--surface-muted)', background: s.chronic ? '#fdeeec' : 'transparent' }}>
+                      <td style={{ padding: '9px 12px', fontSize: 13, color:'var(--navy)', fontWeight: 600 }}>{s.name}<div style={{ fontSize: 10, color:'var(--text-faint)', fontWeight: 400 }}>{s.code}</div></td>
+                      <td style={{ padding: '9px 12px', fontSize: 13, color:'var(--text-secondary)' }}>{s.total}</td>
                       <td style={{ padding: '9px 12px', fontSize: 13, color: '#1e8449' }}>{s.present}</td>
                       <td style={{ padding: '9px 12px', fontSize: 13, color: s.absent ? '#c0392b' : '#ccc' }}>{s.absent}</td>
                       <td style={{ padding: '9px 12px', fontSize: 13, color: s.late ? '#b9770e' : '#ccc' }}>{s.late}</td>
-                      <td style={{ padding: '9px 12px', fontSize: 13, color: '#2874a6' }}>{s.excused}</td>
+                      <td style={{ padding: '9px 12px', fontSize: 13, color:'var(--navy-mid)' }}>{s.excused}</td>
                       <td style={{ padding: '9px 12px', fontSize: 14, fontWeight: 700, color: rateColor(s.attendanceRate) }}>
                         {s.attendanceRate === null ? '—' : `${s.attendanceRate}%`}
                       </td>
@@ -343,7 +343,7 @@ export const AttendancePanel = () => {
                         {s.chronic
                           ? <span style={{ display: 'inline-block', padding: '2px 9px', borderRadius: 20, fontSize: 10, fontWeight: 700, color: '#c0392b', background: '#fadbd8' }}>CHRONIC</span>
                           : !s.meetsMinimum
-                            ? <span style={{ fontSize: 10, color: '#bbb' }}>too few days</span>
+                            ? <span style={{ fontSize: 10, color:'var(--text-faint-2)' }}>too few days</span>
                             : null}
                       </td>
                     </tr>
@@ -352,7 +352,7 @@ export const AttendancePanel = () => {
               </table>
             </div>
 
-            <p style={{ margin: '10px 0 0', fontSize: 11, color: '#999' }}>
+            <p style={{ margin: '10px 0 0', fontSize: 11, color:'var(--text-faint)' }}>
               Excused absences are excluded from the rate, so approved sick leave is not counted against a student.
               A student needs at least {analytics.minDays} recorded days before the chronic flag can apply.
             </p>

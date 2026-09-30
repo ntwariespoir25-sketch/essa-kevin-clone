@@ -85,7 +85,7 @@ const GroupedNav = ({
                 <>
                   <span style={{ flex: 1, whiteSpace: 'nowrap' }}>{group.label}</span>
                   {badgeTotal > 0 && (
-                    <span style={{ background: '#e74c3c', color: 'white', borderRadius: 20, fontSize: 10, fontWeight: 700, padding: '1px 6px' }}>
+                    <span style={{ background: '#e74c3c', color:'var(--on-solid)', borderRadius: 20, fontSize: 10, fontWeight: 700, padding: '1px 6px' }}>
                       {badgeTotal}
                     </span>
                   )}
@@ -122,7 +122,7 @@ const GroupedNav = ({
                       {item.icon && <i className={item.icon} style={{ fontSize: 12, width: 15, flexShrink: 0 }} />}
                       <span style={{ flex: 1, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{item.label}</span>
                       {item.badge > 0 && (
-                        <span style={{ background: '#e74c3c', color: 'white', borderRadius: 20, fontSize: 9, fontWeight: 700, padding: '1px 5px' }}>
+                        <span style={{ background: '#e74c3c', color:'var(--on-solid)', borderRadius: 20, fontSize: 9, fontWeight: 700, padding: '1px 5px' }}>
                           {item.badge}
                         </span>
                       )}

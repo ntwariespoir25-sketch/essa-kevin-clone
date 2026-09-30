@@ -22,7 +22,7 @@ const SetPasswordPage = () => {
         title: 'Invalid Link',
         text: 'This setup link is missing its token. Please contact the school administration.',
         icon: 'error',
-        confirmButtonColor: '#1a3a5c',
+        confirmButtonColor:'var(--navy)',
       });
       return;
     }
@@ -32,7 +32,7 @@ const SetPasswordPage = () => {
         title: 'Weak Password',
         text: 'Password must be at least 6 characters.',
         icon: 'warning',
-        confirmButtonColor: '#1a3a5c',
+        confirmButtonColor:'var(--navy)',
       });
       return;
     }
@@ -42,7 +42,7 @@ const SetPasswordPage = () => {
         title: 'Password Mismatch',
         text: 'The two passwords do not match.',
         icon: 'warning',
-        confirmButtonColor: '#1a3a5c',
+        confirmButtonColor:'var(--navy)',
       });
       return;
     }
@@ -70,7 +70,7 @@ const SetPasswordPage = () => {
           title: 'Setup Failed',
           text: data.message || 'Unable to set password.',
           icon: 'error',
-          confirmButtonColor: '#1a3a5c',
+          confirmButtonColor:'var(--navy)',
         });
       }
     } catch {
@@ -78,7 +78,7 @@ const SetPasswordPage = () => {
         title: 'Connection Error',
         text: 'Please check your internet connection and try again.',
         icon: 'error',
-        confirmButtonColor: '#1a3a5c',
+        confirmButtonColor:'var(--navy)',
       });
     } finally {
       setIsLoading(false);

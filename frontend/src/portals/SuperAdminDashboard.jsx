@@ -16,21 +16,21 @@ const fmt = (d) => d ? new Date(d).toLocaleDateString('en-RW', { day:'2-digit', 
 const fmtTime = (d) => d ? new Date(d).toLocaleTimeString('en-RW', { hour:'2-digit', minute:'2-digit' }) : '';
 const roleBadge = (role) => {
   const map = {
-    super_admin:      { label:'Super Admin',     color:'#ffc107', bg:'#fff8e1' },
-    academic_admin:   { label:'Academic Admin',  color:'#27ae60', bg:'#e8f5e9' },
-    discipline_admin: { label:'Discipline Admin',color:'#e74c3c', bg:'#fdecea' },
-    accounts_admin:   { label:'Accounts Admin',  color:'#3498db', bg:'#e3f2fd' },
-    teacher:          { label:'Teacher',         color:'#9b59b6', bg:'#f3e5f5' },
-    student:          { label:'Student',         color:'#1abc9c', bg:'#e0f7fa' },
-    parent:           { label:'Parent',          color:'#e67e22', bg:'#fff3e0' },
+    super_admin:      { label:'Super Admin',     color:'#ffc107', bg:'var(--tint-amber)' },
+    academic_admin:   { label:'Academic Admin',  color:'#27ae60', bg:'var(--tint-success)' },
+    discipline_admin: { label:'Discipline Admin',color:'#e74c3c', bg:'var(--tint-danger)' },
+    accounts_admin:   { label:'Accounts Admin',  color:'#3498db', bg:'var(--tint-primary)' },
+    teacher:          { label:'Teacher',         color:'#9b59b6', bg:'var(--tint-purple)' },
+    student:          { label:'Student',         color:'#1abc9c', bg:'var(--tint-info)' },
+    parent:           { label:'Parent',          color:'#e67e22', bg:'var(--tint-warning)' },
   };
-  return map[role] || { label: role || '—', color:'#666', bg:'#f0f0f0' };
+  return map[role] || { label: role || '—', color:'var(--text-secondary)', bg:'var(--surface-page)' };
 };
 const statusColor = (s) => {
-  if (s === 'pending')  return { color:'#f39c12', bg:'#fff3e0' };
-  if (s === 'approved' || s === 'resolved') return { color:'#27ae60', bg:'#e8f5e9' };
-  if (s === 'rejected') return { color:'#e74c3c', bg:'#fdecea' };
-  return { color:'#666', bg:'#f0f0f0' };
+  if (s === 'pending')  return { color:'#f39c12', bg:'var(--tint-warning)' };
+  if (s === 'approved' || s === 'resolved') return { color:'#27ae60', bg:'var(--tint-success)' };
+  if (s === 'rejected') return { color:'#e74c3c', bg:'var(--tint-danger)' };
+  return { color:'var(--text-secondary)', bg:'var(--surface-page)' };
 };
 
 // ─── Badge ───────────────────────────────────────────────────────────────────
@@ -72,18 +72,18 @@ const Modal = ({ open, onClose, title, children, width = 520 }) => {
       display:'flex', alignItems:'center', justifyContent:'center', padding:16,
     }} onClick={e => e.target === e.currentTarget && onClose()}>
       <div style={{
-        background:'white', borderRadius:16, width:'100%', maxWidth:width,
+        background:'var(--surface-card)', borderRadius:16, width:'100%', maxWidth:width,
         maxHeight:'90vh', overflow:'auto', boxShadow:'0 24px 80px rgba(0,0,0,.25)',
       }}>
         <div style={{
           padding:'18px 22px', borderBottom:'1px solid #e8e8e8',
           display:'flex', justifyContent:'space-between', alignItems:'center',
-          position:'sticky', top:0, background:'white', zIndex:1, borderRadius:'16px 16px 0 0',
+          position:'sticky', top:0, background:'var(--surface-card)', zIndex:1, borderRadius:'16px 16px 0 0',
         }}>
-          <h3 style={{ margin:0, fontSize:16, color:'#1a3a5c', fontFamily:"'Crimson Text', Georgia, serif" }}>{title}</h3>
+          <h3 style={{ margin:0, fontSize:16, color:'var(--navy)', fontFamily:"'Crimson Text', Georgia, serif" }}>{title}</h3>
           <button onClick={onClose} style={{
             background:'none', border:'none', cursor:'pointer', fontSize:20,
-            color:'#999', lineHeight:1, padding:'0 4px',
+            color:'var(--text-faint)', lineHeight:1, padding:'0 4px',
           }}>×</button>
         </div>
         <div style={{ padding:'20px 22px' }}>{children}</div>
@@ -95,7 +95,7 @@ const Modal = ({ open, onClose, title, children, width = 520 }) => {
 // ─── FormField ────────────────────────────────────────────────────────────────
 const Field = ({ label, children, required }) => (
   <div style={{ marginBottom:14 }}>
-    <label style={{ display:'block', fontSize:12, fontWeight:600, color:'#555', marginBottom:5, letterSpacing:.4 }}>
+    <label style={{ display:'block', fontSize:12, fontWeight:600, color:'var(--text-2)', marginBottom:5, letterSpacing:.4 }}>
       {label?.toUpperCase()}{required && <span style={{ color:'#e74c3c' }}> *</span>}
     </label>
     {children}
@@ -103,7 +103,7 @@ const Field = ({ label, children, required }) => (
 );
 const Input = (props) => (
   <input {...props} style={{
-    width:'100%', padding:'9px 12px', border:'1.5px solid #e0e0e0',
+    width:'100%', padding:'9px 12px', border:'1.5px solid var(--surface-sunken-2)',
     borderRadius:8, fontSize:14, fontFamily:'inherit', outline:'none',
     transition:'border-color .2s', boxSizing:'border-box',
     ...props.style,
@@ -114,14 +114,14 @@ const Input = (props) => (
 );
 const Select = ({ children, ...props }) => (
   <select {...props} style={{
-    width:'100%', padding:'9px 12px', border:'1.5px solid #e0e0e0',
+    width:'100%', padding:'9px 12px', border:'1.5px solid var(--surface-sunken-2)',
     borderRadius:8, fontSize:14, fontFamily:'inherit', outline:'none',
-    background:'white', boxSizing:'border-box', ...props.style,
+    background:'var(--surface-card)', boxSizing:'border-box', ...props.style,
   }}>{children}</select>
 );
 const Textarea = (props) => (
   <textarea {...props} style={{
-    width:'100%', padding:'9px 12px', border:'1.5px solid #e0e0e0',
+    width:'100%', padding:'9px 12px', border:'1.5px solid var(--surface-sunken-2)',
     borderRadius:8, fontSize:14, fontFamily:'inherit', outline:'none',
     resize:'vertical', minHeight:90, boxSizing:'border-box',
     transition:'border-color .2s', ...props.style,
@@ -134,10 +134,10 @@ const Textarea = (props) => (
 // ─── StatCard ─────────────────────────────────────────────────────────────────
 const StatCard = ({ icon, label, value, sub, accent = '#1a3a5c', bg = '#e8f5e9', onClick }) => (
   <div onClick={onClick} style={{
-    background:'white', borderRadius:16, padding:'20px 22px',
+    background:'var(--surface-card)', borderRadius:16, padding:'20px 22px',
     display:'flex', alignItems:'center', gap:16,
     boxShadow:'0 2px 12px rgba(0,0,0,.06)', cursor:onClick?'pointer':'default',
-    transition:'transform .2s, box-shadow .2s', border:'1px solid #f0f0f0',
+    transition:'transform .2s, box-shadow .2s', border:'1px solid var(--surface-page)',
   }}
   onMouseEnter={e => { if(onClick){ e.currentTarget.style.transform='translateY(-3px)'; e.currentTarget.style.boxShadow='0 10px 28px rgba(0,0,0,.12)'; }}}
   onMouseLeave={e => { e.currentTarget.style.transform=''; e.currentTarget.style.boxShadow='0 2px 12px rgba(0,0,0,.06)'; }}
@@ -147,9 +147,9 @@ const StatCard = ({ icon, label, value, sub, accent = '#1a3a5c', bg = '#e8f5e9',
       <i className={icon} style={{ fontSize:22, color:accent }} />
     </div>
     <div>
-      <div style={{ fontSize:26, fontWeight:700, color:'#1a3a5c', lineHeight:1,
+      <div style={{ fontSize:26, fontWeight:700, color:'var(--navy)', lineHeight:1,
         fontFamily:"'Crimson Text', Georgia, serif" }}>{value ?? '—'}</div>
-      <div style={{ fontSize:13, color:'#888', marginTop:3 }}>{label}</div>
+      <div style={{ fontSize:13, color:'var(--text-faint)', marginTop:3 }}>{label}</div>
       {sub && <div style={{ fontSize:11, color:accent, marginTop:4, fontWeight:600 }}>{sub}</div>}
     </div>
   </div>
@@ -157,22 +157,22 @@ const StatCard = ({ icon, label, value, sub, accent = '#1a3a5c', bg = '#e8f5e9',
 
 // ─── Table ────────────────────────────────────────────────────────────────────
 const Table = ({ cols, rows, emptyMsg = 'No data found' }) => (
-  <div style={{ overflowX:'auto', borderRadius:10, border:'1px solid #f0f0f0' }}>
+  <div style={{ overflowX:'auto', borderRadius:10, border:'1px solid var(--surface-page)' }}>
     <table style={{ width:'100%', borderCollapse:'collapse', minWidth:540 }}>
       <thead>
-        <tr style={{ background:'#f7f9fb' }}>
+        <tr style={{ background:'var(--surface-muted)' }}>
           {cols.map((c,i) => (
             <th key={i} style={{ padding:'11px 14px', textAlign:'left', fontSize:11,
-              fontWeight:700, color:'#888', letterSpacing:.8, borderBottom:'1px solid #eee',
+              fontWeight:700, color:'var(--text-faint)', letterSpacing:.8, borderBottom:'1px solid var(--border)',
               whiteSpace:'nowrap' }}>{c.toUpperCase()}</th>
           ))}
         </tr>
       </thead>
       <tbody>
         {rows.length === 0
-          ? <tr><td colSpan={cols.length} style={{ textAlign:'center', padding:'36px', color:'#bbb', fontSize:13 }}>{emptyMsg}</td></tr>
+          ? <tr><td colSpan={cols.length} style={{ textAlign:'center', padding:'36px', color:'var(--text-faint-2)', fontSize:13 }}>{emptyMsg}</td></tr>
           : rows.map((row, i) => (
-            <tr key={i} style={{ borderBottom:'1px solid #f5f5f5', transition:'background .15s' }}
+            <tr key={i} style={{ borderBottom:'1px solid var(--surface-muted)', transition:'background .15s' }}
               onMouseEnter={e => e.currentTarget.style.background='#fafbff'}
               onMouseLeave={e => e.currentTarget.style.background=''}
             >{row}</tr>
@@ -183,11 +183,11 @@ const Table = ({ cols, rows, emptyMsg = 'No data found' }) => (
   </div>
 );
 const TD = ({ children, style }) => (
-  <td style={{ padding:'11px 14px', fontSize:13, color:'#333', ...style }}>{children}</td>
+  <td style={{ padding:'11px 14px', fontSize:13, color:'var(--text-body)', ...style }}>{children}</td>
 );
 
 // ─── BtnPrimary ───────────────────────────────────────────────────────────────
-const Btn = ({ children, onClick, icon, color='#1a3a5c', textColor='white', small, danger, style: s }) => {
+const Btn = ({ children, onClick, icon, color='#1a3a5c', textColor='var(--on-solid)', small, danger, style: s }) => {
   const bg = danger ? '#e74c3c' : color;
   return (
     <button onClick={onClick} style={{
@@ -431,7 +431,7 @@ if (activeTab === 'security-logins') { fetchLoginTrail(1); fetchLockPolicy(); }
       icon: 'question',
       showCancelButton: true,
       confirmButtonText: 'Unlock',
-      confirmButtonColor: '#1a3a5c'
+      confirmButtonColor:'var(--navy)'
     });
     if (!ok.isConfirmed) return;
     try {
@@ -689,8 +689,8 @@ if (activeTab === 'security-logins') { fetchLoginTrail(1); fetchLockPolicy(); }
   if (loading) {
     return (
       <div style={{ display:'flex', flexDirection:'column', alignItems:'center',
-        justifyContent:'center', height:'100vh', background:'linear-gradient(135deg,#0d2b42,#1a3a5c)',
-        color:'white', gap:20, fontFamily:"'Crimson Text', Georgia, serif" }}>
+        justifyContent:'center', height:'100vh', background:'linear-gradient(135deg,var(--navy-deep),var(--navy))',
+        color:'var(--on-solid)', gap:20, fontFamily:"'Crimson Text', Georgia, serif" }}>
         <Spinner size={48} />
         <p style={{ margin:0, fontSize:18, letterSpacing:1 }}>Loading Portal…</p>
         <style>{`@keyframes spin{to{transform:rotate(360deg)}}`}</style>
@@ -702,7 +702,7 @@ if (activeTab === 'security-logins') { fetchLoginTrail(1); fetchLockPolicy(); }
 
   // ════════════════════════════════════════════════════════════════════════════
   return (
-    <div style={{ display:'flex', minHeight:'100vh', background:'#f0f3f8', fontFamily:"'DM Sans', -apple-system, sans-serif" }}>
+    <div style={{ display:'flex', minHeight:'100vh', background:'var(--surface-navy-tint)', fontFamily:"'DM Sans', -apple-system, sans-serif" }}>
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&family=Crimson+Text:ital,wght@0,400;0,600;1,400&display=swap');
         @keyframes spin{to{transform:rotate(360deg)}}
@@ -726,8 +726,8 @@ if (activeTab === 'security-logins') { fetchLoginTrail(1); fetchLockPolicy(); }
       <aside style={{
         position:'fixed', top:0, left:0, bottom:0, zIndex:999,
         width: isMobile ? (mobileOpen ? 260 : 0) : sideW,
-        background:'linear-gradient(180deg,#0d1f33 0%,#1a3a5c 100%)',
-        color:'white', display:'flex', flexDirection:'column',
+        background:'linear-gradient(180deg,var(--navy-deep) 0%,var(--navy) 100%)',
+        color:'var(--on-solid)', display:'flex', flexDirection:'column',
         transition:'width .3s ease', overflow:'hidden',
         boxShadow:'3px 0 20px rgba(0,0,0,.18)',
       }}>
@@ -735,7 +735,7 @@ if (activeTab === 'security-logins') { fetchLoginTrail(1); fetchLockPolicy(); }
         <div style={{ padding:'22px 18px', borderBottom:'1px solid rgba(255,255,255,.08)', display:'flex', alignItems:'center', gap:12, flexShrink:0 }}>
           <div style={{ width:40, height:40, background:'#ffc107', borderRadius:12, display:'flex',
             alignItems:'center', justifyContent:'center', flexShrink:0 }}>
-            <i className="fas fa-crown" style={{ fontSize:18, color:'#1a3a5c' }} />
+            <i className="fas fa-crown" style={{ fontSize:18, color:'var(--navy)' }} />
           </div>
           {(sidebarOpen || isMobile) && (
             <div>
@@ -778,7 +778,7 @@ if (activeTab === 'security-logins') { fetchLoginTrail(1); fetchLockPolicy(); }
           <button onClick={() => { localStorage.clear(); navigate('/portal/login'); }}
             style={{ display:'flex', alignItems:'center', gap:10, width:'100%', padding:'10px 14px',
               background:'rgba(231,76,60,.2)', border:'1px solid rgba(231,76,60,.3)', borderRadius:10,
-              color:'#ff8a80', cursor:'pointer', fontSize:13, transition:'all .2s',
+              color:'var(--tint-danger-line)', cursor:'pointer', fontSize:13, transition:'all .2s',
               fontFamily:"'DM Sans', sans-serif",
             }}>
             <i className="fas fa-sign-out-alt" style={{ fontSize:14 }} />
@@ -791,19 +791,19 @@ if (activeTab === 'security-logins') { fetchLoginTrail(1); fetchLockPolicy(); }
       <main style={{ flex:1, marginLeft: isMobile ? 0 : sideW, transition:'margin-left .3s', minHeight:'100vh', display:'flex', flexDirection:'column' }}>
 
         {/* ── Top Bar ── */}
-        <div style={{ background:'white', padding:'12px 24px', display:'flex', justifyContent:'space-between',
-          alignItems:'center', borderBottom:'1px solid #eee', position:'sticky', top:0, zIndex:100,
+        <div style={{ background:'var(--surface-card)', padding:'12px 24px', display:'flex', justifyContent:'space-between',
+          alignItems:'center', borderBottom:'1px solid var(--border)', position:'sticky', top:0, zIndex:100,
           boxShadow:'0 1px 8px rgba(0,0,0,.05)' }}>
           <div style={{ display:'flex', alignItems:'center', gap:14 }}>
             {isMobile && (
               <button onClick={() => setMobileOpen(!mobileOpen)}
-                style={{ background:'#1a3a5c', color:'white', border:'none', padding:'7px 10px', borderRadius:8, cursor:'pointer' }}>
+                style={{ background:'var(--navy)', color:'var(--on-solid)', border:'none', padding:'7px 10px', borderRadius:8, cursor:'pointer' }}>
                 <i className="fas fa-bars" />
               </button>
             )}
             <div>
-              <div style={{ fontSize:11, color:'#aaa', letterSpacing:.5 }}>ESSA NYARUGUNGA</div>
-              <div style={{ fontSize:16, fontWeight:600, color:'#1a3a5c', fontFamily:"'Crimson Text', Georgia, serif" }}>
+              <div style={{ fontSize:11, color:'var(--text-faint)', letterSpacing:.5 }}>ESSA NYARUGUNGA</div>
+              <div style={{ fontSize:16, fontWeight:600, color:'var(--navy)', fontFamily:"'Crimson Text', Georgia, serif" }}>
                 {menuItems.find(m => m.id === activeTab)?.label || 'Dashboard'}
               </div>
             </div>
@@ -812,17 +812,17 @@ if (activeTab === 'security-logins') { fetchLoginTrail(1); fetchLockPolicy(); }
             <ThemeToggle color="#1a3a5c" border="#e5e7eb" />
             {unread > 0 && (
               <button onClick={() => setActiveTab('messages')}
-                style={{ position:'relative', background:'none', border:'none', cursor:'pointer', color:'#888', fontSize:18 }}>
+                style={{ position:'relative', background:'none', border:'none', cursor:'pointer', color:'var(--text-faint)', fontSize:18 }}>
                 <i className="fas fa-bell" />
                 <span style={{ position:'absolute', top:-4, right:-4, background:'#e74c3c',
-                  color:'white', borderRadius:'50%', fontSize:9, fontWeight:700,
+                  color:'var(--on-solid)', borderRadius:'50%', fontSize:9, fontWeight:700,
                   width:16, height:16, display:'flex', alignItems:'center', justifyContent:'center' }}>{unread}</span>
               </button>
             )}
             <div style={{ display:'flex', alignItems:'center', gap:8 }}>
               <Avatar name={userName} size={34} />
               <div>
-                <div style={{ fontSize:12, fontWeight:600, color:'#333' }}>{userName}</div>
+                <div style={{ fontSize:12, fontWeight:600, color:'var(--text-body)' }}>{userName}</div>
                 <div style={{ fontSize:10, color:'#ffc107', letterSpacing:.5 }}>SUPER ADMIN</div>
               </div>
             </div>
@@ -837,13 +837,13 @@ if (activeTab === 'security-logins') { fetchLoginTrail(1); fetchLockPolicy(); }
             <div>
               {/* Welcome */}
               <div style={{
-                background:'linear-gradient(135deg,#0d1f33,#1a3a5c)',
+                background:'linear-gradient(135deg,var(--navy-deep),var(--navy))',
                 borderRadius:20, padding:'28px 32px', marginBottom:24,
                 display:'flex', justifyContent:'space-between', alignItems:'center',
                 flexWrap:'wrap', gap:16, boxShadow:'0 6px 24px rgba(26,58,92,.35)',
               }}>
                 <div>
-                  <div style={{ fontSize:22, fontWeight:600, color:'white',
+                  <div style={{ fontSize:22, fontWeight:600, color:'var(--on-solid)',
                     fontFamily:"'Crimson Text', Georgia, serif", marginBottom:6 }}>
                     Welcome back, {userName.split(' ')[0]}! 👑
                   </div>
@@ -853,7 +853,7 @@ if (activeTab === 'security-logins') { fetchLoginTrail(1); fetchLockPolicy(); }
                 </div>
                 <div style={{ display:'flex', gap:10, flexWrap:'wrap' }}>
                   <Btn onClick={() => setAdminModal(true)} icon="fas fa-user-plus" color="#ffc107" textColor="#1a3a5c">New Admin</Btn>
-                  <Btn onClick={() => setAnnoModal(true)} icon="fas fa-bullhorn" color="rgba(255,255,255,.15)" textColor="white">Announce</Btn>
+                  <Btn onClick={() => setAnnoModal(true)} icon="fas fa-bullhorn" color="rgba(255,255,255,.15)" textColor="var(--on-solid)">Announce</Btn>
                 </div>
               </div>
 
@@ -880,25 +880,25 @@ if (activeTab === 'security-logins') { fetchLoginTrail(1); fetchLockPolicy(); }
               {/* Pending review panels */}
               <div style={{ display:'grid', gridTemplateColumns:'repeat(auto-fit,minmax(340px,1fr))', gap:20 }}>
                 {/* Pending discipline */}
-                <div style={{ background:'white', borderRadius:16, padding:'20px', boxShadow:'0 2px 12px rgba(0,0,0,.06)' }}>
+                <div style={{ background:'var(--surface-card)', borderRadius:16, padding:'20px', boxShadow:'0 2px 12px rgba(0,0,0,.06)' }}>
                   <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom:16 }}>
-                    <h3 style={{ margin:0, fontSize:14, fontWeight:600, color:'#1a3a5c', display:'flex', alignItems:'center', gap:8 }}>
+                    <h3 style={{ margin:0, fontSize:14, fontWeight:600, color:'var(--navy)', display:'flex', alignItems:'center', gap:8 }}>
                       <i className="fas fa-gavel" style={{ color:'#9b59b6' }} /> Pending Discipline
                     </h3>
                     <Badge text={`${disciplineCases.filter(c => c.status === 'pending').length} open`} color="#9b59b6" bg="#f3e5f5" />
                   </div>
                   {disciplineCases.filter(c => c.status === 'pending').slice(0, 5).map(c => (
                     <div key={c._id} style={{ display:'flex', justifyContent:'space-between', alignItems:'center',
-                      padding:'10px 0', borderBottom:'1px solid #f5f5f5' }}>
+                      padding:'10px 0', borderBottom:'1px solid var(--surface-muted)' }}>
                       <div>
-                        <div style={{ fontSize:13, fontWeight:600, color:'#333' }}>{c.studentName || 'Student'}</div>
-                        <div style={{ fontSize:11, color:'#999', marginTop:2 }}>{c.category} · {fmt(c.createdAt)}</div>
+                        <div style={{ fontSize:13, fontWeight:600, color:'var(--text-body)' }}>{c.studentName || 'Student'}</div>
+                        <div style={{ fontSize:11, color:'var(--text-faint)', marginTop:2 }}>{c.category} · {fmt(c.createdAt)}</div>
                       </div>
                       <Btn small onClick={() => disciplineAction(c)} icon="fas fa-hammer" color="#9b59b6">Review</Btn>
                     </div>
                   ))}
                   {disciplineCases.filter(c => c.status === 'pending').length === 0 && (
-                    <div style={{ textAlign:'center', padding:'24px 0', color:'#bbb', fontSize:13 }}>
+                    <div style={{ textAlign:'center', padding:'24px 0', color:'var(--text-faint-2)', fontSize:13 }}>
                       <i className="fas fa-check-circle" style={{ fontSize:28, marginBottom:8, display:'block', color:'#27ae60' }} />
                       All clear — no pending cases
                     </div>
@@ -906,19 +906,19 @@ if (activeTab === 'security-logins') { fetchLoginTrail(1); fetchLockPolicy(); }
                 </div>
 
                 {/* Pending permissions */}
-                <div style={{ background:'white', borderRadius:16, padding:'20px', boxShadow:'0 2px 12px rgba(0,0,0,.06)' }}>
+                <div style={{ background:'var(--surface-card)', borderRadius:16, padding:'20px', boxShadow:'0 2px 12px rgba(0,0,0,.06)' }}>
                   <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom:16 }}>
-                    <h3 style={{ margin:0, fontSize:14, fontWeight:600, color:'#1a3a5c', display:'flex', alignItems:'center', gap:8 }}>
+                    <h3 style={{ margin:0, fontSize:14, fontWeight:600, color:'var(--navy)', display:'flex', alignItems:'center', gap:8 }}>
                       <i className="fas fa-file-signature" style={{ color:'#3498db' }} /> Pending Permissions
                     </h3>
                     <Badge text={`${permissions.filter(p => p.status === 'pending').length} open`} color="#3498db" bg="#e3f2fd" />
                   </div>
                   {permissions.filter(p => p.status === 'pending').slice(0, 5).map(p => (
                     <div key={p._id} style={{ display:'flex', justifyContent:'space-between', alignItems:'center',
-                      padding:'10px 0', borderBottom:'1px solid #f5f5f5', gap:10 }}>
+                      padding:'10px 0', borderBottom:'1px solid var(--surface-muted)', gap:10 }}>
                       <div>
-                        <div style={{ fontSize:13, fontWeight:600, color:'#333' }}>{p.requesterName}</div>
-                        <div style={{ fontSize:11, color:'#999', marginTop:2 }}>{p.type} · {fmt(p.createdAt)}</div>
+                        <div style={{ fontSize:13, fontWeight:600, color:'var(--text-body)' }}>{p.requesterName}</div>
+                        <div style={{ fontSize:11, color:'var(--text-faint)', marginTop:2 }}>{p.type} · {fmt(p.createdAt)}</div>
                       </div>
                       <div style={{ display:'flex', gap:6, flexShrink:0 }}>
                         <Btn small onClick={() => permissionAction(p, 'approved')} color="#27ae60">✓</Btn>
@@ -927,7 +927,7 @@ if (activeTab === 'security-logins') { fetchLoginTrail(1); fetchLockPolicy(); }
                     </div>
                   ))}
                   {permissions.filter(p => p.status === 'pending').length === 0 && (
-                    <div style={{ textAlign:'center', padding:'24px 0', color:'#bbb', fontSize:13 }}>
+                    <div style={{ textAlign:'center', padding:'24px 0', color:'var(--text-faint-2)', fontSize:13 }}>
                       <i className="fas fa-check-circle" style={{ fontSize:28, marginBottom:8, display:'block', color:'#27ae60' }} />
                       No pending permissions
                     </div>
@@ -942,12 +942,12 @@ if (activeTab === 'security-logins') { fetchLoginTrail(1); fetchLockPolicy(); }
             <div>
               <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom:20, flexWrap:'wrap', gap:10 }}>
                 <div>
-                  <h2 style={{ margin:0, fontSize:20, color:'#1a3a5c', fontFamily:"'Crimson Text', Georgia, serif" }}>System Administrators</h2>
-                  <p style={{ margin:'4px 0 0', fontSize:13, color:'#888' }}>{admins.length} admin accounts registered</p>
+                  <h2 style={{ margin:0, fontSize:20, color:'var(--navy)', fontFamily:"'Crimson Text', Georgia, serif" }}>System Administrators</h2>
+                  <p style={{ margin:'4px 0 0', fontSize:13, color:'var(--text-faint)' }}>{admins.length} admin accounts registered</p>
                 </div>
                 <Btn onClick={() => setAdminModal(true)} icon="fas fa-plus" color="#1a3a5c">Add Sub-Admin</Btn>
               </div>
-              <div style={{ background:'white', borderRadius:16, boxShadow:'0 2px 12px rgba(0,0,0,.06)', overflow:'hidden' }}>
+              <div style={{ background:'var(--surface-card)', borderRadius:16, boxShadow:'0 2px 12px rgba(0,0,0,.06)', overflow:'hidden' }}>
                 <Table
                   cols={['Admin', 'Email', 'Role', 'Phone', 'Status', 'Actions']}
                   emptyMsg="No sub-admins created yet"
@@ -957,7 +957,7 @@ if (activeTab === 'security-logins') { fetchLoginTrail(1); fetchLockPolicy(); }
                         <Avatar name={a.fullName} size={34} />
                         <div>
                           <div style={{ fontWeight:600, fontSize:13 }}>{a.fullName}</div>
-                          <div style={{ fontSize:11, color:'#aaa' }}>Created {fmt(a.createdAt)}</div>
+                          <div style={{ fontSize:11, color:'var(--text-faint)' }}>Created {fmt(a.createdAt)}</div>
                         </div>
                       </div></TD>
                       <TD><span style={{ color:'#3498db', fontSize:12 }}>{a.email}</span></TD>
@@ -987,8 +987,8 @@ if (activeTab === 'security-logins') { fetchLoginTrail(1); fetchLockPolicy(); }
             <div>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20, flexWrap: 'wrap', gap: 10 }}>
                 <div>
-                  <h2 style={{ margin: 0, fontSize: 20, color: '#1a3a5c', fontFamily: "'Crimson Text', Georgia, serif" }}>School Announcements</h2>
-                  <p style={{ margin: '4px 0 0', fontSize: 13, color: '#888' }}>
+                  <h2 style={{ margin: 0, fontSize: 20, color:'var(--navy)', fontFamily: "'Crimson Text', Georgia, serif" }}>School Announcements</h2>
+                  <p style={{ margin: '4px 0 0', fontSize: 13, color:'var(--text-faint)' }}>
                     {announcements.length} total announcements
                   </p>
                 </div>
@@ -997,7 +997,7 @@ if (activeTab === 'security-logins') { fetchLoginTrail(1); fetchLockPolicy(); }
 
               <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
                 {announcements.length === 0 && (
-                  <div style={{ textAlign: 'center', padding: 60, color: '#bbb', background: 'white', borderRadius: 16 }}>
+                  <div style={{ textAlign: 'center', padding: 60, color:'var(--text-faint-2)', background:'var(--surface-card)', borderRadius: 16 }}>
                     <i className="fas fa-bullhorn" style={{ fontSize: 36, marginBottom: 12, display: 'block', opacity: .3 }} />
                     No announcements yet
                   </div>
@@ -1010,23 +1010,23 @@ if (activeTab === 'security-logins') { fetchLoginTrail(1); fetchLockPolicy(); }
 
                   return (
                     <div key={ann._id} style={{
-                      background: 'white', borderRadius: 14, padding: '18px 20px',
+                      background:'var(--surface-card)', borderRadius: 14, padding: '18px 20px',
                       borderLeft: `4px solid ${pColor}`, boxShadow: '0 2px 10px rgba(0,0,0,.05)',
                     }}>
                       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 10, flexWrap: 'wrap', gap: 10 }}>
                         <div>
-                          <h3 style={{ margin: 0, fontSize: 15, color: '#1a3a5c' }}>{ann.title || 'Untitled'}</h3>
+                          <h3 style={{ margin: 0, fontSize: 15, color:'var(--navy)' }}>{ann.title || 'Untitled'}</h3>
                           <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginTop: 6 }}>
                             <Badge text={priority} color={pColor} bg={pBg} />
                             <Badge text={ann.audience === 'all' ? 'All Users' : (ann.audience || 'All Users')} color="#888" bg="#f5f5f5" />
                           </div>
                         </div>
                         <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                          <span style={{ fontSize: 11, color: '#aaa' }}>{ann.createdAt ? fmt(ann.createdAt) : 'Just now'}</span>
+                          <span style={{ fontSize: 11, color:'var(--text-faint)' }}>{ann.createdAt ? fmt(ann.createdAt) : 'Just now'}</span>
                           <Btn small danger icon="fas fa-trash" onClick={() => deleteAnnouncement(ann._id)} />
                         </div>
                       </div>
-                      <p style={{ margin: 0, fontSize: 13, color: '#555', lineHeight: 1.7 }}>{ann.content || 'No content provided'}</p>
+                      <p style={{ margin: 0, fontSize: 13, color:'var(--text-2)', lineHeight: 1.7 }}>{ann.content || 'No content provided'}</p>
                     </div>
                   );
                 })}
@@ -1038,8 +1038,8 @@ if (activeTab === 'security-logins') { fetchLoginTrail(1); fetchLockPolicy(); }
           {activeTab === 'discipline' && (
             <div>
               <div style={{ marginBottom: 20 }}>
-                <h2 style={{ margin: 0, fontSize: 20, color: '#1a3a5c', fontFamily: "'Crimson Text', Georgia, serif" }}>Discipline Cases</h2>
-                <p style={{ margin: '4px 0 0', fontSize: 13, color: '#888' }}>Review and take action on student conduct reports</p>
+                <h2 style={{ margin: 0, fontSize: 20, color:'var(--navy)', fontFamily: "'Crimson Text', Georgia, serif" }}>Discipline Cases</h2>
+                <p style={{ margin: '4px 0 0', fontSize: 13, color:'var(--text-faint)' }}>Review and take action on student conduct reports</p>
               </div>
               <div style={{ display: 'flex', gap: 12, marginBottom: 20, flexWrap: 'wrap' }}>
                 {[
@@ -1053,24 +1053,24 @@ if (activeTab === 'security-logins') { fetchLoginTrail(1); fetchLockPolicy(); }
                   </div>
                 ))}
               </div>
-              <div style={{ background: 'white', borderRadius: 16, boxShadow: '0 2px 12px rgba(0,0,0,.06)', overflow: 'hidden' }}>
+              <div style={{ background:'var(--surface-card)', borderRadius: 16, boxShadow: '0 2px 12px rgba(0,0,0,.06)', overflow: 'hidden' }}>
                 <Table
                   cols={['Student', 'Category', 'Description', 'Reported By', 'Date', 'Status', 'Action']}
                   emptyMsg="No discipline cases reported"
                   rows={disciplineCases.map(c => (
                     <React.Fragment key={c._id}>
                       <TD><div style={{ fontWeight: 600, fontSize: 13 }}>{c.studentName || '—'}</div>
-                        <div style={{ fontSize: 11, color: '#aaa' }}>{c.className || ''}</div></TD>
+                        <div style={{ fontSize: 11, color:'var(--text-faint)' }}>{c.className || ''}</div></TD>
                       <TD><Badge text={c.category || '—'} color="#9b59b6" bg="#f3e5f5" /></TD>
-                      <TD><div style={{ maxWidth: 200, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', fontSize: 12, color: '#555' }}>
+                      <TD><div style={{ maxWidth: 200, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', fontSize: 12, color:'var(--text-2)' }}>
                         {c.description || '—'}
                       </div></TD>
                       <TD style={{ fontSize: 12 }}>{c.reporterName || '—'}</TD>
-                      <TD style={{ fontSize: 12, color: '#aaa' }}>{fmt(c.createdAt)}</TD>
+                      <TD style={{ fontSize: 12, color:'var(--text-faint)' }}>{fmt(c.createdAt)}</TD>
                       <TD><Badge text={c.status} {...statusColor(c.status)} /></TD>
                       <TD>{c.status === 'pending'
                         ? <Btn small onClick={() => disciplineAction(c)} icon="fas fa-hammer" color="#9b59b6">Act</Btn>
-                        : <span style={{ fontSize: 11, color: '#aaa' }}>{c.action || c.status}</span>}
+                        : <span style={{ fontSize: 11, color:'var(--text-faint)' }}>{c.action || c.status}</span>}
                       </TD>
                     </React.Fragment>
                   ))}
@@ -1083,8 +1083,8 @@ if (activeTab === 'security-logins') { fetchLoginTrail(1); fetchLockPolicy(); }
           {activeTab === 'permissions' && (
             <div>
               <div style={{ marginBottom: 20 }}>
-                <h2 style={{ margin: 0, fontSize: 20, color: '#1a3a5c', fontFamily: "'Crimson Text', Georgia, serif" }}>Permission Requests</h2>
-                <p style={{ margin: '4px 0 0', fontSize: 13, color: '#888' }}>Approve or reject submitted permission requests</p>
+                <h2 style={{ margin: 0, fontSize: 20, color:'var(--navy)', fontFamily: "'Crimson Text', Georgia, serif" }}>Permission Requests</h2>
+                <p style={{ margin: '4px 0 0', fontSize: 13, color:'var(--text-faint)' }}>Approve or reject submitted permission requests</p>
               </div>
               <div style={{ display: 'flex', gap: 12, marginBottom: 20, flexWrap: 'wrap' }}>
                 {[
@@ -1098,7 +1098,7 @@ if (activeTab === 'security-logins') { fetchLoginTrail(1); fetchLockPolicy(); }
                   </div>
                 ))}
               </div>
-              <div style={{ background: 'white', borderRadius: 16, boxShadow: '0 2px 12px rgba(0,0,0,.06)', overflow: 'hidden' }}>
+              <div style={{ background:'var(--surface-card)', borderRadius: 16, boxShadow: '0 2px 12px rgba(0,0,0,.06)', overflow: 'hidden' }}>
                 <Table
                   cols={['Requester', 'Type', 'Reason', 'From', 'To', 'Status', 'Actions']}
                   emptyMsg="No permission requests submitted"
@@ -1107,11 +1107,11 @@ if (activeTab === 'security-logins') { fetchLoginTrail(1); fetchLockPolicy(); }
                       <TD><div style={{ fontWeight: 600, fontSize: 13 }}>{p.requesterName}</div>
                         <Badge {...roleBadge(p.requesterRole)} text={roleBadge(p.requesterRole).label} size={10} /></TD>
                       <TD style={{ fontSize: 12 }}>{p.type || '—'}</TD>
-                      <TD><div style={{ maxWidth: 180, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', fontSize: 12, color: '#555' }}>
+                      <TD><div style={{ maxWidth: 180, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', fontSize: 12, color:'var(--text-2)' }}>
                         {p.reason || '—'}
                       </div></TD>
-                      <TD style={{ fontSize: 12, color: '#aaa' }}>{fmt(p.fromDate)}</TD>
-                      <TD style={{ fontSize: 12, color: '#aaa' }}>{fmt(p.toDate)}</TD>
+                      <TD style={{ fontSize: 12, color:'var(--text-faint)' }}>{fmt(p.fromDate)}</TD>
+                      <TD style={{ fontSize: 12, color:'var(--text-faint)' }}>{fmt(p.toDate)}</TD>
                       <TD><Badge text={p.status} {...statusColor(p.status)} /></TD>
                       <TD>
                         {p.status === 'pending'
@@ -1119,7 +1119,7 @@ if (activeTab === 'security-logins') { fetchLoginTrail(1); fetchLockPolicy(); }
                               <Btn small onClick={() => permissionAction(p, 'approved')} color="#27ae60">Approve</Btn>
                               <Btn small onClick={() => permissionAction(p, 'rejected')} danger>Reject</Btn>
                             </div>
-                          : <span style={{ fontSize: 11, color: '#aaa' }}>{p.rejectionReason ? 'Rejected: ' + p.rejectionReason.substring(0, 30) : p.status}</span>
+                          : <span style={{ fontSize: 11, color:'var(--text-faint)' }}>{p.rejectionReason ? 'Rejected: ' + p.rejectionReason.substring(0, 30) : p.status}</span>
                         }
                       </TD>
                     </React.Fragment>
@@ -1132,12 +1132,12 @@ if (activeTab === 'security-logins') { fetchLoginTrail(1); fetchLockPolicy(); }
           {/* ╔══ SECURITY: SIGN-IN HISTORY ══╗ */}
           {activeTab === 'security-logins' && (
             <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
-              <div style={{ background: 'white', borderRadius: 16, padding: 20, boxShadow: '0 2px 12px rgba(0,0,0,.06)' }}>
+              <div style={{ background:'var(--surface-card)', borderRadius: 16, padding: 20, boxShadow: '0 2px 12px rgba(0,0,0,.06)' }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center',
                   flexWrap: 'wrap', gap: 12, marginBottom: 16 }}>
                   <div>
-                    <h2 style={{ margin: 0, fontSize: 18, color: '#1a3a5c' }}>Sign-in history</h2>
-                    <p style={{ margin: '4px 0 0', fontSize: 12, color: '#777' }}>
+                    <h2 style={{ margin: 0, fontSize: 18, color:'var(--navy)' }}>Sign-in history</h2>
+                    <p style={{ margin: '4px 0 0', fontSize: 12, color:'var(--text-faint)' }}>
                       Every authentication attempt, successful or not. Attempts against addresses that
                       do not exist are recorded too, because a spray across many names is the pattern
                       worth seeing.
@@ -1155,7 +1155,7 @@ if (activeTab === 'security-logins') { fetchLoginTrail(1); fetchLockPolicy(); }
                 </div>
 
                 {lockPolicy && (
-                  <p style={{ margin: 0, fontSize: 12, color: '#555', background: '#f4f6f9',
+                  <p style={{ margin: 0, fontSize: 12, color:'var(--text-2)', background: '#f4f6f9',
                     padding: '8px 12px', borderRadius: 8 }}>
                     Lockout policy: <strong>{lockPolicy.maxAttempts}</strong> failed attempts within 30
                     minutes locks an account for <strong>{lockPolicy.lockMinutes}</strong> minutes.
@@ -1163,7 +1163,7 @@ if (activeTab === 'security-logins') { fetchLoginTrail(1); fetchLockPolicy(); }
                 )}
               </div>
 
-              <div style={{ background: 'white', borderRadius: 16, boxShadow: '0 2px 12px rgba(0,0,0,.06)', overflow: 'hidden' }}>
+              <div style={{ background:'var(--surface-card)', borderRadius: 16, boxShadow: '0 2px 12px rgba(0,0,0,.06)', overflow: 'hidden' }}>
                 {secLoading ? (
                   <div style={{ padding: 40, textAlign: 'center' }}><Spinner /></div>
                 ) : (
@@ -1174,8 +1174,8 @@ if (activeTab === 'security-logins') { fetchLoginTrail(1); fetchLockPolicy(); }
                         <TD><span style={{ fontSize: 12 }}>{fmt(a.at)} · {fmtTime(a.at)}</span></TD>
                         <TD>
                           {a.user
-                            ? <span style={{ fontSize: 13 }}>{a.user.name} <span style={{ color: '#999', fontSize: 11 }}>({a.user.role})</span></span>
-                            : <span style={{ fontSize: 13, color: '#999' }}>{a.identifier || 'unknown'}</span>}
+                            ? <span style={{ fontSize: 13 }}>{a.user.name} <span style={{ color:'var(--text-faint)', fontSize: 11 }}>({a.user.role})</span></span>
+                            : <span style={{ fontSize: 13, color:'var(--text-faint)' }}>{a.identifier || 'unknown'}</span>}
                         </TD>
                         <TD>
                           <Badge
@@ -1184,8 +1184,8 @@ if (activeTab === 'security-logins') { fetchLoginTrail(1); fetchLockPolicy(); }
                             bg={a.success ? '#e8f5e9' : '#fdecea'}
                           />
                         </TD>
-                        <TD><span style={{ fontSize: 12, color: '#777' }}>{a.method || 'password'}</span></TD>
-                        <TD><span style={{ fontSize: 12, fontFamily: 'monospace', color: '#555' }}>{a.ip || '—'}</span></TD>
+                        <TD><span style={{ fontSize: 12, color:'var(--text-faint)' }}>{a.method || 'password'}</span></TD>
+                        <TD><span style={{ fontSize: 12, fontFamily: 'monospace', color:'var(--text-2)' }}>{a.ip || '—'}</span></TD>
                       </React.Fragment>
                     ))}
                     emptyMsg="No sign-in attempts recorded in this window"
@@ -1194,13 +1194,13 @@ if (activeTab === 'security-logins') { fetchLoginTrail(1); fetchLockPolicy(); }
 
                 {loginPages > 1 && (
                   <div style={{ padding: 14, display: 'flex', justifyContent: 'space-between',
-                    alignItems: 'center', borderTop: '1px solid #eee', fontSize: 12, color: '#777' }}>
+                    alignItems: 'center', borderTop:'1px solid var(--border)', fontSize: 12, color:'var(--text-faint)' }}>
                     <span>{loginTotal} attempt(s)</span>
                     <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
-                      <Btn small icon="fas fa-chevron-left" color="#888" textColor="white"
+                      <Btn small icon="fas fa-chevron-left" color="#888" textColor="var(--on-solid)"
                         onClick={() => fetchLoginTrail(Math.max(1, loginPage - 1))}>Prev</Btn>
                       <span>Page {loginPage} of {loginPages}</span>
-                      <Btn small icon="fas fa-chevron-right" color="#888" textColor="white"
+                      <Btn small icon="fas fa-chevron-right" color="#888" textColor="var(--on-solid)"
                         onClick={() => fetchLoginTrail(Math.min(loginPages, loginPage + 1))}>Next</Btn>
                     </div>
                   </div>
@@ -1212,18 +1212,18 @@ if (activeTab === 'security-logins') { fetchLoginTrail(1); fetchLockPolicy(); }
           {/* ╔══ SECURITY: LOCKED ACCOUNTS ══╗ */}
           {activeTab === 'security-locked' && (
             <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
-              <div style={{ background: 'white', borderRadius: 16, padding: 20, boxShadow: '0 2px 12px rgba(0,0,0,.06)' }}>
+              <div style={{ background:'var(--surface-card)', borderRadius: 16, padding: 20, boxShadow: '0 2px 12px rgba(0,0,0,.06)' }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 4 }}>
-                  <h2 style={{ margin: 0, fontSize: 18, color: '#1a3a5c' }}>Locked accounts</h2>
+                  <h2 style={{ margin: 0, fontSize: 18, color:'var(--navy)' }}>Locked accounts</h2>
                   <Btn icon="fas fa-rotate" onClick={fetchLocked}>Refresh</Btn>
                 </div>
-                <p style={{ margin: '4px 0 0', fontSize: 12, color: '#777' }}>
+                <p style={{ margin: '4px 0 0', fontSize: 12, color:'var(--text-faint)' }}>
                   Accounts currently blocked by the failed-attempt policy. Unlocking takes effect
                   immediately, so only do it once you are satisfied the account holder is genuine.
                 </p>
               </div>
 
-              <div style={{ background: 'white', borderRadius: 16, boxShadow: '0 2px 12px rgba(0,0,0,.06)', overflow: 'hidden' }}>
+              <div style={{ background:'var(--surface-card)', borderRadius: 16, boxShadow: '0 2px 12px rgba(0,0,0,.06)', overflow: 'hidden' }}>
                 {secLoading ? (
                   <div style={{ padding: 40, textAlign: 'center' }}><Spinner /></div>
                 ) : (
@@ -1233,11 +1233,11 @@ if (activeTab === 'security-logins') { fetchLoginTrail(1); fetchLockPolicy(); }
                       <React.Fragment key={u.id}>
                         <TD>
                           <span style={{ fontSize: 13 }}>{u.name}</span>
-                          <div style={{ fontSize: 11, color: '#999' }}>{u.email}</div>
+                          <div style={{ fontSize: 11, color:'var(--text-faint)' }}>{u.email}</div>
                         </TD>
                         <TD><Badge text={(u.role || '').replace(/_/g, ' ')} color="#1a3a5c" bg="#e8f0f7" /></TD>
                         <TD><span style={{ fontSize: 12 }}>{fmt(u.lockedUntil)} {fmtTime(u.lockedUntil)}</span></TD>
-                        <TD><span style={{ fontSize: 12, color: '#777' }}>{u.lastFailedLoginAt ? `${fmt(u.lastFailedLoginAt)} ${fmtTime(u.lastFailedLoginAt)}` : '—'}</span></TD>
+                        <TD><span style={{ fontSize: 12, color:'var(--text-faint)' }}>{u.lastFailedLoginAt ? `${fmt(u.lastFailedLoginAt)} ${fmtTime(u.lastFailedLoginAt)}` : '—'}</span></TD>
                         <TD><Btn small icon="fas fa-unlock" onClick={() => unlockAccount(u)}>Unlock</Btn></TD>
                       </React.Fragment>
                     ))}
@@ -1247,10 +1247,10 @@ if (activeTab === 'security-logins') { fetchLoginTrail(1); fetchLockPolicy(); }
               </div>
 
               {topFailingIps.length > 0 && (
-                <div style={{ background: 'white', borderRadius: 16, boxShadow: '0 2px 12px rgba(0,0,0,.06)', overflow: 'hidden' }}>
-                  <div style={{ padding: '18px 20px', borderBottom: '1px solid #eee' }}>
-                    <h3 style={{ margin: 0, fontSize: 15, color: '#1a3a5c' }}>Most failed attempts by address (24h)</h3>
-                    <p style={{ margin: '4px 0 0', fontSize: 12, color: '#777' }}>
+                <div style={{ background:'var(--surface-card)', borderRadius: 16, boxShadow: '0 2px 12px rgba(0,0,0,.06)', overflow: 'hidden' }}>
+                  <div style={{ padding: '18px 20px', borderBottom:'1px solid var(--border)' }}>
+                    <h3 style={{ margin: 0, fontSize: 15, color:'var(--navy)' }}>Most failed attempts by address (24h)</h3>
+                    <p style={{ margin: '4px 0 0', fontSize: 12, color:'var(--text-faint)' }}>
                       Includes attempts that never reached a real account.
                     </p>
                   </div>
@@ -1260,7 +1260,7 @@ if (activeTab === 'security-logins') { fetchLoginTrail(1); fetchLockPolicy(); }
                       <React.Fragment key={`${f.ip}-${i}`}>
                         <TD><span style={{ fontSize: 12, fontFamily: 'monospace' }}>{f.ip}</span></TD>
                         <TD><Badge text={String(f.failures)} color="#e74c3c" bg="#fdecea" /></TD>
-                        <TD><span style={{ fontSize: 12, color: '#777' }}>{fmt(f.lastAt)} {fmtTime(f.lastAt)}</span></TD>
+                        <TD><span style={{ fontSize: 12, color:'var(--text-faint)' }}>{fmt(f.lastAt)} {fmtTime(f.lastAt)}</span></TD>
                       </React.Fragment>
                     ))}
                     emptyMsg="No failed attempts recorded"
@@ -1272,18 +1272,18 @@ if (activeTab === 'security-logins') { fetchLoginTrail(1); fetchLockPolicy(); }
 
           {/* ╔══ MESSAGES ══╗ */}
           {activeTab === 'messages' && (
-            <div style={{ background: 'white', borderRadius: 16, boxShadow: '0 2px 12px rgba(0,0,0,.06)',
+            <div style={{ background:'var(--surface-card)', borderRadius: 16, boxShadow: '0 2px 12px rgba(0,0,0,.06)',
               overflow: 'hidden', height: 'calc(100vh - 150px)', display: 'flex', flexDirection: 'column' }}>
               {/* tabs */}
-              <div style={{ padding: '14px 20px', borderBottom: '1px solid #eee', display: 'flex', gap: 10, alignItems: 'center', flexWrap: 'wrap' }}>
+              <div style={{ padding: '14px 20px', borderBottom:'1px solid var(--border)', display: 'flex', gap: 10, alignItems: 'center', flexWrap: 'wrap' }}>
                 {['inbox', 'compose'].map(t => (
                   <button key={t} onClick={() => { setMsgTab(t); if (t === 'compose') { setSelectedUser(null); setMessages([]); } }}
                     style={{
                       padding: '7px 18px', borderRadius: 30, border: 'none', cursor: 'pointer', fontSize: 13, fontWeight: 600,
-                      background: msgTab === t ? '#1a3a5c' : '#f0f3f8', color: msgTab === t ? 'white' : '#666',
+                      background: msgTab === t ? '#1a3a5c' : '#f0f3f8', color: msgTab === t ? 'var(--on-solid)' : '#666',
                       transition: 'all .2s',
                     }}>
-                    {t === 'inbox' ? <><i className="fas fa-inbox" style={{ marginRight: 6 }} />Inbox{unread > 0 && <span style={{ marginLeft: 6, background: '#e74c3c', color: 'white', borderRadius: 20, fontSize: 10, padding: '1px 7px' }}>{unread}</span>}</> : <><i className="fas fa-pen" style={{ marginRight: 6 }} />New Message</>}
+                    {t === 'inbox' ? <><i className="fas fa-inbox" style={{ marginRight: 6 }} />Inbox{unread > 0 && <span style={{ marginLeft: 6, background: '#e74c3c', color:'var(--on-solid)', borderRadius: 20, fontSize: 10, padding: '1px 7px' }}>{unread}</span>}</> : <><i className="fas fa-pen" style={{ marginRight: 6 }} />New Message</>}
                   </button>
                 ))}
               </div>
@@ -1291,18 +1291,18 @@ if (activeTab === 'security-logins') { fetchLoginTrail(1); fetchLockPolicy(); }
               {msgTab === 'inbox' ? (
                 <div style={{ flex: 1, display: 'flex', overflow: 'hidden' }}>
                   {/* user list */}
-                  <div style={{ width: 280, borderRight: '1px solid #eee', display: 'flex', flexDirection: 'column', background: '#fafbff', flexShrink: 0, overflow: 'hidden' }}>
-                    <div style={{ padding: '12px 14px', borderBottom: '1px solid #eee' }}>
+                  <div style={{ width: 280, borderRight:'1px solid var(--border)', display: 'flex', flexDirection: 'column', background:'var(--surface-raised)', flexShrink: 0, overflow: 'hidden' }}>
+                    <div style={{ padding: '12px 14px', borderBottom:'1px solid var(--border)' }}>
                       <div style={{ position: 'relative' }}>
-                        <i className="fas fa-search" style={{ position: 'absolute', left: 10, top: '50%', transform: 'translateY(-50%)', color: '#ccc', fontSize: 12 }} />
+                        <i className="fas fa-search" style={{ position: 'absolute', left: 10, top: '50%', transform: 'translateY(-50%)', color:'var(--border-strong)', fontSize: 12 }} />
                         <input value={msgSearch} onChange={e => setMsgSearch(e.target.value)}
                           placeholder="Search users…" style={{ width: '100%', padding: '7px 10px 7px 30px',
-                          border: '1px solid #eee', borderRadius: 20, fontSize: 12, boxSizing: 'border-box',
-                          background: 'white', outline: 'none' }} />
+                          border:'1px solid var(--border)', borderRadius: 20, fontSize: 12, boxSizing: 'border-box',
+                          background:'var(--surface-card)', outline: 'none' }} />
                       </div>
                     </div>
                     <div style={{ flex: 1, overflowY: 'auto' }}>
-                      {filteredUsers.length === 0 && <div style={{ textAlign: 'center', padding: 30, color: '#ccc', fontSize: 13 }}>No users found</div>}
+                      {filteredUsers.length === 0 && <div style={{ textAlign: 'center', padding: 30, color:'var(--border-strong)', fontSize: 13 }}>No users found</div>}
                       {filteredUsers.map(u => (
                         <div key={u._id} onClick={() => { setSelectedUser(u); fetchConversation(u._id); }}
                           style={{
@@ -1313,7 +1313,7 @@ if (activeTab === 'security-logins') { fetchLoginTrail(1); fetchLockPolicy(); }
                           }}>
                           <Avatar name={u.fullName} size={36} img={u.profileImage} />
                           <div style={{ overflow: 'hidden' }}>
-                            <div style={{ fontSize: 13, fontWeight: 600, color: '#333', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{u.fullName}</div>
+                            <div style={{ fontSize: 13, fontWeight: 600, color:'var(--text-body)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{u.fullName}</div>
                             <div style={{ fontSize: 10, color: '#ffc107', fontWeight: 700, letterSpacing: .3 }}>{roleBadge(u.role).label}</div>
                           </div>
                         </div>
@@ -1325,16 +1325,16 @@ if (activeTab === 'security-logins') { fetchLoginTrail(1); fetchLockPolicy(); }
                   <div style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
                     {selectedUser ? (
                       <>
-                        <div style={{ padding: '14px 18px', borderBottom: '1px solid #eee', display: 'flex', alignItems: 'center', gap: 12, background: 'white' }}>
+                        <div style={{ padding: '14px 18px', borderBottom:'1px solid var(--border)', display: 'flex', alignItems: 'center', gap: 12, background:'var(--surface-card)' }}>
                           <Avatar name={selectedUser.fullName} size={40} img={selectedUser.profileImage} />
                           <div>
-                            <div style={{ fontWeight: 600, fontSize: 14, color: '#1a3a5c' }}>{selectedUser.fullName}</div>
+                            <div style={{ fontWeight: 600, fontSize: 14, color:'var(--navy)' }}>{selectedUser.fullName}</div>
                             <div style={{ fontSize: 11, color: '#ffc107', fontWeight: 700 }}>{roleBadge(selectedUser.role).label}</div>
                           </div>
                         </div>
-                        <div style={{ flex: 1, overflowY: 'auto', padding: 18, display: 'flex', flexDirection: 'column', gap: 12, background: '#f8f9ff' }}>
+                        <div style={{ flex: 1, overflowY: 'auto', padding: 18, display: 'flex', flexDirection: 'column', gap: 12, background:'var(--surface-raised)' }}>
                           {messages.length === 0 && (
-                            <div style={{ textAlign: 'center', color: '#ccc', paddingTop: 40 }}>
+                            <div style={{ textAlign: 'center', color:'var(--border-strong)', paddingTop: 40 }}>
                               <i className="fas fa-comments" style={{ fontSize: 32, marginBottom: 8, display: 'block' }} />
                               <div style={{ fontSize: 13 }}>Start a conversation with {selectedUser.fullName}</div>
                             </div>
@@ -1347,22 +1347,22 @@ if (activeTab === 'security-logins') { fetchLoginTrail(1); fetchLockPolicy(); }
                           ))}
                           <div ref={messagesEndRef} />
                         </div>
-                        <div style={{ padding: '12px 16px', borderTop: '1px solid #eee', display: 'flex', gap: 10, background: 'white', alignItems: 'flex-end' }}>
+                        <div style={{ padding: '12px 16px', borderTop:'1px solid var(--border)', display: 'flex', gap: 10, background:'var(--surface-card)', alignItems: 'flex-end' }}>
                           <textarea value={msgText} onChange={e => setMsgText(e.target.value)}
                             placeholder={`Message ${selectedUser.fullName}…`}
                             rows={2} onKeyDown={e => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMessage(); } }}
-                            style={{ flex: 1, padding: '10px 14px', border: '1.5px solid #e0e0e0', borderRadius: 12,
+                            style={{ flex: 1, padding: '10px 14px', border:'1.5px solid var(--surface-sunken-2)', borderRadius: 12,
                               resize: 'none', fontFamily: 'inherit', fontSize: 13, outline: 'none', boxSizing: 'border-box' }} />
                           <button onClick={sendMessage} disabled={!msgText.trim()}
                             style={{ width: 42, height: 42, background: msgText.trim() ? '#1a3a5c' : '#ddd',
                               border: 'none', borderRadius: '50%', cursor: msgText.trim() ? 'pointer' : 'default',
-                              color: 'white', fontSize: 16, transition: 'all .2s', flexShrink: 0 }}>
+                              color:'var(--on-solid)', fontSize: 16, transition: 'all .2s', flexShrink: 0 }}>
                             <i className="fas fa-paper-plane" />
                           </button>
                         </div>
                       </>
                     ) : (
-                      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', color: '#ccc', gap: 12 }}>
+                      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', color:'var(--border-strong)', gap: 12 }}>
                         <i className="fas fa-comments" style={{ fontSize: 48, opacity: .3 }} />
                         <div style={{ fontSize: 14 }}>Select a user to start messaging</div>
                       </div>
@@ -1372,7 +1372,7 @@ if (activeTab === 'security-logins') { fetchLoginTrail(1); fetchLockPolicy(); }
               ) : (
                 /* compose */
                 <div style={{ flex: 1, padding: 28, maxWidth: 600, margin: '0 auto', width: '100%', overflowY: 'auto' }}>
-                  <h3 style={{ margin: '0 0 20px', color: '#1a3a5c', fontFamily: "'Crimson Text', Georgia, serif" }}>New Message</h3>
+                  <h3 style={{ margin: '0 0 20px', color:'var(--navy)', fontFamily: "'Crimson Text', Georgia, serif" }}>New Message</h3>
                   <Field label="Recipient" required>
                     <Select value={selectedUser?._id || ''} onChange={e => {
                       const u = msgUsers.find(x => x._id === e.target.value);
@@ -1401,8 +1401,8 @@ if (activeTab === 'security-logins') { fetchLoginTrail(1); fetchLockPolicy(); }
           {activeTab === 'profile' && (
             <div style={{ maxWidth: 640, margin: '0 auto' }}>
               {/* header card */}
-              <div style={{ background: 'linear-gradient(135deg,#0d1f33,#1a3a5c)', borderRadius: 20, padding: '32px', textAlign: 'center',
-                marginBottom: 20, color: 'white', boxShadow: '0 6px 24px rgba(26,58,92,.35)' }}>
+              <div style={{ background:'linear-gradient(135deg,var(--navy-deep),var(--navy))', borderRadius: 20, padding: '32px', textAlign: 'center',
+                marginBottom: 20, color:'var(--on-solid)', boxShadow: '0 6px 24px rgba(26,58,92,.35)' }}>
                 <Avatar name={userName} size={80} bg='rgba(255,193,7,.2)' color='#ffc107' />
                 <h2 style={{ margin: '16px 0 4px', fontFamily: "'Crimson Text', Georgia, serif", fontSize: 24 }}>{userName}</h2>
                 <div style={{ fontSize: 12, opacity: .7, letterSpacing: 1 }}>SUPER ADMINISTRATOR</div>
@@ -1410,8 +1410,8 @@ if (activeTab === 'security-logins') { fetchLoginTrail(1); fetchLockPolicy(); }
               </div>
 
               {/* edit profile */}
-              <div style={{ background: 'white', borderRadius: 16, padding: '24px', marginBottom: 16, boxShadow: '0 2px 10px rgba(0,0,0,.06)' }}>
-                <h3 style={{ margin: '0 0 18px', fontSize: 16, color: '#1a3a5c', fontFamily: "'Crimson Text', Georgia, serif",
+              <div style={{ background:'var(--surface-card)', borderRadius: 16, padding: '24px', marginBottom: 16, boxShadow: '0 2px 10px rgba(0,0,0,.06)' }}>
+                <h3 style={{ margin: '0 0 18px', fontSize: 16, color:'var(--navy)', fontFamily: "'Crimson Text', Georgia, serif",
                   display: 'flex', alignItems: 'center', gap: 8 }}>
                   <i className="fas fa-user-edit" style={{ color: '#ffc107' }} /> Edit Profile
                 </h3>
@@ -1429,8 +1429,8 @@ if (activeTab === 'security-logins') { fetchLoginTrail(1); fetchLockPolicy(); }
               </div>
 
               {/* change password */}
-              <div style={{ background: 'white', borderRadius: 16, padding: '24px', boxShadow: '0 2px 10px rgba(0,0,0,.06)' }}>
-                <h3 style={{ margin: '0 0 18px', fontSize: 16, color: '#1a3a5c', fontFamily: "'Crimson Text', Georgia, serif",
+              <div style={{ background:'var(--surface-card)', borderRadius: 16, padding: '24px', boxShadow: '0 2px 10px rgba(0,0,0,.06)' }}>
+                <h3 style={{ margin: '0 0 18px', fontSize: 16, color:'var(--navy)', fontFamily: "'Crimson Text', Georgia, serif",
                   display: 'flex', alignItems: 'center', gap: 8 }}>
                   <i className="fas fa-lock" style={{ color: '#ffc107' }} /> Change Password
                 </h3>

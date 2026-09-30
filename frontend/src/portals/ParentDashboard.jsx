@@ -18,15 +18,15 @@ const fmtTime = (d) => d ? new Date(d).toLocaleTimeString('en-RW', { hour: '2-di
 
 const roleBadge = (role) => {
   const map = {
-    super_admin: { label: 'Super Admin', color: '#ffc107', bg: '#fff8e1' },
-    academic_admin: { label: 'Academic Admin', color: '#27ae60', bg: '#e8f5e9' },
-    discipline_admin: { label: 'Discipline Admin', color: '#e74c3c', bg: '#fdecea' },
-    accounts_admin: { label: 'Accounts Admin', color: '#3498db', bg: '#e3f2fd' },
-    teacher: { label: 'Teacher', color: '#9b59b6', bg: '#f3e5f5' },
-    student: { label: 'Student', color: '#1abc9c', bg: '#e0f7fa' },
-    parent: { label: 'Parent', color: '#e67e22', bg: '#fff3e0' },
+    super_admin: { label: 'Super Admin', color: '#ffc107', bg:'var(--tint-amber)' },
+    academic_admin: { label: 'Academic Admin', color: '#27ae60', bg:'var(--tint-success)' },
+    discipline_admin: { label: 'Discipline Admin', color: '#e74c3c', bg:'var(--tint-danger)' },
+    accounts_admin: { label: 'Accounts Admin', color: '#3498db', bg:'var(--tint-primary)' },
+    teacher: { label: 'Teacher', color: '#9b59b6', bg:'var(--tint-purple)' },
+    student: { label: 'Student', color: '#1abc9c', bg:'var(--tint-info)' },
+    parent: { label: 'Parent', color: '#e67e22', bg:'var(--tint-warning)' },
   };
-  return map[role] || { label: role || '—', color: '#666', bg: '#f0f0f0' };
+  return map[role] || { label: role || '—', color:'var(--text-secondary)', bg:'var(--surface-page)' };
 };
 
 // ─── shared UI atoms ────────────────────────────────────────────────────────
@@ -48,10 +48,10 @@ const Modal = ({ open, onClose, title, children, width = 520 }) => {
   return (
     <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,.5)', zIndex: 2000, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 16 }}
       onClick={e => e.target === e.currentTarget && onClose()}>
-      <div style={{ background: 'white', borderRadius: 16, width: '100%', maxWidth: width, maxHeight: '90vh', overflow: 'auto', boxShadow: '0 24px 80px rgba(0,0,0,.25)' }}>
-        <div style={{ padding: '18px 22px', borderBottom: '1px solid #eee', display: 'flex', justifyContent: 'space-between', alignItems: 'center', position: 'sticky', top: 0, background: 'white', zIndex: 1, borderRadius: '16px 16px 0 0' }}>
-          <h3 style={{ margin: 0, fontSize: 16, color: '#1a3a5c', fontFamily: 'Georgia, serif' }}>{title}</h3>
-          <button onClick={onClose} style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: 22, color: '#999', lineHeight: 1 }}>×</button>
+      <div style={{ background:'var(--surface-card)', borderRadius: 16, width: '100%', maxWidth: width, maxHeight: '90vh', overflow: 'auto', boxShadow: '0 24px 80px rgba(0,0,0,.25)' }}>
+        <div style={{ padding: '18px 22px', borderBottom:'1px solid var(--border)', display: 'flex', justifyContent: 'space-between', alignItems: 'center', position: 'sticky', top: 0, background:'var(--surface-card)', zIndex: 1, borderRadius: '16px 16px 0 0' }}>
+          <h3 style={{ margin: 0, fontSize: 16, color:'var(--navy)', fontFamily: 'Georgia, serif' }}>{title}</h3>
+          <button onClick={onClose} style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: 22, color:'var(--text-faint)', lineHeight: 1 }}>×</button>
         </div>
         <div style={{ padding: '20px 22px' }}>{children}</div>
       </div>
@@ -61,21 +61,21 @@ const Modal = ({ open, onClose, title, children, width = 520 }) => {
 
 const Field = ({ label, children, required }) => (
   <div style={{ marginBottom: 14 }}>
-    <label style={{ display: 'block', fontSize: 11, fontWeight: 700, color: '#666', marginBottom: 5, letterSpacing: 0.5 }}>
+    <label style={{ display: 'block', fontSize: 11, fontWeight: 700, color:'var(--text-secondary)', marginBottom: 5, letterSpacing: 0.5 }}>
       {label?.toUpperCase()}{required && <span style={{ color: '#e74c3c' }}> *</span>}
     </label>
     {children}
   </div>
 );
 
-const inputStyle = { width: '100%', padding: '9px 12px', border: '1.5px solid #e0e0e0', borderRadius: 8, fontSize: 14, fontFamily: 'inherit', outline: 'none', boxSizing: 'border-box', transition: 'border-color .2s' };
+const inputStyle = { width: '100%', padding: '9px 12px', border:'1.5px solid var(--surface-sunken-2)', borderRadius: 8, fontSize: 14, fontFamily: 'inherit', outline: 'none', boxSizing: 'border-box', transition: 'border-color .2s' };
 const Inp = (props) => <input {...props} style={{ ...inputStyle, ...props.style }}
   onFocus={e => e.target.style.borderColor = '#1a3a5c'} onBlur={e => e.target.style.borderColor = '#e0e0e0'} />;
-const Sel = ({ children, ...props }) => <select {...props} style={{ ...inputStyle, background: 'white', ...props.style }}>{children}</select>;
+const Sel = ({ children, ...props }) => <select {...props} style={{ ...inputStyle, background:'var(--surface-card)', ...props.style }}>{children}</select>;
 const Txt = (props) => <textarea {...props} style={{ ...inputStyle, resize: 'vertical', minHeight: 80, ...props.style }}
   onFocus={e => e.target.style.borderColor = '#1a3a5c'} onBlur={e => e.target.style.borderColor = '#e0e0e0'} />;
 
-const Btn = ({ children, onClick, icon, color = '#1a3a5c', textColor = 'white', small, danger, disabled, style: s }) => {
+const Btn = ({ children, onClick, icon, color = '#1a3a5c', textColor = 'var(--on-solid)', small, danger, disabled, style: s }) => {
   const bg = danger ? '#e74c3c' : disabled ? '#ccc' : color;
   return (
     <button onClick={onClick} disabled={disabled} style={{ background: bg, color: textColor, border: 'none', borderRadius: 8, padding: small ? '6px 13px' : '9px 18px', fontSize: small ? 12 : 13, fontWeight: 600, cursor: disabled ? 'not-allowed' : 'pointer', display: 'inline-flex', alignItems: 'center', gap: 6, transition: 'filter .2s, transform .2s', whiteSpace: 'nowrap', ...s }}
@@ -87,37 +87,37 @@ const Btn = ({ children, onClick, icon, color = '#1a3a5c', textColor = 'white', 
 };
 
 const StatCard = ({ icon, label, value, sub, accent = '#27ae60', bg = '#e8f5e9', onClick }) => (
-  <div onClick={onClick} style={{ background: 'white', borderRadius: 16, padding: '18px 20px', display: 'flex', alignItems: 'center', gap: 14, boxShadow: '0 2px 12px rgba(0,0,0,.06)', cursor: onClick ? 'pointer' : 'default', transition: 'transform .2s, box-shadow .2s', border: '1px solid #f0f0f0' }}
+  <div onClick={onClick} style={{ background:'var(--surface-card)', borderRadius: 16, padding: '18px 20px', display: 'flex', alignItems: 'center', gap: 14, boxShadow: '0 2px 12px rgba(0,0,0,.06)', cursor: onClick ? 'pointer' : 'default', transition: 'transform .2s, box-shadow .2s', border:'1px solid var(--surface-page)' }}
     onMouseEnter={e => { if (onClick) { e.currentTarget.style.transform = 'translateY(-3px)'; e.currentTarget.style.boxShadow = '0 10px 28px rgba(0,0,0,.12)'; } }}
     onMouseLeave={e => { e.currentTarget.style.transform = ''; e.currentTarget.style.boxShadow = '0 2px 12px rgba(0,0,0,.06)'; }}>
     <div style={{ width: 50, height: 50, borderRadius: 14, background: bg, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
       <i className={icon} style={{ fontSize: 20, color: accent }} />
     </div>
     <div>
-      <div style={{ fontSize: 24, fontWeight: 700, color: '#1a3a5c', lineHeight: 1, fontFamily: 'Georgia, serif' }}>{value ?? '—'}</div>
-      <div style={{ fontSize: 12, color: '#888', marginTop: 3 }}>{label}</div>
+      <div style={{ fontSize: 24, fontWeight: 700, color:'var(--navy)', lineHeight: 1, fontFamily: 'Georgia, serif' }}>{value ?? '—'}</div>
+      <div style={{ fontSize: 12, color:'var(--text-faint)', marginTop: 3 }}>{label}</div>
       {sub && <div style={{ fontSize: 11, color: accent, marginTop: 3, fontWeight: 600 }}>{sub}</div>}
     </div>
   </div>
 );
 
 const Table = ({ cols, rows, emptyMsg = 'No data found' }) => (
-  <div style={{ overflowX: 'auto', borderRadius: 10, border: '1px solid #f0f0f0' }}>
+  <div style={{ overflowX: 'auto', borderRadius: 10, border:'1px solid var(--surface-page)' }}>
     <table style={{ width: '100%', borderCollapse: 'collapse', minWidth: 500 }}>
       <thead>
-        <tr style={{ background: '#f7f9fb' }}>
-          {cols.map((c, i) => <th key={i} style={{ padding: '10px 14px', textAlign: 'left', fontSize: 11, fontWeight: 700, color: '#888', letterSpacing: .8, borderBottom: '1px solid #eee', whiteSpace: 'nowrap' }}>{c.toUpperCase()}</th>)}
+        <tr style={{ background:'var(--surface-muted)' }}>
+          {cols.map((c, i) => <th key={i} style={{ padding: '10px 14px', textAlign: 'left', fontSize: 11, fontWeight: 700, color:'var(--text-faint)', letterSpacing: .8, borderBottom:'1px solid var(--border)', whiteSpace: 'nowrap' }}>{c.toUpperCase()}</th>)}
         </tr>
       </thead>
       <tbody>
         {rows.length === 0
-          ? <tr><td colSpan={cols.length} style={{ textAlign: 'center', padding: 36, color: '#bbb', fontSize: 13 }}>{emptyMsg}</td></tr>
-          : rows.map((row, i) => <tr key={i} style={{ borderBottom: '1px solid #f5f5f5' }} onMouseEnter={e => e.currentTarget.style.background = '#fafbff'} onMouseLeave={e => e.currentTarget.style.background = ''}>{row}</tr>)}
+          ? <tr><td colSpan={cols.length} style={{ textAlign: 'center', padding: 36, color:'var(--text-faint-2)', fontSize: 13 }}>{emptyMsg}</td></tr>
+          : rows.map((row, i) => <tr key={i} style={{ borderBottom:'1px solid var(--surface-muted)' }} onMouseEnter={e => e.currentTarget.style.background = '#fafbff'} onMouseLeave={e => e.currentTarget.style.background = ''}>{row}</tr>)}
       </tbody>
     </table>
   </div>
 );
-const TD = ({ children, style }) => <td style={{ padding: '10px 14px', fontSize: 13, color: '#333', ...style }}>{children}</td>;
+const TD = ({ children, style }) => <td style={{ padding: '10px 14px', fontSize: 13, color:'var(--text-body)', ...style }}>{children}</td>;
 
 // ═══════════════════════════════════════════════════════════════════
 const ParentDashboard = () => {
@@ -413,7 +413,7 @@ const ParentDashboard = () => {
   const sideW = isMobile ? 0 : sidebarOpen ? 260 : 72;
 
   if (loading) return (
-    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', height: '100vh', background: 'linear-gradient(135deg,#0d2b42,#1a3a5c)', color: 'white', gap: 20 }}>
+    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', height: '100vh', background:'linear-gradient(135deg,var(--navy-deep),var(--navy))', color:'var(--on-solid)', gap: 20 }}>
       <div style={{ width: 44, height: 44, border: '3px solid rgba(255,255,255,.15)', borderTopColor: '#ffc107', borderRadius: '50%', animation: 'spin .8s linear infinite' }} />
       <p style={{ margin: 0, fontSize: 16 }}>Loading Dashboard…</p>
       <style>{`@keyframes spin{to{transform:rotate(360deg)}}`}</style>
@@ -421,7 +421,7 @@ const ParentDashboard = () => {
   );
 
   return (
-    <div style={{ display: 'flex', minHeight: '100vh', background: '#f0f3f8', fontFamily: "'DM Sans', -apple-system, sans-serif" }}>
+    <div style={{ display: 'flex', minHeight: '100vh', background:'var(--surface-navy-tint)', fontFamily: "'DM Sans', -apple-system, sans-serif" }}>
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&display=swap');
         @keyframes spin{to{transform:rotate(360deg)}}
@@ -434,10 +434,10 @@ const ParentDashboard = () => {
       {isMobile && mobileOpen && <div onClick={() => setMobileOpen(false)} style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,.45)', zIndex: 998 }} />}
 
       {/* ─── SIDEBAR ─── */}
-      <aside style={{ position: 'fixed', top: 0, left: 0, bottom: 0, zIndex: 999, width: isMobile ? (mobileOpen ? 260 : 0) : sideW, background: 'linear-gradient(180deg,#0d1f33 0%,#1a3a5c 100%)', color: 'white', display: 'flex', flexDirection: 'column', transition: 'width .3s ease', overflow: 'hidden', boxShadow: '3px 0 20px rgba(0,0,0,.18)' }}>
+      <aside style={{ position: 'fixed', top: 0, left: 0, bottom: 0, zIndex: 999, width: isMobile ? (mobileOpen ? 260 : 0) : sideW, background:'linear-gradient(180deg,var(--navy-deep) 0%,var(--navy) 100%)', color:'var(--on-solid)', display: 'flex', flexDirection: 'column', transition: 'width .3s ease', overflow: 'hidden', boxShadow: '3px 0 20px rgba(0,0,0,.18)' }}>
         <div style={{ padding: '20px 16px', borderBottom: '1px solid rgba(255,255,255,.08)', display: 'flex', alignItems: 'center', gap: 11, flexShrink: 0 }}>
           <div style={{ width: 38, height: 38, background: '#ffc107', borderRadius: 11, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-            <i className="fas fa-users" style={{ fontSize: 16, color: '#1a3a5c' }} />
+            <i className="fas fa-users" style={{ fontSize: 16, color:'var(--navy)' }} />
           </div>
           {(sidebarOpen || isMobile) && <div><div style={{ fontFamily: 'Georgia, serif', fontSize: 15, fontWeight: 600 }}>ESSA Portal</div><div style={{ fontSize: 10, opacity: .6, letterSpacing: 1 }}>PARENT</div></div>}
           {!isMobile && <button onClick={() => setSidebarOpen(!sidebarOpen)} style={{ marginLeft: 'auto', background: 'none', border: 'none', color: 'rgba(255,255,255,.4)', cursor: 'pointer', fontSize: 13, flexShrink: 0 }}><i className={`fas fa-chevron-${sidebarOpen ? 'left' : 'right'}`} /></button>}
@@ -450,25 +450,25 @@ const ParentDashboard = () => {
 
         {/* Child selector */}
         <div style={{ padding: '12px 12px', borderBottom: '1px solid rgba(255,255,255,.08)', position: 'relative', flexShrink: 0 }}>
-          <button onClick={() => setShowChildSelector(!showChildSelector)} style={{ display: 'flex', alignItems: 'center', gap: 10, width: '100%', padding: '9px 12px', background: 'rgba(255,255,255,.08)', border: 'none', borderRadius: 8, color: 'white', cursor: 'pointer', fontSize: 12 }}>
+          <button onClick={() => setShowChildSelector(!showChildSelector)} style={{ display: 'flex', alignItems: 'center', gap: 10, width: '100%', padding: '9px 12px', background: 'rgba(255,255,255,.08)', border: 'none', borderRadius: 8, color:'var(--on-solid)', cursor: 'pointer', fontSize: 12 }}>
             <i className="fas fa-child" style={{ fontSize: 13 }} />
             {(sidebarOpen || isMobile) && <span style={{ flex: 1, textAlign: 'left', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{childName}</span>}
             {(sidebarOpen || isMobile) && <i className="fas fa-chevron-down" style={{ fontSize: 10, opacity: .6 }} />}
           </button>
           {showChildSelector && (
-            <div style={{ position: 'absolute', top: '100%', left: 12, right: 12, background: 'white', borderRadius: 10, color: '#333', zIndex: 100, boxShadow: '0 8px 24px rgba(0,0,0,.25)', overflow: 'hidden' }}>
+            <div style={{ position: 'absolute', top: '100%', left: 12, right: 12, background:'var(--surface-card)', borderRadius: 10, color:'var(--text-body)', zIndex: 100, boxShadow: '0 8px 24px rgba(0,0,0,.25)', overflow: 'hidden' }}>
               {children.length === 0 && (
-                <div style={{ padding: 12, fontSize: 12, color: '#888', display: 'flex', alignItems: 'center', gap: 8 }}>
+                <div style={{ padding: 12, fontSize: 12, color:'var(--text-faint)', display: 'flex', alignItems: 'center', gap: 8 }}>
                   <i className="fas fa-info-circle" /> No children linked
                 </div>
               )}
               {children.map(child => (
                 <div key={child._id} onClick={() => handleChildChange(child)}
-                  style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '11px 12px', cursor: 'pointer', borderBottom: '1px solid #f0f0f0', background: selectedChild?._id === child._id ? '#e8f0fe' : 'white' }}>
+                  style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '11px 12px', cursor: 'pointer', borderBottom:'1px solid var(--surface-page)', background: selectedChild?._id === child._id ? '#e8f0fe' : 'var(--surface-card)' }}>
                   <Avatar name={child.name || child.fullName} size={30} />
                   <div style={{ flex: 1, minWidth: 0 }}>
                     <div style={{ fontSize: 12, fontWeight: 600 }}>{child.name || child.fullName}</div>
-                    <div style={{ fontSize: 10, color: '#888' }}>{child.className || ''} {child.section ? `· ${child.section}` : ''}</div>
+                    <div style={{ fontSize: 10, color:'var(--text-faint)' }}>{child.className || ''} {child.section ? `· ${child.section}` : ''}</div>
                   </div>
                   {selectedChild?._id === child._id && <i className="fas fa-check-circle" style={{ color: '#27ae60', fontSize: 13 }} />}
                 </div>
@@ -488,7 +488,7 @@ const ParentDashboard = () => {
 
         <div style={{ padding: 12, borderTop: '1px solid rgba(255,255,255,.08)', flexShrink: 0 }}>
           <button onClick={() => { localStorage.clear(); navigate('/portal/login'); }}
-            style={{ display: 'flex', alignItems: 'center', gap: 10, width: '100%', padding: '9px 12px', background: 'rgba(231,76,60,.2)', border: '1px solid rgba(231,76,60,.3)', borderRadius: 9, color: '#ff8a80', cursor: 'pointer', fontSize: 13 }}>
+            style={{ display: 'flex', alignItems: 'center', gap: 10, width: '100%', padding: '9px 12px', background: 'rgba(231,76,60,.2)', border: '1px solid rgba(231,76,60,.3)', borderRadius: 9, color:'var(--tint-danger-line)', cursor: 'pointer', fontSize: 13 }}>
             <i className="fas fa-sign-out-alt" style={{ fontSize: 13 }} />{(sidebarOpen || isMobile) && 'Logout'}
           </button>
         </div>
@@ -497,23 +497,23 @@ const ParentDashboard = () => {
       {/* ─── MAIN ─── */}
       <main style={{ flex: 1, marginLeft: isMobile ? 0 : sideW, transition: 'margin-left .3s', minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
         {/* Top bar */}
-        <div style={{ background: 'white', padding: '11px 22px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid #eee', position: 'sticky', top: 0, zIndex: 100, boxShadow: '0 1px 8px rgba(0,0,0,.05)' }}>
+        <div style={{ background:'var(--surface-card)', padding: '11px 22px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom:'1px solid var(--border)', position: 'sticky', top: 0, zIndex: 100, boxShadow: '0 1px 8px rgba(0,0,0,.05)' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-            {isMobile && <button onClick={() => setMobileOpen(!mobileOpen)} style={{ background: '#1a3a5c', color: 'white', border: 'none', padding: '7px 10px', borderRadius: 8, cursor: 'pointer' }}><i className="fas fa-bars" /></button>}
+            {isMobile && <button onClick={() => setMobileOpen(!mobileOpen)} style={{ background:'var(--navy)', color:'var(--on-solid)', border: 'none', padding: '7px 10px', borderRadius: 8, cursor: 'pointer' }}><i className="fas fa-bars" /></button>}
             <div>
-              <div style={{ fontSize: 10, color: '#aaa', letterSpacing: .5 }}>ESSA NYARUGUNGA</div>
-              <div style={{ fontSize: 15, fontWeight: 600, color: '#1a3a5c', fontFamily: 'Georgia, serif' }}>{menuItems.find(m => m.id === activeTab)?.label || 'Dashboard'}</div>
+              <div style={{ fontSize: 10, color:'var(--text-faint)', letterSpacing: .5 }}>ESSA NYARUGUNGA</div>
+              <div style={{ fontSize: 15, fontWeight: 600, color:'var(--navy)', fontFamily: 'Georgia, serif' }}>{menuItems.find(m => m.id === activeTab)?.label || 'Dashboard'}</div>
             </div>
           </div>
           <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
             <ThemeToggle color="#1a3a5c" border="#e5e7eb" />
-            {unread > 0 && <button onClick={() => setActiveTab('messages')} style={{ position: 'relative', background: 'none', border: 'none', cursor: 'pointer', color: '#888', fontSize: 17 }}>
+            {unread > 0 && <button onClick={() => setActiveTab('messages')} style={{ position: 'relative', background: 'none', border: 'none', cursor: 'pointer', color:'var(--text-faint)', fontSize: 17 }}>
               <i className="fas fa-bell" />
-              <span style={{ position: 'absolute', top: -4, right: -4, background: '#e74c3c', color: 'white', borderRadius: '50%', fontSize: 9, width: 15, height: 15, display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 700 }}>{unread}</span>
+              <span style={{ position: 'absolute', top: -4, right: -4, background: '#e74c3c', color:'var(--on-solid)', borderRadius: '50%', fontSize: 9, width: 15, height: 15, display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 700 }}>{unread}</span>
             </button>}
             <Avatar name={userName} size={32} />
             <div className="hide-mobile">
-              <div style={{ fontSize: 12, fontWeight: 600, color: '#333' }}>{userName}</div>
+              <div style={{ fontSize: 12, fontWeight: 600, color:'var(--text-body)' }}>{userName}</div>
               <div style={{ fontSize: 10, color: '#ffc107' }}>PARENT</div>
             </div>
           </div>
@@ -525,23 +525,23 @@ const ParentDashboard = () => {
           {/* ══ OVERVIEW ══ */}
           {activeTab === 'overview' && (
             <div>
-              <div style={{ background: 'linear-gradient(135deg,#0d1f33,#1a3a5c)', borderRadius: 18, padding: '24px 28px', marginBottom: 22, color: 'white', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 14, boxShadow: '0 6px 24px rgba(26,58,92,.35)' }}>
+              <div style={{ background:'linear-gradient(135deg,var(--navy-deep),var(--navy))', borderRadius: 18, padding: '24px 28px', marginBottom: 22, color:'var(--on-solid)', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 14, boxShadow: '0 6px 24px rgba(26,58,92,.35)' }}>
                 <div>
                   <div style={{ fontSize: 20, fontWeight: 600, fontFamily: 'Georgia, serif', marginBottom: 5 }}>Welcome, {userName.split(' ')[0]}! 👪</div>
                   <div style={{ fontSize: 12, opacity: .75 }}>{new Date().toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}</div>
                 </div>
                 <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap' }}>
                   <Btn onClick={handleRequestPermission} icon="fas fa-file-alt" color="#ffc107" textColor="#1a3a5c">Request Permission</Btn>
-                  <Btn onClick={() => setActiveTab('fees')} icon="fas fa-credit-card" color="rgba(255,255,255,.15)" textColor="white">Pay Fees</Btn>
+                  <Btn onClick={() => setActiveTab('fees')} icon="fas fa-credit-card" color="rgba(255,255,255,.15)" textColor="var(--on-solid)">Pay Fees</Btn>
                 </div>
               </div>
 
               {selectedChild && (
-                <div style={{ background: 'white', borderRadius: 16, padding: '16px 20px', marginBottom: 20, display: 'flex', alignItems: 'center', gap: 14, boxShadow: '0 2px 12px rgba(0,0,0,.06)', border: '1px solid #f0f0f0', flexWrap: 'wrap' }}>
+                <div style={{ background:'var(--surface-card)', borderRadius: 16, padding: '16px 20px', marginBottom: 20, display: 'flex', alignItems: 'center', gap: 14, boxShadow: '0 2px 12px rgba(0,0,0,.06)', border:'1px solid var(--surface-page)', flexWrap: 'wrap' }}>
                   <Avatar name={childName} size={52} bg="#1a3a5c" color="#ffc107" />
                   <div style={{ flex: 1, minWidth: 200 }}>
-                    <div style={{ fontSize: 16, fontWeight: 700, color: '#1a3a5c', fontFamily: 'Georgia, serif' }}>{childName}</div>
-                    <div style={{ fontSize: 12, color: '#888', marginTop: 2 }}>
+                    <div style={{ fontSize: 16, fontWeight: 700, color:'var(--navy)', fontFamily: 'Georgia, serif' }}>{childName}</div>
+                    <div style={{ fontSize: 12, color:'var(--text-faint)', marginTop: 2 }}>
                       Class: <strong>{selectedChild.className || '—'}</strong>
                       {' · '}Section: <strong>{selectedChild.section || '—'}</strong>
                       {' · '}Roll No: <strong>{selectedChild.rollNo || '—'}</strong>
@@ -568,35 +568,35 @@ const ParentDashboard = () => {
               </div>
 
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(340px,1fr))', gap: 18 }}>
-                <div style={{ background: 'white', borderRadius: 14, padding: 18, boxShadow: '0 2px 10px rgba(0,0,0,.05)' }}>
-                  <h3 style={{ margin: '0 0 14px', fontSize: 14, color: '#1a3a5c', fontWeight: 600 }}><i className="fas fa-bullhorn" style={{ marginRight: 7, color: '#f39c12' }} />Recent Announcements</h3>
+                <div style={{ background:'var(--surface-card)', borderRadius: 14, padding: 18, boxShadow: '0 2px 10px rgba(0,0,0,.05)' }}>
+                  <h3 style={{ margin: '0 0 14px', fontSize: 14, color:'var(--navy)', fontWeight: 600 }}><i className="fas fa-bullhorn" style={{ marginRight: 7, color: '#f39c12' }} />Recent Announcements</h3>
                   {announcementsList.length === 0 ? (
-                    <p style={{ textAlign: 'center', color: '#bbb', fontSize: 13, padding: 20 }}>No announcements yet</p>
+                    <p style={{ textAlign: 'center', color:'var(--text-faint-2)', fontSize: 13, padding: 20 }}>No announcements yet</p>
                   ) : announcementsList.slice(0, 3).map(ann => {
                     const pc = ann.priority === 'urgent' ? '#e74c3c' : ann.priority === 'high' ? '#f39c12' : '#27ae60';
                     return (
-                      <div key={ann._id} style={{ padding: '10px 12px', borderRadius: 8, marginBottom: 8, background: '#f8f9fa', borderLeft: `3px solid ${pc}` }}>
-                        <div style={{ fontSize: 13, fontWeight: 600, color: '#1a3a5c' }}>{ann.title}</div>
-                        <div style={{ fontSize: 11, color: '#666', marginTop: 3, lineHeight: 1.5 }}>{ann.content}</div>
-                        <div style={{ fontSize: 10, color: '#aaa', marginTop: 4 }}>{fmt(ann.createdAt)}</div>
+                      <div key={ann._id} style={{ padding: '10px 12px', borderRadius: 8, marginBottom: 8, background:'var(--surface-muted)', borderLeft: `3px solid ${pc}` }}>
+                        <div style={{ fontSize: 13, fontWeight: 600, color:'var(--navy)' }}>{ann.title}</div>
+                        <div style={{ fontSize: 11, color:'var(--text-secondary)', marginTop: 3, lineHeight: 1.5 }}>{ann.content}</div>
+                        <div style={{ fontSize: 10, color:'var(--text-faint)', marginTop: 4 }}>{fmt(ann.createdAt)}</div>
                       </div>
                     );
                   })}
                 </div>
 
-                <div style={{ background: 'white', borderRadius: 14, padding: 18, boxShadow: '0 2px 10px rgba(0,0,0,.05)' }}>
-                  <h3 style={{ margin: '0 0 14px', fontSize: 14, color: '#1a3a5c', fontWeight: 600 }}><i className="fas fa-calendar-alt" style={{ marginRight: 7, color: '#3498db' }} />Upcoming Events</h3>
+                <div style={{ background:'var(--surface-card)', borderRadius: 14, padding: 18, boxShadow: '0 2px 10px rgba(0,0,0,.05)' }}>
+                  <h3 style={{ margin: '0 0 14px', fontSize: 14, color:'var(--navy)', fontWeight: 600 }}><i className="fas fa-calendar-alt" style={{ marginRight: 7, color: '#3498db' }} />Upcoming Events</h3>
                   {eventsList.length === 0 ? (
-                    <p style={{ textAlign: 'center', color: '#bbb', fontSize: 13, padding: 20 }}>No upcoming events</p>
+                    <p style={{ textAlign: 'center', color:'var(--text-faint-2)', fontSize: 13, padding: 20 }}>No upcoming events</p>
                   ) : eventsList.slice(0, 3).map(event => (
-                    <div key={event._id} style={{ display: 'flex', gap: 12, padding: '10px 0', borderBottom: '1px solid #f5f5f5' }}>
-                      <div style={{ textAlign: 'center', background: '#1a3a5c', color: 'white', padding: '8px 10px', borderRadius: 8, minWidth: 50, flexShrink: 0 }}>
+                    <div key={event._id} style={{ display: 'flex', gap: 12, padding: '10px 0', borderBottom:'1px solid var(--surface-muted)' }}>
+                      <div style={{ textAlign: 'center', background:'var(--navy)', color:'var(--on-solid)', padding: '8px 10px', borderRadius: 8, minWidth: 50, flexShrink: 0 }}>
                         <div style={{ fontSize: 16, fontWeight: 700, lineHeight: 1 }}>{new Date(event.date).getDate()}</div>
                         <div style={{ fontSize: 9, opacity: .8, letterSpacing: .5 }}>{new Date(event.date).toLocaleString('default', { month: 'short' }).toUpperCase()}</div>
                       </div>
                       <div style={{ minWidth: 0, flex: 1 }}>
                         <div style={{ fontSize: 13, fontWeight: 600 }}>{event.title}</div>
-                        <div style={{ fontSize: 11, color: '#888', marginTop: 2, overflow: 'hidden', textOverflow: 'ellipsis' }}>{event.description}</div>
+                        <div style={{ fontSize: 11, color:'var(--text-faint)', marginTop: 2, overflow: 'hidden', textOverflow: 'ellipsis' }}>{event.description}</div>
                       </div>
                     </div>
                   ))}
@@ -609,10 +609,10 @@ const ParentDashboard = () => {
           {activeTab === 'academic' && (
             <div>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 18, flexWrap: 'wrap', gap: 10 }}>
-                <div><h2 style={{ margin: 0, fontSize: 19, color: '#1a3a5c', fontFamily: 'Georgia, serif' }}>Academic Performance</h2><p style={{ margin: '3px 0 0', fontSize: 12, color: '#888' }}>{childName} · {gradesList.length} records</p></div>
+                <div><h2 style={{ margin: 0, fontSize: 19, color:'var(--navy)', fontFamily: 'Georgia, serif' }}>Academic Performance</h2><p style={{ margin: '3px 0 0', fontSize: 12, color:'var(--text-faint)' }}>{childName} · {gradesList.length} records</p></div>
                 <Badge text={`Average ${avgGrade}%`} color="#27ae60" bg="#e8f5e9" size={12} />
               </div>
-              <div style={{ background: 'white', borderRadius: 14, boxShadow: '0 2px 10px rgba(0,0,0,.05)' }}>
+              <div style={{ background:'var(--surface-card)', borderRadius: 14, boxShadow: '0 2px 10px rgba(0,0,0,.05)' }}>
                 <Table cols={['Subject', 'Assignment/Exam', 'Score', 'Grade', 'Term', 'Teacher Comment']} emptyMsg="No grades available"
                   rows={gradesList.map(grade => (
                     <React.Fragment key={grade._id}>
@@ -621,7 +621,7 @@ const ParentDashboard = () => {
                       <TD><span style={{ fontWeight: 700, color: grade.score >= 80 ? '#27ae60' : grade.score >= 60 ? '#f39c12' : '#e74c3c' }}>{grade.score}%</span></TD>
                       <TD><Badge text={grade.grade || '—'} color="#1a3a5c" bg="#e8f0fb" /></TD>
                       <TD style={{ fontSize: 12 }}>{grade.term}</TD>
-                      <TD style={{ fontSize: 12, color: '#666' }}>{grade.feedback || '—'}</TD>
+                      <TD style={{ fontSize: 12, color:'var(--text-secondary)' }}>{grade.feedback || '—'}</TD>
                     </React.Fragment>
                   ))}
                 />
@@ -633,7 +633,7 @@ const ParentDashboard = () => {
           {activeTab === 'attendance' && (
             <div>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 18, flexWrap: 'wrap', gap: 10 }}>
-                <div><h2 style={{ margin: 0, fontSize: 19, color: '#1a3a5c', fontFamily: 'Georgia, serif' }}>Attendance Records</h2><p style={{ margin: '3px 0 0', fontSize: 12, color: '#888' }}>{childName} · {attendanceList.length} days</p></div>
+                <div><h2 style={{ margin: 0, fontSize: 19, color:'var(--navy)', fontFamily: 'Georgia, serif' }}>Attendance Records</h2><p style={{ margin: '3px 0 0', fontSize: 12, color:'var(--text-faint)' }}>{childName} · {attendanceList.length} days</p></div>
                 <Badge text={`${attendanceRate}% Overall`} color="#27ae60" bg="#e8f5e9" size={12} />
               </div>
               <div className="stats-g" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(150px,1fr))', gap: 14, marginBottom: 18 }}>
@@ -642,14 +642,14 @@ const ParentDashboard = () => {
                 <StatCard icon="fas fa-clock" label="Late" value={attendanceList.filter(a => a.status === 'late').length} accent="#f39c12" bg="#fff3e0" />
                 <StatCard icon="fas fa-calendar" label="Total Days" value={attendanceList.length} accent="#3498db" bg="#e3f2fd" />
               </div>
-              <div style={{ background: 'white', borderRadius: 14, boxShadow: '0 2px 10px rgba(0,0,0,.05)' }}>
+              <div style={{ background:'var(--surface-card)', borderRadius: 14, boxShadow: '0 2px 10px rgba(0,0,0,.05)' }}>
                 <Table cols={['Date', 'Status', 'Arrival Time', 'Remarks']} emptyMsg="No attendance records"
                   rows={attendanceList.map(record => (
                     <React.Fragment key={record._id}>
                       <TD style={{ fontSize: 12 }}>{fmt(record.date)}</TD>
                       <TD><Badge text={record.status} color={record.status === 'present' ? '#27ae60' : record.status === 'absent' ? '#e74c3c' : '#f39c12'} bg={record.status === 'present' ? '#e8f5e9' : record.status === 'absent' ? '#fdecea' : '#fff3e0'} /></TD>
                       <TD style={{ fontSize: 12 }}>{record.arrivalTime || '—'}</TD>
-                      <TD style={{ fontSize: 12, color: '#666' }}>{record.remarks || '—'}</TD>
+                      <TD style={{ fontSize: 12, color:'var(--text-secondary)' }}>{record.remarks || '—'}</TD>
                     </React.Fragment>
                   ))}
                 />
@@ -661,7 +661,7 @@ const ParentDashboard = () => {
           {activeTab === 'fees' && (
             <div>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 18, flexWrap: 'wrap', gap: 10 }}>
-                <div><h2 style={{ margin: 0, fontSize: 19, color: '#1a3a5c', fontFamily: 'Georgia, serif' }}>Fee & Payments</h2><p style={{ margin: '3px 0 0', fontSize: 12, color: '#888' }}>{childName}</p></div>
+                <div><h2 style={{ margin: 0, fontSize: 19, color:'var(--navy)', fontFamily: 'Georgia, serif' }}>Fee & Payments</h2><p style={{ margin: '3px 0 0', fontSize: 12, color:'var(--text-faint)' }}>{childName}</p></div>
                 <Btn onClick={handlePayOnline} icon="fas fa-credit-card" color="#27ae60">Pay Online</Btn>
               </div>
               <div className="stats-g" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(180px,1fr))', gap: 14, marginBottom: 18 }}>
@@ -669,7 +669,7 @@ const ParentDashboard = () => {
                 <StatCard icon="fas fa-check-circle" label="Amount Paid" value={`${(feeStatus?.paid || 0).toLocaleString()} RWF`} accent="#27ae60" bg="#e8f5e9" />
                 <StatCard icon="fas fa-exclamation-circle" label="Balance Due" value={`${(feeStatus?.balance || 0).toLocaleString()} RWF`} accent="#e74c3c" bg="#fdecea" />
               </div>
-              <div style={{ background: 'white', borderRadius: 14, boxShadow: '0 2px 10px rgba(0,0,0,.05)' }}>
+              <div style={{ background:'var(--surface-card)', borderRadius: 14, boxShadow: '0 2px 10px rgba(0,0,0,.05)' }}>
                 <Table cols={['Date', 'Description', 'Amount', 'Status', 'Receipt']} emptyMsg="No payments recorded"
                   rows={(feeStatus?.payments || []).map(p => (
                     <React.Fragment key={p._id}>
@@ -690,21 +690,21 @@ const ParentDashboard = () => {
           {/* ══ HOMEWORK ══ */}
           {activeTab === 'homework' && (
             <div>
-              <div style={{ marginBottom: 18 }}><h2 style={{ margin: 0, fontSize: 19, color: '#1a3a5c', fontFamily: 'Georgia, serif' }}>Homework & Assignments</h2><p style={{ margin: '3px 0 0', fontSize: 12, color: '#888' }}>{childName} · {assignmentsList.length} assignments</p></div>
+              <div style={{ marginBottom: 18 }}><h2 style={{ margin: 0, fontSize: 19, color:'var(--navy)', fontFamily: 'Georgia, serif' }}>Homework & Assignments</h2><p style={{ margin: '3px 0 0', fontSize: 12, color:'var(--text-faint)' }}>{childName} · {assignmentsList.length} assignments</p></div>
               {assignmentsList.length === 0 ? (
-                <div style={{ background: 'white', borderRadius: 14, padding: 50, textAlign: 'center', color: '#bbb', boxShadow: '0 2px 10px rgba(0,0,0,.05)' }}>
+                <div style={{ background:'var(--surface-card)', borderRadius: 14, padding: 50, textAlign: 'center', color:'var(--text-faint-2)', boxShadow: '0 2px 10px rgba(0,0,0,.05)' }}>
                   <i className="fas fa-tasks" style={{ fontSize: 36, display: 'block', marginBottom: 10, opacity: .3 }} />No assignments yet
                 </div>
               ) : (
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
                   {assignmentsList.map(ass => (
-                    <div key={ass._id} style={{ background: 'white', borderRadius: 14, padding: 18, boxShadow: '0 2px 10px rgba(0,0,0,.05)', borderLeft: `4px solid ${ass.status === 'pending' ? '#f39c12' : '#27ae60'}` }}>
+                    <div key={ass._id} style={{ background:'var(--surface-card)', borderRadius: 14, padding: 18, boxShadow: '0 2px 10px rgba(0,0,0,.05)', borderLeft: `4px solid ${ass.status === 'pending' ? '#f39c12' : '#27ae60'}` }}>
                       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 10, marginBottom: 8 }}>
-                        <h3 style={{ margin: 0, fontSize: 15, color: '#1a3a5c' }}>{ass.title}</h3>
+                        <h3 style={{ margin: 0, fontSize: 15, color:'var(--navy)' }}>{ass.title}</h3>
                         <Badge text={ass.status} color={ass.status === 'pending' ? '#f39c12' : '#27ae60'} bg={ass.status === 'pending' ? '#fff3e0' : '#e8f5e9'} />
                       </div>
-                      <p style={{ margin: '0 0 10px', fontSize: 13, color: '#666', lineHeight: 1.6 }}>{ass.description}</p>
-                      <div style={{ display: 'flex', gap: 16, fontSize: 11, color: '#888', flexWrap: 'wrap' }}>
+                      <p style={{ margin: '0 0 10px', fontSize: 13, color:'var(--text-secondary)', lineHeight: 1.6 }}>{ass.description}</p>
+                      <div style={{ display: 'flex', gap: 16, fontSize: 11, color:'var(--text-faint)', flexWrap: 'wrap' }}>
                         <span><i className="fas fa-book" style={{ marginRight: 4 }} />{ass.subject}</span>
                         <span><i className="fas fa-calendar" style={{ marginRight: 4 }} />Due: {fmt(ass.dueDate)}</span>
                         <span><i className="fas fa-star" style={{ marginRight: 4 }} />{ass.totalPoints} pts</span>
@@ -715,7 +715,7 @@ const ParentDashboard = () => {
                         </div>
                       )}
                       {ass.submitted && (
-                        <div style={{ marginTop: 10, padding: '8px 12px', background: '#e8f5e9', borderRadius: 8, fontSize: 12, color: '#27ae60' }}>
+                        <div style={{ marginTop: 10, padding: '8px 12px', background:'var(--tint-success)', borderRadius: 8, fontSize: 12, color: '#27ae60' }}>
                           <strong>Submitted:</strong> {fmt(ass.submittedAt)} | <strong>Score:</strong> {ass.score}%
                         </div>
                       )}
@@ -729,23 +729,23 @@ const ParentDashboard = () => {
           {/* ══ EVENTS ══ */}
           {activeTab === 'events' && (
             <div>
-              <div style={{ marginBottom: 18 }}><h2 style={{ margin: 0, fontSize: 19, color: '#1a3a5c', fontFamily: 'Georgia, serif' }}>School Events</h2><p style={{ margin: '3px 0 0', fontSize: 12, color: '#888' }}>{eventsList.length} events</p></div>
+              <div style={{ marginBottom: 18 }}><h2 style={{ margin: 0, fontSize: 19, color:'var(--navy)', fontFamily: 'Georgia, serif' }}>School Events</h2><p style={{ margin: '3px 0 0', fontSize: 12, color:'var(--text-faint)' }}>{eventsList.length} events</p></div>
               {eventsList.length === 0 ? (
-                <div style={{ background: 'white', borderRadius: 14, padding: 50, textAlign: 'center', color: '#bbb', boxShadow: '0 2px 10px rgba(0,0,0,.05)' }}>
+                <div style={{ background:'var(--surface-card)', borderRadius: 14, padding: 50, textAlign: 'center', color:'var(--text-faint-2)', boxShadow: '0 2px 10px rgba(0,0,0,.05)' }}>
                   <i className="fas fa-calendar-alt" style={{ fontSize: 36, display: 'block', marginBottom: 10, opacity: .3 }} />No events
                 </div>
               ) : (
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
                   {eventsList.map(event => (
-                    <div key={event._id} style={{ background: 'white', borderRadius: 14, padding: 18, display: 'flex', gap: 16, boxShadow: '0 2px 10px rgba(0,0,0,.05)' }}>
-                      <div style={{ textAlign: 'center', background: '#1a3a5c', color: 'white', padding: '12px', borderRadius: 12, minWidth: 70, flexShrink: 0 }}>
+                    <div key={event._id} style={{ background:'var(--surface-card)', borderRadius: 14, padding: 18, display: 'flex', gap: 16, boxShadow: '0 2px 10px rgba(0,0,0,.05)' }}>
+                      <div style={{ textAlign: 'center', background:'var(--navy)', color:'var(--on-solid)', padding: '12px', borderRadius: 12, minWidth: 70, flexShrink: 0 }}>
                         <div style={{ fontSize: 22, fontWeight: 700, lineHeight: 1, fontFamily: 'Georgia, serif' }}>{new Date(event.date).getDate()}</div>
                         <div style={{ fontSize: 10, opacity: .8, letterSpacing: 1, marginTop: 4 }}>{new Date(event.date).toLocaleString('default', { month: 'short' }).toUpperCase()}</div>
                       </div>
                       <div style={{ flex: 1, minWidth: 0 }}>
-                        <h3 style={{ margin: 0, fontSize: 15, color: '#1a3a5c' }}>{event.title}</h3>
-                        <p style={{ margin: '6px 0', fontSize: 13, color: '#666', lineHeight: 1.6 }}>{event.description}</p>
-                        <div style={{ display: 'flex', gap: 14, fontSize: 11, color: '#888', flexWrap: 'wrap' }}>
+                        <h3 style={{ margin: 0, fontSize: 15, color:'var(--navy)' }}>{event.title}</h3>
+                        <p style={{ margin: '6px 0', fontSize: 13, color:'var(--text-secondary)', lineHeight: 1.6 }}>{event.description}</p>
+                        <div style={{ display: 'flex', gap: 14, fontSize: 11, color:'var(--text-faint)', flexWrap: 'wrap' }}>
                           {event.time && <span><i className="fas fa-clock" style={{ marginRight: 4 }} />{event.time}</span>}
                           {event.location && <span><i className="fas fa-map-marker-alt" style={{ marginRight: 4 }} />{event.location}</span>}
                         </div>
@@ -765,9 +765,9 @@ const ParentDashboard = () => {
           {/* ══ DISCIPLINE ══ */}
           {activeTab === 'discipline' && (
             <div>
-              <div style={{ marginBottom: 18 }}><h2 style={{ margin: 0, fontSize: 19, color: '#1a3a5c', fontFamily: 'Georgia, serif' }}>Behavior & Discipline</h2><p style={{ margin: '3px 0 0', fontSize: 12, color: '#888' }}>{childName} · {disciplineList.length} records</p></div>
+              <div style={{ marginBottom: 18 }}><h2 style={{ margin: 0, fontSize: 19, color:'var(--navy)', fontFamily: 'Georgia, serif' }}>Behavior & Discipline</h2><p style={{ margin: '3px 0 0', fontSize: 12, color:'var(--text-faint)' }}>{childName} · {disciplineList.length} records</p></div>
               {disciplineList.length === 0 ? (
-                <div style={{ background: 'white', borderRadius: 14, padding: 50, textAlign: 'center', color: '#bbb', boxShadow: '0 2px 10px rgba(0,0,0,.05)' }}>
+                <div style={{ background:'var(--surface-card)', borderRadius: 14, padding: 50, textAlign: 'center', color:'var(--text-faint-2)', boxShadow: '0 2px 10px rgba(0,0,0,.05)' }}>
                   <i className="fas fa-gavel" style={{ fontSize: 36, display: 'block', marginBottom: 10, opacity: .3 }} />No discipline records
                 </div>
               ) : (
@@ -775,23 +775,23 @@ const ParentDashboard = () => {
                   {disciplineList.map(record => {
                     const isPositive = record.type === 'positive';
                     return (
-                      <div key={record._id} style={{ background: 'white', borderRadius: 14, padding: 18, borderLeft: `4px solid ${isPositive ? '#27ae60' : '#e74c3c'}`, boxShadow: '0 2px 10px rgba(0,0,0,.05)' }}>
+                      <div key={record._id} style={{ background:'var(--surface-card)', borderRadius: 14, padding: 18, borderLeft: `4px solid ${isPositive ? '#27ae60' : '#e74c3c'}`, boxShadow: '0 2px 10px rgba(0,0,0,.05)' }}>
                         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 10, marginBottom: 8 }}>
-                          <h3 style={{ margin: 0, fontSize: 15, color: '#1a3a5c' }}>{record.category}</h3>
+                          <h3 style={{ margin: 0, fontSize: 15, color:'var(--navy)' }}>{record.category}</h3>
                           <Badge text={record.status} color={record.status === 'resolved' ? '#27ae60' : '#f39c12'} bg={record.status === 'resolved' ? '#e8f5e9' : '#fff3e0'} />
                         </div>
-                        <p style={{ margin: '0 0 10px', fontSize: 13, color: '#666', lineHeight: 1.6 }}>{record.description}</p>
-                        <div style={{ display: 'flex', gap: 16, fontSize: 11, color: '#888', flexWrap: 'wrap' }}>
+                        <p style={{ margin: '0 0 10px', fontSize: 13, color:'var(--text-secondary)', lineHeight: 1.6 }}>{record.description}</p>
+                        <div style={{ display: 'flex', gap: 16, fontSize: 11, color:'var(--text-faint)', flexWrap: 'wrap' }}>
                           <span><i className="fas fa-calendar" style={{ marginRight: 4 }} />{fmt(record.date)}</span>
                           <span><i className="fas fa-user" style={{ marginRight: 4 }} />Reported by {record.reportedBy}</span>
                         </div>
                         {record.action && (
-                          <div style={{ marginTop: 10, padding: '8px 12px', background: '#f8f9fa', borderRadius: 8, fontSize: 12 }}>
+                          <div style={{ marginTop: 10, padding: '8px 12px', background:'var(--surface-muted)', borderRadius: 8, fontSize: 12 }}>
                             <strong>Action:</strong> {record.action}
                           </div>
                         )}
                         {record.reward && (
-                          <div style={{ marginTop: 8, padding: '8px 12px', background: '#e8f5e9', borderRadius: 8, fontSize: 12, color: '#27ae60' }}>
+                          <div style={{ marginTop: 8, padding: '8px 12px', background:'var(--tint-success)', borderRadius: 8, fontSize: 12, color: '#27ae60' }}>
                             <strong>🏆 Reward:</strong> {record.reward}
                           </div>
                         )}
@@ -806,21 +806,21 @@ const ParentDashboard = () => {
           {/* ══ DOCUMENTS ══ */}
           {activeTab === 'documents' && (
             <div>
-              <div style={{ marginBottom: 18 }}><h2 style={{ margin: 0, fontSize: 19, color: '#1a3a5c', fontFamily: 'Georgia, serif' }}>Documents</h2><p style={{ margin: '3px 0 0', fontSize: 12, color: '#888' }}>{documentsList.length} documents</p></div>
+              <div style={{ marginBottom: 18 }}><h2 style={{ margin: 0, fontSize: 19, color:'var(--navy)', fontFamily: 'Georgia, serif' }}>Documents</h2><p style={{ margin: '3px 0 0', fontSize: 12, color:'var(--text-faint)' }}>{documentsList.length} documents</p></div>
               {documentsList.length === 0 ? (
-                <div style={{ background: 'white', borderRadius: 14, padding: 50, textAlign: 'center', color: '#bbb', boxShadow: '0 2px 10px rgba(0,0,0,.05)' }}>
+                <div style={{ background:'var(--surface-card)', borderRadius: 14, padding: 50, textAlign: 'center', color:'var(--text-faint-2)', boxShadow: '0 2px 10px rgba(0,0,0,.05)' }}>
                   <i className="fas fa-folder-open" style={{ fontSize: 36, display: 'block', marginBottom: 10, opacity: .3 }} />No documents
                 </div>
               ) : (
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill,minmax(280px,1fr))', gap: 14 }}>
                   {documentsList.map(doc => (
-                    <div key={doc._id} style={{ background: 'white', borderRadius: 14, padding: 16, display: 'flex', alignItems: 'center', gap: 14, boxShadow: '0 2px 10px rgba(0,0,0,.05)' }}>
-                      <div style={{ width: 44, height: 44, borderRadius: 12, background: '#e8f0fb', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-                        <i className={`fas ${doc.type === 'report_card' ? 'fa-file-alt' : doc.type === 'certificate' ? 'fa-certificate' : 'fa-receipt'}`} style={{ fontSize: 18, color: '#1a3a5c' }} />
+                    <div key={doc._id} style={{ background:'var(--surface-card)', borderRadius: 14, padding: 16, display: 'flex', alignItems: 'center', gap: 14, boxShadow: '0 2px 10px rgba(0,0,0,.05)' }}>
+                      <div style={{ width: 44, height: 44, borderRadius: 12, background:'var(--surface-navy-tint)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                        <i className={`fas ${doc.type === 'report_card' ? 'fa-file-alt' : doc.type === 'certificate' ? 'fa-certificate' : 'fa-receipt'}`} style={{ fontSize: 18, color:'var(--navy)' }} />
                       </div>
                       <div style={{ flex: 1, minWidth: 0 }}>
-                        <div style={{ fontSize: 13, fontWeight: 600, color: '#1a3a5c', overflow: 'hidden', textOverflow: 'ellipsis' }}>{doc.name}</div>
-                        <div style={{ fontSize: 11, color: '#888', marginTop: 2 }}>{doc.date ? fmt(doc.date) : '—'}</div>
+                        <div style={{ fontSize: 13, fontWeight: 600, color:'var(--navy)', overflow: 'hidden', textOverflow: 'ellipsis' }}>{doc.name}</div>
+                        <div style={{ fontSize: 11, color:'var(--text-faint)', marginTop: 2 }}>{doc.date ? fmt(doc.date) : '—'}</div>
                       </div>
                       <Btn small icon="fas fa-download" color="#27ae60" onClick={() => handleDownloadDocument(doc)} />
                     </div>
@@ -832,10 +832,10 @@ const ParentDashboard = () => {
 
           {/* ══ MESSAGES ══ */}
           {activeTab === 'messages' && (
-            <div style={{ background: 'white', borderRadius: 14, padding: 30, textAlign: 'center', boxShadow: '0 2px 10px rgba(0,0,0,.05)' }}>
-              <i className="fas fa-comments" style={{ fontSize: 48, color: '#1a3a5c', opacity: .3, marginBottom: 16, display: 'block' }} />
-              <h3 style={{ margin: '0 0 8px', color: '#1a3a5c' }}>Message Center</h3>
-              <p style={{ margin: '0 0 20px', color: '#888', fontSize: 13 }}>Chat with teachers and school staff about your child's progress.</p>
+            <div style={{ background:'var(--surface-card)', borderRadius: 14, padding: 30, textAlign: 'center', boxShadow: '0 2px 10px rgba(0,0,0,.05)' }}>
+              <i className="fas fa-comments" style={{ fontSize: 48, color:'var(--navy)', opacity: .3, marginBottom: 16, display: 'block' }} />
+              <h3 style={{ margin: '0 0 8px', color:'var(--navy)' }}>Message Center</h3>
+              <p style={{ margin: '0 0 20px', color:'var(--text-faint)', fontSize: 13 }}>Chat with teachers and school staff about your child's progress.</p>
               <Btn icon="fas fa-comments" color="#1a3a5c" onClick={() => handleOpenChat()}>Open Messages</Btn>
             </div>
           )}
@@ -843,14 +843,14 @@ const ParentDashboard = () => {
           {/* ══ SETTINGS ══ */}
           {activeTab === 'settings' && (
             <div style={{ maxWidth: 620, margin: '0 auto' }}>
-              <div style={{ background: 'linear-gradient(135deg,#0d1f33,#1a3a5c)', borderRadius: 18, padding: 30, textAlign: 'center', marginBottom: 18, color: 'white' }}>
+              <div style={{ background:'linear-gradient(135deg,var(--navy-deep),var(--navy))', borderRadius: 18, padding: 30, textAlign: 'center', marginBottom: 18, color:'var(--on-solid)' }}>
                 <Avatar name={userName} size={72} bg='rgba(255,193,7,.2)' color='#ffc107' />
                 <h2 style={{ margin: '14px 0 3px', fontFamily: 'Georgia, serif', fontSize: 22 }}>{userName}</h2>
                 <div style={{ fontSize: 11, opacity: .7, letterSpacing: 1 }}>PARENT / GUARDIAN</div>
                 <div style={{ fontSize: 12, opacity: .6, marginTop: 4 }}>{localStorage.getItem('userEmail') || 'parent@essa.rw'}</div>
               </div>
-              <div style={{ background: 'white', borderRadius: 14, padding: 22, boxShadow: '0 2px 10px rgba(0,0,0,.05)' }}>
-                <h3 style={{ margin: '0 0 16px', fontSize: 15, color: '#1a3a5c', fontFamily: 'Georgia, serif' }}>
+              <div style={{ background:'var(--surface-card)', borderRadius: 14, padding: 22, boxShadow: '0 2px 10px rgba(0,0,0,.05)' }}>
+                <h3 style={{ margin: '0 0 16px', fontSize: 15, color:'var(--navy)', fontFamily: 'Georgia, serif' }}>
                   <i className="fas fa-lock" style={{ color: '#ffc107', marginRight: 8 }} />Change Password
                 </h3>
                 {[['Current Password', 'currentPw'], ['New Password', 'newPw'], ['Confirm New Password', 'confirmPw']].map(([label, id]) => (

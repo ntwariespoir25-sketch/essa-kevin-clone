@@ -22,15 +22,15 @@
 
   const roleBadge = (role) => {
     const map = {
-      super_admin: { label: 'Super Admin', color: '#ffc107', bg: '#fff8e1' },
-      academic_admin: { label: 'Academic Admin', color: '#27ae60', bg: '#e8f5e9' },
-      discipline_admin: { label: 'Discipline Admin', color: '#e74c3c', bg: '#fdecea' },
-      accounts_admin: { label: 'Accounts Admin', color: '#3498db', bg: '#e3f2fd' },
-      teacher: { label: 'Teacher', color: '#9b59b6', bg: '#f3e5f5' },
-      student: { label: 'Student', color: '#1abc9c', bg: '#e0f7fa' },
-      parent: { label: 'Parent', color: '#e67e22', bg: '#fff3e0' },
+      super_admin: { label: 'Super Admin', color: '#ffc107', bg:'var(--tint-amber)' },
+      academic_admin: { label: 'Academic Admin', color: '#27ae60', bg:'var(--tint-success)' },
+      discipline_admin: { label: 'Discipline Admin', color: '#e74c3c', bg:'var(--tint-danger)' },
+      accounts_admin: { label: 'Accounts Admin', color: '#3498db', bg:'var(--tint-primary)' },
+      teacher: { label: 'Teacher', color: '#9b59b6', bg:'var(--tint-purple)' },
+      student: { label: 'Student', color: '#1abc9c', bg:'var(--tint-info)' },
+      parent: { label: 'Parent', color: '#e67e22', bg:'var(--tint-warning)' },
     };
-    return map[role] || { label: role || '—', color: '#666', bg: '#f0f0f0' };
+    return map[role] || { label: role || '—', color:'var(--text-secondary)', bg:'var(--surface-page)' };
   };
 
   // ─── shared UI atoms ─────────────────────────────────────────────────────────
@@ -52,10 +52,10 @@
     return (
       <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,.5)', zIndex: 2000, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 16 }}
         onClick={e => e.target === e.currentTarget && onClose()}>
-        <div style={{ background: 'white', borderRadius: 16, width: '100%', maxWidth: width, maxHeight: '90vh', overflow: 'auto', boxShadow: '0 24px 80px rgba(0,0,0,.25)' }}>
-          <div style={{ padding: '18px 22px', borderBottom: '1px solid #eee', display: 'flex', justifyContent: 'space-between', alignItems: 'center', position: 'sticky', top: 0, background: 'white', zIndex: 1, borderRadius: '16px 16px 0 0' }}>
-            <h3 style={{ margin: 0, fontSize: 16, color: '#1a3a5c', fontFamily: 'Georgia, serif' }}>{title}</h3>
-            <button onClick={onClose} style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: 22, color: '#999', lineHeight: 1 }}>×</button>
+        <div style={{ background:'var(--surface-card)', borderRadius: 16, width: '100%', maxWidth: width, maxHeight: '90vh', overflow: 'auto', boxShadow: '0 24px 80px rgba(0,0,0,.25)' }}>
+          <div style={{ padding: '18px 22px', borderBottom:'1px solid var(--border)', display: 'flex', justifyContent: 'space-between', alignItems: 'center', position: 'sticky', top: 0, background:'var(--surface-card)', zIndex: 1, borderRadius: '16px 16px 0 0' }}>
+            <h3 style={{ margin: 0, fontSize: 16, color:'var(--navy)', fontFamily: 'Georgia, serif' }}>{title}</h3>
+            <button onClick={onClose} style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: 22, color:'var(--text-faint)', lineHeight: 1 }}>×</button>
           </div>
           <div style={{ padding: '20px 22px' }}>{children}</div>
         </div>
@@ -65,21 +65,21 @@
 
   const Field = ({ label, children, required }) => (
     <div style={{ marginBottom: 14 }}>
-      <label style={{ display: 'block', fontSize: 11, fontWeight: 700, color: '#666', marginBottom: 5, letterSpacing: 0.5 }}>
+      <label style={{ display: 'block', fontSize: 11, fontWeight: 700, color:'var(--text-secondary)', marginBottom: 5, letterSpacing: 0.5 }}>
         {label?.toUpperCase()}{required && <span style={{ color: '#e74c3c' }}> *</span>}
       </label>
       {children}
     </div>
   );
 
-  const inputStyle = { width: '100%', padding: '9px 12px', border: '1.5px solid #e0e0e0', borderRadius: 8, fontSize: 14, fontFamily: 'inherit', outline: 'none', boxSizing: 'border-box', transition: 'border-color .2s' };
+  const inputStyle = { width: '100%', padding: '9px 12px', border:'1.5px solid var(--surface-sunken-2)', borderRadius: 8, fontSize: 14, fontFamily: 'inherit', outline: 'none', boxSizing: 'border-box', transition: 'border-color .2s' };
   const Inp = (props) => <input {...props} style={{ ...inputStyle, ...props.style }}
     onFocus={e => e.target.style.borderColor = '#1a3a5c'} onBlur={e => e.target.style.borderColor = '#e0e0e0'} />;
-  const Sel = ({ children, ...props }) => <select {...props} style={{ ...inputStyle, background: 'white', ...props.style }}>{children}</select>;
+  const Sel = ({ children, ...props }) => <select {...props} style={{ ...inputStyle, background:'var(--surface-card)', ...props.style }}>{children}</select>;
   const Txt = (props) => <textarea {...props} style={{ ...inputStyle, resize: 'vertical', minHeight: 80, ...props.style }}
     onFocus={e => e.target.style.borderColor = '#1a3a5c'} onBlur={e => e.target.style.borderColor = '#e0e0e0'} />;
 
-  const Btn = ({ children, onClick, icon, color = '#1a3a5c', textColor = 'white', small, danger, disabled, style: s }) => {
+  const Btn = ({ children, onClick, icon, color = '#1a3a5c', textColor = 'var(--on-solid)', small, danger, disabled, style: s }) => {
     const bg = danger ? '#e74c3c' : disabled ? '#ccc' : color;
     return (
       <button onClick={onClick} disabled={disabled} style={{ background: bg, color: textColor, border: 'none', borderRadius: 8, padding: small ? '6px 13px' : '9px 18px', fontSize: small ? 12 : 13, fontWeight: 600, cursor: disabled ? 'not-allowed' : 'pointer', display: 'inline-flex', alignItems: 'center', gap: 6, transition: 'filter .2s, transform .2s', whiteSpace: 'nowrap', ...s }}
@@ -91,37 +91,37 @@
   };
 
   const StatCard = ({ icon, label, value, sub, accent = '#27ae60', bg = '#e8f5e9', onClick }) => (
-    <div onClick={onClick} style={{ background: 'white', borderRadius: 16, padding: '18px 20px', display: 'flex', alignItems: 'center', gap: 14, boxShadow: '0 2px 12px rgba(0,0,0,.06)', cursor: onClick ? 'pointer' : 'default', transition: 'transform .2s, box-shadow .2s', border: '1px solid #f0f0f0' }}
+    <div onClick={onClick} style={{ background:'var(--surface-card)', borderRadius: 16, padding: '18px 20px', display: 'flex', alignItems: 'center', gap: 14, boxShadow: '0 2px 12px rgba(0,0,0,.06)', cursor: onClick ? 'pointer' : 'default', transition: 'transform .2s, box-shadow .2s', border:'1px solid var(--surface-page)' }}
       onMouseEnter={e => { if (onClick) { e.currentTarget.style.transform = 'translateY(-3px)'; e.currentTarget.style.boxShadow = '0 10px 28px rgba(0,0,0,.12)'; } }}
       onMouseLeave={e => { e.currentTarget.style.transform = ''; e.currentTarget.style.boxShadow = '0 2px 12px rgba(0,0,0,.06)'; }}>
       <div style={{ width: 50, height: 50, borderRadius: 14, background: bg, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
         <i className={icon} style={{ fontSize: 20, color: accent }} />
       </div>
       <div>
-        <div style={{ fontSize: 24, fontWeight: 700, color: '#1a3a5c', lineHeight: 1, fontFamily: 'Georgia, serif' }}>{value ?? '—'}</div>
-        <div style={{ fontSize: 12, color: '#888', marginTop: 3 }}>{label}</div>
+        <div style={{ fontSize: 24, fontWeight: 700, color:'var(--navy)', lineHeight: 1, fontFamily: 'Georgia, serif' }}>{value ?? '—'}</div>
+        <div style={{ fontSize: 12, color:'var(--text-faint)', marginTop: 3 }}>{label}</div>
         {sub && <div style={{ fontSize: 11, color: accent, marginTop: 3, fontWeight: 600 }}>{sub}</div>}
       </div>
     </div>
   );
 
   const Table = ({ cols, rows, emptyMsg = 'No data found' }) => (
-    <div style={{ overflowX: 'auto', borderRadius: 10, border: '1px solid #f0f0f0' }}>
+    <div style={{ overflowX: 'auto', borderRadius: 10, border:'1px solid var(--surface-page)' }}>
       <table style={{ width: '100%', borderCollapse: 'collapse', minWidth: 500 }}>
         <thead>
-          <tr style={{ background: '#f7f9fb' }}>
-            {cols.map((c, i) => <th key={i} style={{ padding: '10px 14px', textAlign: 'left', fontSize: 11, fontWeight: 700, color: '#888', letterSpacing: .8, borderBottom: '1px solid #eee', whiteSpace: 'nowrap' }}>{c.toUpperCase()}</th>)}
+          <tr style={{ background:'var(--surface-muted)' }}>
+            {cols.map((c, i) => <th key={i} style={{ padding: '10px 14px', textAlign: 'left', fontSize: 11, fontWeight: 700, color:'var(--text-faint)', letterSpacing: .8, borderBottom:'1px solid var(--border)', whiteSpace: 'nowrap' }}>{c.toUpperCase()}</th>)}
           </tr>
         </thead>
         <tbody>
           {rows.length === 0
-            ? <tr><td colSpan={cols.length} style={{ textAlign: 'center', padding: 36, color: '#bbb', fontSize: 13 }}>{emptyMsg}</td></tr>
-            : rows.map((row, i) => <tr key={i} style={{ borderBottom: '1px solid #f5f5f5' }} onMouseEnter={e => e.currentTarget.style.background = '#fafbff'} onMouseLeave={e => e.currentTarget.style.background = ''}>{row}</tr>)}
+            ? <tr><td colSpan={cols.length} style={{ textAlign: 'center', padding: 36, color:'var(--text-faint-2)', fontSize: 13 }}>{emptyMsg}</td></tr>
+            : rows.map((row, i) => <tr key={i} style={{ borderBottom:'1px solid var(--surface-muted)' }} onMouseEnter={e => e.currentTarget.style.background = '#fafbff'} onMouseLeave={e => e.currentTarget.style.background = ''}>{row}</tr>)}
         </tbody>
       </table>
     </div>
   );
-  const TD = ({ children, style }) => <td style={{ padding: '10px 14px', fontSize: 13, color: '#333', ...style }}>{children}</td>;
+  const TD = ({ children, style }) => <td style={{ padding: '10px 14px', fontSize: 13, color:'var(--text-body)', ...style }}>{children}</td>;
 
   // ═══════════════════════════════════════════════════════════════════
   const AcademicAdminDashboard = () => {
@@ -435,7 +435,7 @@
     const sideW = isMobile ? 0 : sidebarOpen ? 260 : 72;
 
     if (loading) return (
-      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', height: '100vh', background: 'linear-gradient(135deg,#0d2b42,#1a3a5c)', color: 'white', gap: 20 }}>
+      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', height: '100vh', background:'linear-gradient(135deg,var(--navy-deep),var(--navy))', color:'var(--on-solid)', gap: 20 }}>
         <div style={{ width: 44, height: 44, border: '3px solid rgba(255,255,255,.15)', borderTopColor: '#ffc107', borderRadius: '50%', animation: 'spin .8s linear infinite' }} />
         <p style={{ margin: 0, fontSize: 16 }}>Loading Dashboard…</p>
         <style>{`@keyframes spin{to{transform:rotate(360deg)}}`}</style>
@@ -443,7 +443,7 @@
     );
 
     return (
-      <div style={{ display: 'flex', minHeight: '100vh', background: '#f0f3f8', fontFamily: "'DM Sans', -apple-system, sans-serif" }}>
+      <div style={{ display: 'flex', minHeight: '100vh', background:'var(--surface-navy-tint)', fontFamily: "'DM Sans', -apple-system, sans-serif" }}>
         <style>{`
           @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&display=swap');
           @keyframes spin{to{transform:rotate(360deg)}}
@@ -459,10 +459,10 @@
         {isMobile && mobileOpen && <div onClick={() => setMobileOpen(false)} style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,.45)', zIndex: 998 }} />}
 
         {/* ─── SIDEBAR ─── */}
-        <aside style={{ position: 'fixed', top: 0, left: 0, bottom: 0, zIndex: 999, width: isMobile ? (mobileOpen ? 260 : 0) : sideW, background: 'linear-gradient(180deg,#0d1f33 0%,#1a3a5c 100%)', color: 'white', display: 'flex', flexDirection: 'column', transition: 'width .3s ease', overflow: 'hidden', boxShadow: '3px 0 20px rgba(0,0,0,.18)' }}>
+        <aside style={{ position: 'fixed', top: 0, left: 0, bottom: 0, zIndex: 999, width: isMobile ? (mobileOpen ? 260 : 0) : sideW, background:'linear-gradient(180deg,var(--navy-deep) 0%,var(--navy) 100%)', color:'var(--on-solid)', display: 'flex', flexDirection: 'column', transition: 'width .3s ease', overflow: 'hidden', boxShadow: '3px 0 20px rgba(0,0,0,.18)' }}>
           <div style={{ padding: '20px 16px', borderBottom: '1px solid rgba(255,255,255,.08)', display: 'flex', alignItems: 'center', gap: 11, flexShrink: 0 }}>
             <div style={{ width: 38, height: 38, background: '#ffc107', borderRadius: 11, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-              <i className="fas fa-user-graduate" style={{ fontSize: 16, color: '#1a3a5c' }} />
+              <i className="fas fa-user-graduate" style={{ fontSize: 16, color:'var(--navy)' }} />
             </div>
             {(sidebarOpen || isMobile) && <div><div style={{ fontFamily: 'Georgia, serif', fontSize: 15, fontWeight: 600 }}>ESSA Portal</div><div style={{ fontSize: 10, opacity: .6, letterSpacing: 1 }}>ACADEMIC ADMIN</div></div>}
             {!isMobile && <button onClick={() => setSidebarOpen(!sidebarOpen)} style={{ marginLeft: 'auto', background: 'none', border: 'none', color: 'rgba(255,255,255,.4)', cursor: 'pointer', fontSize: 13, flexShrink: 0 }}><i className={`fas fa-chevron-${sidebarOpen ? 'left' : 'right'}`} /></button>}
@@ -480,7 +480,7 @@
             onNavigate={() => isMobile && setMobileOpen(false)}
           />
           <div style={{ padding: 12, borderTop: '1px solid rgba(255,255,255,.08)', flexShrink: 0 }}>
-            <button onClick={() => { localStorage.clear(); navigate('/portal/login'); }} style={{ display: 'flex', alignItems: 'center', gap: 10, width: '100%', padding: '9px 12px', background: 'rgba(231,76,60,.2)', border: '1px solid rgba(231,76,60,.3)', borderRadius: 9, color: '#ff8a80', cursor: 'pointer', fontSize: 13 }}>
+            <button onClick={() => { localStorage.clear(); navigate('/portal/login'); }} style={{ display: 'flex', alignItems: 'center', gap: 10, width: '100%', padding: '9px 12px', background: 'rgba(231,76,60,.2)', border: '1px solid rgba(231,76,60,.3)', borderRadius: 9, color:'var(--tint-danger-line)', cursor: 'pointer', fontSize: 13 }}>
               <i className="fas fa-sign-out-alt" style={{ fontSize: 13 }} />{(sidebarOpen || isMobile) && 'Logout'}
             </button>
           </div>
@@ -489,23 +489,23 @@
         {/* ─── MAIN ─── */}
         <main style={{ flex: 1, marginLeft: isMobile ? 0 : sideW, transition: 'margin-left .3s', minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
           {/* Top bar */}
-          <div style={{ background: 'white', padding: '11px 22px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid #eee', position: 'sticky', top: 0, zIndex: 100, boxShadow: '0 1px 8px rgba(0,0,0,.05)' }}>
+          <div style={{ background:'var(--surface-card)', padding: '11px 22px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom:'1px solid var(--border)', position: 'sticky', top: 0, zIndex: 100, boxShadow: '0 1px 8px rgba(0,0,0,.05)' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-              {isMobile && <button onClick={() => setMobileOpen(!mobileOpen)} style={{ background: '#1a3a5c', color: 'white', border: 'none', padding: '7px 10px', borderRadius: 8, cursor: 'pointer' }}><i className="fas fa-bars" /></button>}
+              {isMobile && <button onClick={() => setMobileOpen(!mobileOpen)} style={{ background:'var(--navy)', color:'var(--on-solid)', border: 'none', padding: '7px 10px', borderRadius: 8, cursor: 'pointer' }}><i className="fas fa-bars" /></button>}
               <div>
-                <div style={{ fontSize: 10, color: '#aaa', letterSpacing: .5 }}>ESSA NYARUGUNGA</div>
-                <div style={{ fontSize: 15, fontWeight: 600, color: '#1a3a5c', fontFamily: 'Georgia, serif' }}>{menuItems.find(m => m.id === activeTab)?.label || 'Dashboard'}</div>
+                <div style={{ fontSize: 10, color:'var(--text-faint)', letterSpacing: .5 }}>ESSA NYARUGUNGA</div>
+                <div style={{ fontSize: 15, fontWeight: 600, color:'var(--navy)', fontFamily: 'Georgia, serif' }}>{menuItems.find(m => m.id === activeTab)?.label || 'Dashboard'}</div>
               </div>
             </div>
             <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
               <ThemeToggle color="#1a3a5c" border="#e5e7eb" />
-              {unread > 0 && <button onClick={() => setActiveTab('messages')} style={{ position: 'relative', background: 'none', border: 'none', cursor: 'pointer', color: '#888', fontSize: 17 }}>
+              {unread > 0 && <button onClick={() => setActiveTab('messages')} style={{ position: 'relative', background: 'none', border: 'none', cursor: 'pointer', color:'var(--text-faint)', fontSize: 17 }}>
                 <i className="fas fa-bell" />
-                <span style={{ position: 'absolute', top: -4, right: -4, background: '#e74c3c', color: 'white', borderRadius: '50%', fontSize: 9, width: 15, height: 15, display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 700 }}>{unread}</span>
+                <span style={{ position: 'absolute', top: -4, right: -4, background: '#e74c3c', color:'var(--on-solid)', borderRadius: '50%', fontSize: 9, width: 15, height: 15, display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 700 }}>{unread}</span>
               </button>}
               <Avatar name={userName} size={32} />
               <div className="hide-mobile">
-                <div style={{ fontSize: 12, fontWeight: 600, color: '#333' }}>{userName}</div>
+                <div style={{ fontSize: 12, fontWeight: 600, color:'var(--text-body)' }}>{userName}</div>
                 <div style={{ fontSize: 10, color: '#ffc107' }}>ACADEMIC ADMIN</div>
               </div>
             </div>
@@ -517,14 +517,14 @@
             {/* ══ OVERVIEW ══ */}
             {activeTab === 'overview' && (
               <div>
-                <div style={{ background: 'linear-gradient(135deg,#0d1f33,#1a3a5c)', borderRadius: 18, padding: '24px 28px', marginBottom: 22, color: 'white', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 14, boxShadow: '0 6px 24px rgba(26,58,92,.35)' }}>
+                <div style={{ background:'linear-gradient(135deg,var(--navy-deep),var(--navy))', borderRadius: 18, padding: '24px 28px', marginBottom: 22, color:'var(--on-solid)', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 14, boxShadow: '0 6px 24px rgba(26,58,92,.35)' }}>
                   <div>
                     <div style={{ fontSize: 20, fontWeight: 600, fontFamily: 'Georgia, serif', marginBottom: 5 }}>Welcome, {userName.split(' ')[0]}! 📚</div>
                     <div style={{ fontSize: 12, opacity: .75 }}>{new Date().toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}</div>
                   </div>
                   <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap' }}>
                     <Btn onClick={() => setTeacherModal(true)} icon="fas fa-user-plus" color="#ffc107" textColor="#1a3a5c">Add Teacher</Btn>
-                    <Btn onClick={() => setClassModal(true)} icon="fas fa-plus" color="rgba(255,255,255,.15)" textColor="white">New Class</Btn>
+                    <Btn onClick={() => setClassModal(true)} icon="fas fa-plus" color="rgba(255,255,255,.15)" textColor="var(--on-solid)">New Class</Btn>
                   </div>
                 </div>
                 <div className="stats-g" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(190px,1fr))', gap: 14, marginBottom: 20 }}>
@@ -536,18 +536,18 @@
                   <StatCard icon="fas fa-file-alt" label="Applications" value={applications.filter(a => a.status === 'pending').length} sub="Pending review" accent="#1abc9c" bg="#e0f7fa" onClick={() => setActiveTab('applications')} />
                 </div>
                 {/* recent news */}
-                <div style={{ background: 'white', borderRadius: 14, padding: 18, boxShadow: '0 2px 10px rgba(0,0,0,.05)' }}>
+                <div style={{ background:'var(--surface-card)', borderRadius: 14, padding: 18, boxShadow: '0 2px 10px rgba(0,0,0,.05)' }}>
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 14 }}>
-                    <h3 style={{ margin: 0, fontSize: 14, color: '#1a3a5c', fontWeight: 600 }}><i className="fas fa-newspaper" style={{ marginRight: 7, color: '#f39c12' }} />Recent News</h3>
+                    <h3 style={{ margin: 0, fontSize: 14, color:'var(--navy)', fontWeight: 600 }}><i className="fas fa-newspaper" style={{ marginRight: 7, color: '#f39c12' }} />Recent News</h3>
                     <Btn small onClick={() => setNewsModal(true)} icon="fas fa-plus" color="#f39c12">Post News</Btn>
                   </div>
                   {news.slice(0, 3).map(n => (
-                    <div key={n._id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '10px 0', borderBottom: '1px solid #f5f5f5' }}>
-                      <div><div style={{ fontSize: 13, fontWeight: 600 }}>{n.title}</div><div style={{ fontSize: 11, color: '#aaa', marginTop: 2 }}>{n.category} · {fmt(n.date)}</div></div>
+                    <div key={n._id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '10px 0', borderBottom:'1px solid var(--surface-muted)' }}>
+                      <div><div style={{ fontSize: 13, fontWeight: 600 }}>{n.title}</div><div style={{ fontSize: 11, color:'var(--text-faint)', marginTop: 2 }}>{n.category} · {fmt(n.date)}</div></div>
                       <Btn small danger icon="fas fa-trash" onClick={() => deleteNews(n)} />
                     </div>
                   ))}
-                  {news.length === 0 && <p style={{ textAlign: 'center', color: '#bbb', fontSize: 13, padding: 20 }}>No news published yet</p>}
+                  {news.length === 0 && <p style={{ textAlign: 'center', color:'var(--text-faint-2)', fontSize: 13, padding: 20 }}>No news published yet</p>}
                 </div>
               </div>
             )}
@@ -556,10 +556,10 @@
             {activeTab === 'teachers' && (
               <div>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 18, flexWrap: 'wrap', gap: 10 }}>
-                  <div><h2 style={{ margin: 0, fontSize: 19, color: '#1a3a5c', fontFamily: 'Georgia, serif' }}>Teachers</h2><p style={{ margin: '3px 0 0', fontSize: 12, color: '#888' }}>{teachers.length} educators registered</p></div>
+                  <div><h2 style={{ margin: 0, fontSize: 19, color:'var(--navy)', fontFamily: 'Georgia, serif' }}>Teachers</h2><p style={{ margin: '3px 0 0', fontSize: 12, color:'var(--text-faint)' }}>{teachers.length} educators registered</p></div>
                   <Btn onClick={() => setTeacherModal(true)} icon="fas fa-plus" color="#1a3a5c">Add Teacher</Btn>
                 </div>
-                <div style={{ background: 'white', borderRadius: 14, boxShadow: '0 2px 10px rgba(0,0,0,.05)' }}>
+                <div style={{ background:'var(--surface-card)', borderRadius: 14, boxShadow: '0 2px 10px rgba(0,0,0,.05)' }}>
                   <Table cols={['Teacher', 'Email', 'Subject', 'Phone', 'Actions']} emptyMsg="No teachers yet. Click Add Teacher."
                     rows={teachers.map(t => (
                       <><TD><div style={{ display: 'flex', alignItems: 'center', gap: 9 }}><Avatar name={t.fullName} size={32} /><div><div style={{ fontWeight: 600, fontSize: 13 }}>{t.fullName}</div></div></div></TD>
@@ -580,13 +580,13 @@
             {activeTab === 'classes' && (
               <div>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 18, flexWrap: 'wrap', gap: 10 }}>
-                  <div><h2 style={{ margin: 0, fontSize: 19, color: '#1a3a5c', fontFamily: 'Georgia, serif' }}>Classes</h2><p style={{ margin: '3px 0 0', fontSize: 12, color: '#888' }}>{classes.length} classes registered</p></div>
+                  <div><h2 style={{ margin: 0, fontSize: 19, color:'var(--navy)', fontFamily: 'Georgia, serif' }}>Classes</h2><p style={{ margin: '3px 0 0', fontSize: 12, color:'var(--text-faint)' }}>{classes.length} classes registered</p></div>
                   <div style={{ display: 'flex', gap: 10 }}>
                     <Btn onClick={() => fetchClasses()} icon="fas fa-sync" color="#3498db" small>Refresh</Btn>
                     <Btn onClick={() => setClassModal(true)} icon="fas fa-plus" color="#1a3a5c">Create Class</Btn>
                   </div>
                 </div>
-                <div style={{ background: 'white', borderRadius: 14, boxShadow: '0 2px 10px rgba(0,0,0,.05)' }}>
+                <div style={{ background:'var(--surface-card)', borderRadius: 14, boxShadow: '0 2px 10px rgba(0,0,0,.05)' }}>
                   <Table cols={['Grade', 'Class', 'Year', 'Teacher', 'Students', 'Actions']} emptyMsg="No classes yet."
                     rows={classes.map(c => {
                       const tInfo = c.teacherInfo || (c.teacherId && typeof c.teacherId === 'object' ? c.teacherId : null);
@@ -612,15 +612,15 @@
             {activeTab === 'students' && (
               <div>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 18, flexWrap: 'wrap', gap: 10 }}>
-                  <div><h2 style={{ margin: 0, fontSize: 19, color: '#1a3a5c', fontFamily: 'Georgia, serif' }}>Students</h2><p style={{ margin: '3px 0 0', fontSize: 12, color: '#888' }}>{students.length} students enrolled</p></div>
+                  <div><h2 style={{ margin: 0, fontSize: 19, color:'var(--navy)', fontFamily: 'Georgia, serif' }}>Students</h2><p style={{ margin: '3px 0 0', fontSize: 12, color:'var(--text-faint)' }}>{students.length} students enrolled</p></div>
                   <Btn onClick={() => setStudentModal(true)} icon="fas fa-user-plus" color="#1a3a5c">Add Student</Btn>
                 </div>
-                <div style={{ background: 'white', borderRadius: 14, boxShadow: '0 2px 10px rgba(0,0,0,.05)' }}>
+                <div style={{ background:'var(--surface-card)', borderRadius: 14, boxShadow: '0 2px 10px rgba(0,0,0,.05)' }}>
                   <Table cols={['Student', 'Email', 'Class', 'Parent', 'Contact', 'Actions']} emptyMsg="No students enrolled yet."
                     rows={students.map(s => (
-                      <><TD><div style={{ display: 'flex', alignItems: 'center', gap: 9 }}><Avatar name={s.fullName} size={30} /><div><div style={{ fontWeight: 600, fontSize: 13 }}>{s.fullName}</div><div style={{ fontSize: 11, color: '#aaa' }}>{s.studentId || ''}</div></div></div></TD>
+                      <><TD><div style={{ display: 'flex', alignItems: 'center', gap: 9 }}><Avatar name={s.fullName} size={30} /><div><div style={{ fontWeight: 600, fontSize: 13 }}>{s.fullName}</div><div style={{ fontSize: 11, color:'var(--text-faint)' }}>{s.studentId || ''}</div></div></div></TD>
                         <TD style={{ fontSize: 12 }}>{s.email || '—'}</TD>
-                        <TD>{s.classId ? <Badge text={`${s.classId.grade || ''} ${s.classId.className || ''}`} color="#3498db" bg="#e3f2fd" /> : <span style={{ color: '#aaa', fontSize: 12 }}>Not assigned</span>}</TD>
+                        <TD>{s.classId ? <Badge text={`${s.classId.grade || ''} ${s.classId.className || ''}`} color="#3498db" bg="#e3f2fd" /> : <span style={{ color:'var(--text-faint)', fontSize: 12 }}>Not assigned</span>}</TD>
                         <TD style={{ fontSize: 12 }}>{s.parentName || '—'}</TD>
                         <TD style={{ fontSize: 12 }}>{s.parentPhone || '—'}</TD>
                         <TD><Btn small danger icon="fas fa-trash" onClick={() => deleteStudent(s)} /></TD></>
@@ -634,25 +634,25 @@
             {activeTab === 'news' && (
               <div>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 18, flexWrap: 'wrap', gap: 10 }}>
-                  <div><h2 style={{ margin: 0, fontSize: 19, color: '#1a3a5c', fontFamily: 'Georgia, serif' }}>News & Events</h2><p style={{ margin: '3px 0 0', fontSize: 12, color: '#888' }}>{news.length} articles published</p></div>
+                  <div><h2 style={{ margin: 0, fontSize: 19, color:'var(--navy)', fontFamily: 'Georgia, serif' }}>News & Events</h2><p style={{ margin: '3px 0 0', fontSize: 12, color:'var(--text-faint)' }}>{news.length} articles published</p></div>
                   <Btn onClick={() => setNewsModal(true)} icon="fas fa-plus" color="#1a3a5c">Post News</Btn>
                 </div>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-                  {news.length === 0 && <div style={{ textAlign: 'center', padding: 50, background: 'white', borderRadius: 14, color: '#bbb' }}><i className="fas fa-newspaper" style={{ fontSize: 36, marginBottom: 10, display: 'block', opacity: .3 }} />No news published yet</div>}
+                  {news.length === 0 && <div style={{ textAlign: 'center', padding: 50, background:'var(--surface-card)', borderRadius: 14, color:'var(--text-faint-2)' }}><i className="fas fa-newspaper" style={{ fontSize: 36, marginBottom: 10, display: 'block', opacity: .3 }} />No news published yet</div>}
                   {news.map(n => (
-                    <div key={n._id} style={{ background: 'white', borderRadius: 13, padding: '16px 18px', display: 'flex', gap: 14, alignItems: 'flex-start', boxShadow: '0 2px 8px rgba(0,0,0,.05)' }}>
+                    <div key={n._id} style={{ background:'var(--surface-card)', borderRadius: 13, padding: '16px 18px', display: 'flex', gap: 14, alignItems: 'flex-start', boxShadow: '0 2px 8px rgba(0,0,0,.05)' }}>
                       {n.image && <img src={n.image} alt={n.title} style={{ width: 80, height: 60, objectFit: 'cover', borderRadius: 8, flexShrink: 0 }} />}
                       <div style={{ flex: 1, minWidth: 0 }}>
                         <div style={{ display: 'flex', justifyContent: 'space-between', flexWrap: 'wrap', gap: 8 }}>
-                          <h3 style={{ margin: 0, fontSize: 14, color: '#1a3a5c' }}>{n.title}</h3>
+                          <h3 style={{ margin: 0, fontSize: 14, color:'var(--navy)' }}>{n.title}</h3>
                           <div style={{ display: 'flex', gap: 6, alignItems: 'center' }}>
                             <Badge text={n.category} color="#f39c12" bg="#fff3e0" />
-                            <span style={{ fontSize: 11, color: '#aaa' }}>{fmt(n.date)}</span>
+                            <span style={{ fontSize: 11, color:'var(--text-faint)' }}>{fmt(n.date)}</span>
                             <Btn small danger icon="fas fa-trash" onClick={() => deleteNews(n)} />
                           </div>
                         </div>
-                        <p style={{ margin: '6px 0 0', fontSize: 12, color: '#666', lineHeight: 1.6 }}>{n.summary}</p>
-                        <div style={{ display: 'flex', gap: 12, marginTop: 8, fontSize: 11, color: '#aaa' }}>
+                        <p style={{ margin: '6px 0 0', fontSize: 12, color:'var(--text-secondary)', lineHeight: 1.6 }}>{n.summary}</p>
+                        <div style={{ display: 'flex', gap: 12, marginTop: 8, fontSize: 11, color:'var(--text-faint)' }}>
                           <span><i className="fas fa-eye" style={{ marginRight: 4 }} />{n.views || 0} views</span>
                           <span><i className="fas fa-user" style={{ marginRight: 4 }} />{n.author}</span>
                         </div>
@@ -667,19 +667,19 @@
             {activeTab === 'gallery' && (
               <div>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 18, flexWrap: 'wrap', gap: 10 }}>
-                  <div><h2 style={{ margin: 0, fontSize: 19, color: '#1a3a5c', fontFamily: 'Georgia, serif' }}>Photo Gallery</h2><p style={{ margin: '3px 0 0', fontSize: 12, color: '#888' }}>{gallery.length} images</p></div>
+                  <div><h2 style={{ margin: 0, fontSize: 19, color:'var(--navy)', fontFamily: 'Georgia, serif' }}>Photo Gallery</h2><p style={{ margin: '3px 0 0', fontSize: 12, color:'var(--text-faint)' }}>{gallery.length} images</p></div>
                   <Btn onClick={() => setGalleryModal(true)} icon="fas fa-plus" color="#1a3a5c">Add Image</Btn>
                 </div>
-                {gallery.length === 0 && <div style={{ textAlign: 'center', padding: 50, background: 'white', borderRadius: 14, color: '#bbb' }}><i className="fas fa-images" style={{ fontSize: 36, marginBottom: 10, display: 'block', opacity: .3 }} />No gallery images yet</div>}
+                {gallery.length === 0 && <div style={{ textAlign: 'center', padding: 50, background:'var(--surface-card)', borderRadius: 14, color:'var(--text-faint-2)' }}><i className="fas fa-images" style={{ fontSize: 36, marginBottom: 10, display: 'block', opacity: .3 }} />No gallery images yet</div>}
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill,minmax(200px,1fr))', gap: 14 }}>
                   {gallery.map(img => (
-                    <div key={img._id} style={{ borderRadius: 12, overflow: 'hidden', position: 'relative', background: 'white', boxShadow: '0 2px 8px rgba(0,0,0,.08)' }}>
+                    <div key={img._id} style={{ borderRadius: 12, overflow: 'hidden', position: 'relative', background:'var(--surface-card)', boxShadow: '0 2px 8px rgba(0,0,0,.08)' }}>
                       <img src={img.image} alt={img.title} style={{ width: '100%', height: 150, objectFit: 'cover' }} />
                       <div style={{ padding: '10px 12px' }}>
-                        <div style={{ fontSize: 13, fontWeight: 600, color: '#1a3a5c' }}>{img.title}</div>
+                        <div style={{ fontSize: 13, fontWeight: 600, color:'var(--navy)' }}>{img.title}</div>
                         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: 6 }}>
                           <Badge text={img.category} color="#3498db" bg="#e3f2fd" size={10} />
-                          <button onClick={() => deleteGallery(img)} style={{ background: '#fdecea', border: 'none', borderRadius: 6, padding: '4px 8px', cursor: 'pointer', color: '#e74c3c', fontSize: 11 }}><i className="fas fa-trash" /></button>
+                          <button onClick={() => deleteGallery(img)} style={{ background:'var(--tint-danger)', border: 'none', borderRadius: 6, padding: '4px 8px', cursor: 'pointer', color: '#e74c3c', fontSize: 11 }}><i className="fas fa-trash" /></button>
                         </div>
                       </div>
                     </div>
@@ -691,16 +691,16 @@
             {/* ══ APPLICATIONS ══ */}
             {activeTab === 'applications' && (
               <div>
-                <div style={{ marginBottom: 18 }}><h2 style={{ margin: 0, fontSize: 19, color: '#1a3a5c', fontFamily: 'Georgia, serif' }}>Admission Applications</h2><p style={{ margin: '3px 0 0', fontSize: 12, color: '#888' }}>{applications.length} total · {applications.filter(a => a.status === 'pending').length} pending</p></div>
-                <div style={{ background: 'white', borderRadius: 14, boxShadow: '0 2px 10px rgba(0,0,0,.05)' }}>
+                <div style={{ marginBottom: 18 }}><h2 style={{ margin: 0, fontSize: 19, color:'var(--navy)', fontFamily: 'Georgia, serif' }}>Admission Applications</h2><p style={{ margin: '3px 0 0', fontSize: 12, color:'var(--text-faint)' }}>{applications.length} total · {applications.filter(a => a.status === 'pending').length} pending</p></div>
+                <div style={{ background:'var(--surface-card)', borderRadius: 14, boxShadow: '0 2px 10px rgba(0,0,0,.05)' }}>
                   <Table cols={['Applicant', 'Level', 'Previous School', 'Average', 'Applied', 'Status', 'Actions']} emptyMsg="No applications submitted yet."
                     rows={applications.map(app => (
-                      <><TD><div style={{ fontWeight: 600, fontSize: 13 }}>{app.fullName}</div><div style={{ fontSize: 11, color: '#aaa' }}>{app.email}</div></TD>
+                      <><TD><div style={{ fontWeight: 600, fontSize: 13 }}>{app.fullName}</div><div style={{ fontSize: 11, color:'var(--text-faint)' }}>{app.email}</div></TD>
                         <TD><Badge text={app.level} color="#3498db" bg="#e3f2fd" /></TD>
                         <TD style={{ fontSize: 12 }}>{app.previousSchool}</TD>
                         <TD><span style={{ fontWeight: 700, color: app.lastAverage >= 70 ? '#27ae60' : '#e74c3c' }}>{app.lastAverage}%</span></TD>
-                        <TD style={{ fontSize: 12, color: '#aaa' }}>{fmt(app.createdAt)}</TD>
-                        <TD>{(() => { const sc = { pending: { color: '#f39c12', bg: '#fff3e0' }, accepted: { color: '#27ae60', bg: '#e8f5e9' }, rejected: { color: '#e74c3c', bg: '#fdecea' }, reviewing: { color: '#3498db', bg: '#e3f2fd' } }[app.status] || {}; return <Badge text={app.status} color={sc.color} bg={sc.bg} />; })()}</TD>
+                        <TD style={{ fontSize: 12, color:'var(--text-faint)' }}>{fmt(app.createdAt)}</TD>
+                        <TD>{(() => { const sc = { pending: { color: '#f39c12', bg:'var(--tint-warning)' }, accepted: { color: '#27ae60', bg:'var(--tint-success)' }, rejected: { color: '#e74c3c', bg:'var(--tint-danger)' }, reviewing: { color: '#3498db', bg:'var(--tint-primary)' } }[app.status] || {}; return <Badge text={app.status} color={sc.color} bg={sc.bg} />; })()}</TD>
                         <TD>{app.status === 'pending' && <div style={{ display: 'flex', gap: 6 }}>
                           <Btn small onClick={() => reviewApplication(app, 'accepted')} color="#27ae60">Accept</Btn>
                           <Btn small onClick={() => reviewApplication(app, 'rejected')} danger>Reject</Btn>
@@ -714,24 +714,24 @@
             {/* ══ PERFORMANCE ══ */}
             {activeTab === 'performance' && (
               <div>
-                <div style={{ marginBottom: 18 }}><h2 style={{ margin: 0, fontSize: 19, color: '#1a3a5c', fontFamily: 'Georgia, serif' }}>Academic Performance</h2></div>
+                <div style={{ marginBottom: 18 }}><h2 style={{ margin: 0, fontSize: 19, color:'var(--navy)', fontFamily: 'Georgia, serif' }}>Academic Performance</h2></div>
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(340px,1fr))', gap: 18 }}>
-                  <div style={{ background: 'white', borderRadius: 14, padding: 18, boxShadow: '0 2px 10px rgba(0,0,0,.05)' }}>
-                    <h3 style={{ margin: '0 0 14px', fontSize: 14, color: '#1a3a5c', fontWeight: 600 }}><i className="fas fa-chart-bar" style={{ marginRight: 7, color: '#3498db' }} />Class Performance</h3>
-                    {classPerformance.length === 0 && <p style={{ textAlign: 'center', color: '#bbb', fontSize: 13 }}>No data available</p>}
+                  <div style={{ background:'var(--surface-card)', borderRadius: 14, padding: 18, boxShadow: '0 2px 10px rgba(0,0,0,.05)' }}>
+                    <h3 style={{ margin: '0 0 14px', fontSize: 14, color:'var(--navy)', fontWeight: 600 }}><i className="fas fa-chart-bar" style={{ marginRight: 7, color: '#3498db' }} />Class Performance</h3>
+                    {classPerformance.length === 0 && <p style={{ textAlign: 'center', color:'var(--text-faint-2)', fontSize: 13 }}>No data available</p>}
                     {classPerformance.map((c, i) => (
                       <div key={i} style={{ marginBottom: 12 }}>
                         <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 4, fontSize: 13 }}>
                           <span>{c.className}</span><span style={{ fontWeight: 700, color: c.averageScore >= 70 ? '#27ae60' : '#e74c3c' }}>{c.averageScore}%</span>
                         </div>
-                        <div style={{ height: 8, background: '#f0f0f0', borderRadius: 4, overflow: 'hidden' }}>
+                        <div style={{ height: 8, background:'var(--surface-page)', borderRadius: 4, overflow: 'hidden' }}>
                           <div style={{ height: '100%', width: `${c.averageScore}%`, background: c.averageScore >= 70 ? '#27ae60' : '#e74c3c', borderRadius: 4, transition: 'width .5s' }} />
                         </div>
                       </div>
                     ))}
                   </div>
-                  <div style={{ background: 'white', borderRadius: 14, padding: 18, boxShadow: '0 2px 10px rgba(0,0,0,.05)' }}>
-                    <h3 style={{ margin: '0 0 14px', fontSize: 14, color: '#1a3a5c', fontWeight: 600 }}><i className="fas fa-trophy" style={{ marginRight: 7, color: '#f39c12' }} />Top Students</h3>
+                  <div style={{ background:'var(--surface-card)', borderRadius: 14, padding: 18, boxShadow: '0 2px 10px rgba(0,0,0,.05)' }}>
+                    <h3 style={{ margin: '0 0 14px', fontSize: 14, color:'var(--navy)', fontWeight: 600 }}><i className="fas fa-trophy" style={{ marginRight: 7, color: '#f39c12' }} />Top Students</h3>
                     <Table cols={['Student', 'Class', 'Average']} emptyMsg="No data yet."
                       rows={studentPerformance.slice(0, 10).map((s, i) => (
                         <><TD><div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
@@ -761,21 +761,21 @@
             {/* ══ ANNOUNCEMENTS ══ */}
             {activeTab === 'announcements' && (
               <div>
-                <div style={{ marginBottom: 18 }}><h2 style={{ margin: 0, fontSize: 19, color: '#1a3a5c', fontFamily: 'Georgia, serif' }}>School Announcements</h2></div>
+                <div style={{ marginBottom: 18 }}><h2 style={{ margin: 0, fontSize: 19, color:'var(--navy)', fontFamily: 'Georgia, serif' }}>School Announcements</h2></div>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-                  {announcements.length === 0 && <div style={{ textAlign: 'center', padding: 50, background: 'white', borderRadius: 14, color: '#bbb' }}><i className="fas fa-bullhorn" style={{ fontSize: 32, display: 'block', marginBottom: 10, opacity: .3 }} />No announcements yet</div>}
+                  {announcements.length === 0 && <div style={{ textAlign: 'center', padding: 50, background:'var(--surface-card)', borderRadius: 14, color:'var(--text-faint-2)' }}><i className="fas fa-bullhorn" style={{ fontSize: 32, display: 'block', marginBottom: 10, opacity: .3 }} />No announcements yet</div>}
                   {announcements.map(ann => {
                     const pc = ann.priority === 'urgent' ? '#e74c3c' : ann.priority === 'high' ? '#f39c12' : '#27ae60';
                     return (
-                      <div key={ann._id} style={{ background: 'white', borderRadius: 12, padding: '15px 18px', borderLeft: `4px solid ${pc}`, boxShadow: '0 2px 8px rgba(0,0,0,.04)' }}>
+                      <div key={ann._id} style={{ background:'var(--surface-card)', borderRadius: 12, padding: '15px 18px', borderLeft: `4px solid ${pc}`, boxShadow: '0 2px 8px rgba(0,0,0,.04)' }}>
                         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: 8 }}>
-                          <h3 style={{ margin: 0, fontSize: 14, color: '#1a3a5c' }}>{ann.title}</h3>
+                          <h3 style={{ margin: 0, fontSize: 14, color:'var(--navy)' }}>{ann.title}</h3>
                           <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
                             <Badge text={ann.priority} color={pc} bg={pc + '22'} />
-                            <span style={{ fontSize: 11, color: '#aaa' }}>{fmt(ann.createdAt)}</span>
+                            <span style={{ fontSize: 11, color:'var(--text-faint)' }}>{fmt(ann.createdAt)}</span>
                           </div>
                         </div>
-                        <p style={{ margin: '8px 0 0', fontSize: 13, color: '#555', lineHeight: 1.6 }}>{ann.content}</p>
+                        <p style={{ margin: '8px 0 0', fontSize: 13, color:'var(--text-2)', lineHeight: 1.6 }}>{ann.content}</p>
                       </div>
                     );
                   })}
@@ -785,32 +785,32 @@
 
             {/* ══ MESSAGES ══ */}
             {activeTab === 'messages' && (
-              <div style={{ background: 'white', borderRadius: 14, overflow: 'hidden', height: 'calc(100vh - 140px)', display: 'flex', flexDirection: 'column', boxShadow: '0 2px 10px rgba(0,0,0,.05)' }}>
-                <div style={{ padding: '12px 18px', borderBottom: '1px solid #eee', display: 'flex', gap: 10, flexWrap: 'wrap' }}>
+              <div style={{ background:'var(--surface-card)', borderRadius: 14, overflow: 'hidden', height: 'calc(100vh - 140px)', display: 'flex', flexDirection: 'column', boxShadow: '0 2px 10px rgba(0,0,0,.05)' }}>
+                <div style={{ padding: '12px 18px', borderBottom:'1px solid var(--border)', display: 'flex', gap: 10, flexWrap: 'wrap' }}>
                   {['inbox', 'compose'].map(t => (
                     <button key={t} onClick={() => { setMsgTab(t); if (t === 'compose') { setSelectedUser(null); setMessages([]); } }}
-                      style={{ padding: '7px 18px', borderRadius: 30, border: 'none', cursor: 'pointer', fontSize: 13, fontWeight: 600, background: msgTab === t ? '#1a3a5c' : '#f0f3f8', color: msgTab === t ? 'white' : '#666', transition: 'all .2s' }}>
-                      {t === 'inbox' ? <><i className="fas fa-inbox" style={{ marginRight: 6 }} />Inbox{unread > 0 && <span style={{ marginLeft: 6, background: '#e74c3c', color: 'white', borderRadius: 20, fontSize: 10, padding: '1px 6px' }}>{unread}</span>}</> : <><i className="fas fa-pen" style={{ marginRight: 6 }} />New Message</>}
+                      style={{ padding: '7px 18px', borderRadius: 30, border: 'none', cursor: 'pointer', fontSize: 13, fontWeight: 600, background: msgTab === t ? '#1a3a5c' : '#f0f3f8', color: msgTab === t ? 'var(--on-solid)' : '#666', transition: 'all .2s' }}>
+                      {t === 'inbox' ? <><i className="fas fa-inbox" style={{ marginRight: 6 }} />Inbox{unread > 0 && <span style={{ marginLeft: 6, background: '#e74c3c', color:'var(--on-solid)', borderRadius: 20, fontSize: 10, padding: '1px 6px' }}>{unread}</span>}</> : <><i className="fas fa-pen" style={{ marginRight: 6 }} />New Message</>}
                     </button>
                   ))}
                 </div>
                 {msgTab === 'inbox' ? (
                   <div style={{ flex: 1, display: 'flex', overflow: 'hidden' }}>
-                    <div style={{ width: 260, borderRight: '1px solid #eee', display: 'flex', flexDirection: 'column', background: '#fafbff', flexShrink: 0 }}>
-                      <div style={{ padding: '10px 12px', borderBottom: '1px solid #eee' }}>
+                    <div style={{ width: 260, borderRight:'1px solid var(--border)', display: 'flex', flexDirection: 'column', background:'var(--surface-raised)', flexShrink: 0 }}>
+                      <div style={{ padding: '10px 12px', borderBottom:'1px solid var(--border)' }}>
                         <div style={{ position: 'relative' }}>
-                          <i className="fas fa-search" style={{ position: 'absolute', left: 10, top: '50%', transform: 'translateY(-50%)', color: '#ccc', fontSize: 11 }} />
-                          <input value={msgSearch} onChange={e => setMsgSearch(e.target.value)} placeholder="Search…" style={{ width: '100%', padding: '7px 10px 7px 28px', border: '1px solid #eee', borderRadius: 20, fontSize: 12, boxSizing: 'border-box', outline: 'none' }} />
+                          <i className="fas fa-search" style={{ position: 'absolute', left: 10, top: '50%', transform: 'translateY(-50%)', color:'var(--border-strong)', fontSize: 11 }} />
+                          <input value={msgSearch} onChange={e => setMsgSearch(e.target.value)} placeholder="Search…" style={{ width: '100%', padding: '7px 10px 7px 28px', border:'1px solid var(--border)', borderRadius: 20, fontSize: 12, boxSizing: 'border-box', outline: 'none' }} />
                         </div>
                       </div>
                       <div style={{ flex: 1, overflowY: 'auto' }}>
-                        {filteredUsers.length === 0 && <div style={{ textAlign: 'center', padding: 28, color: '#ccc', fontSize: 13 }}>No users found</div>}
+                        {filteredUsers.length === 0 && <div style={{ textAlign: 'center', padding: 28, color:'var(--border-strong)', fontSize: 13 }}>No users found</div>}
                         {filteredUsers.map(u => (
                           <div key={u._id} onClick={() => { setSelectedUser(u); fetchConversation(u._id); }}
                             style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '11px 12px', cursor: 'pointer', background: selectedUser?._id === u._id ? '#e8f0fe' : 'transparent', borderLeft: selectedUser?._id === u._id ? '3px solid #ffc107' : '3px solid transparent', transition: 'background .15s' }}>
                             <Avatar name={u.fullName} size={34} img={u.profileImage} />
                             <div style={{ overflow: 'hidden' }}>
-                              <div style={{ fontSize: 13, fontWeight: 600, color: '#333', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{u.fullName}</div>
+                              <div style={{ fontSize: 13, fontWeight: 600, color:'var(--text-body)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{u.fullName}</div>
                               <div style={{ fontSize: 10, color: '#ffc107', fontWeight: 700 }}>{roleBadge(u.role).label}</div>
                             </div>
                           </div>
@@ -820,12 +820,12 @@
                     <div style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
                       {selectedUser ? (
                         <>
-                          <div style={{ padding: '12px 16px', borderBottom: '1px solid #eee', display: 'flex', alignItems: 'center', gap: 11 }}>
+                          <div style={{ padding: '12px 16px', borderBottom:'1px solid var(--border)', display: 'flex', alignItems: 'center', gap: 11 }}>
                             <Avatar name={selectedUser.fullName} size={38} img={selectedUser.profileImage} />
-                            <div><div style={{ fontWeight: 600, fontSize: 14, color: '#1a3a5c' }}>{selectedUser.fullName}</div><div style={{ fontSize: 11, color: '#ffc107', fontWeight: 700 }}>{roleBadge(selectedUser.role).label}</div></div>
+                            <div><div style={{ fontWeight: 600, fontSize: 14, color:'var(--navy)' }}>{selectedUser.fullName}</div><div style={{ fontSize: 11, color: '#ffc107', fontWeight: 700 }}>{roleBadge(selectedUser.role).label}</div></div>
                           </div>
-                          <div style={{ flex: 1, overflowY: 'auto', padding: 16, display: 'flex', flexDirection: 'column', gap: 10, background: '#f8f9ff' }}>
-                            {messages.length === 0 && <div style={{ textAlign: 'center', color: '#ccc', paddingTop: 40 }}><i className="fas fa-comments" style={{ fontSize: 30, display: 'block', marginBottom: 8 }} />Start a conversation</div>}
+                          <div style={{ flex: 1, overflowY: 'auto', padding: 16, display: 'flex', flexDirection: 'column', gap: 10, background:'var(--surface-raised)' }}>
+                            {messages.length === 0 && <div style={{ textAlign: 'center', color:'var(--border-strong)', paddingTop: 40 }}><i className="fas fa-comments" style={{ fontSize: 30, display: 'block', marginBottom: 8 }} />Start a conversation</div>}
                             {messages.map(m => (
                               <div key={m._id} className={m.senderId === userId ? 'sent-bubble' : 'recv-bubble'}>
                                 <div>{m.content}</div>
@@ -834,19 +834,19 @@
                             ))}
                             <div ref={msgEndRef} />
                           </div>
-                          <div style={{ padding: '10px 14px', borderTop: '1px solid #eee', display: 'flex', gap: 9, background: 'white', alignItems: 'flex-end' }}>
+                          <div style={{ padding: '10px 14px', borderTop:'1px solid var(--border)', display: 'flex', gap: 9, background:'var(--surface-card)', alignItems: 'flex-end' }}>
                             <textarea value={msgText} onChange={e => setMsgText(e.target.value)} placeholder={`Message ${selectedUser.fullName}…`} rows={2}
                               onKeyDown={e => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMessage(); } }}
-                              style={{ flex: 1, padding: '9px 12px', border: '1.5px solid #e0e0e0', borderRadius: 12, resize: 'none', fontFamily: 'inherit', fontSize: 13, outline: 'none', boxSizing: 'border-box' }} />
-                            <button onClick={sendMessage} disabled={!msgText.trim()} style={{ width: 40, height: 40, background: msgText.trim() ? '#1a3a5c' : '#ddd', border: 'none', borderRadius: '50%', cursor: msgText.trim() ? 'pointer' : 'default', color: 'white', fontSize: 15, flexShrink: 0 }}><i className="fas fa-paper-plane" /></button>
+                              style={{ flex: 1, padding: '9px 12px', border:'1.5px solid var(--surface-sunken-2)', borderRadius: 12, resize: 'none', fontFamily: 'inherit', fontSize: 13, outline: 'none', boxSizing: 'border-box' }} />
+                            <button onClick={sendMessage} disabled={!msgText.trim()} style={{ width: 40, height: 40, background: msgText.trim() ? '#1a3a5c' : '#ddd', border: 'none', borderRadius: '50%', cursor: msgText.trim() ? 'pointer' : 'default', color:'var(--on-solid)', fontSize: 15, flexShrink: 0 }}><i className="fas fa-paper-plane" /></button>
                           </div>
                         </>
-                      ) : <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', color: '#ccc', gap: 10 }}><i className="fas fa-comments" style={{ fontSize: 44, opacity: .3 }} /><div style={{ fontSize: 14 }}>Select a user to message</div></div>}
+                      ) : <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', color:'var(--border-strong)', gap: 10 }}><i className="fas fa-comments" style={{ fontSize: 44, opacity: .3 }} /><div style={{ fontSize: 14 }}>Select a user to message</div></div>}
                     </div>
                   </div>
                 ) : (
                   <div style={{ flex: 1, padding: 24, maxWidth: 580, margin: '0 auto', width: '100%', overflowY: 'auto' }}>
-                    <h3 style={{ margin: '0 0 18px', color: '#1a3a5c', fontFamily: 'Georgia, serif' }}>New Message</h3>
+                    <h3 style={{ margin: '0 0 18px', color:'var(--navy)', fontFamily: 'Georgia, serif' }}>New Message</h3>
                     <Field label="Recipient" required>
                       <Sel value={selectedUser?._id || ''} onChange={e => setSelectedUser(msgUsers.find(u => u._id === e.target.value) || null)}>
                         <option value="">Select user…</option>
@@ -866,14 +866,14 @@
             {/* ══ PROFILE ══ */}
             {activeTab === 'profile' && (
               <div style={{ maxWidth: 600, margin: '0 auto' }}>
-                <div style={{ background: 'linear-gradient(135deg,#0d1f33,#1a3a5c)', borderRadius: 18, padding: '30px', textAlign: 'center', marginBottom: 18, color: 'white' }}>
+                <div style={{ background:'linear-gradient(135deg,var(--navy-deep),var(--navy))', borderRadius: 18, padding: '30px', textAlign: 'center', marginBottom: 18, color:'var(--on-solid)' }}>
                   <Avatar name={userName} size={72} bg='rgba(255,193,7,.2)' color='#ffc107' />
                   <h2 style={{ margin: '14px 0 3px', fontFamily: 'Georgia, serif', fontSize: 22 }}>{userName}</h2>
                   <div style={{ fontSize: 11, opacity: .7, letterSpacing: 1 }}>ACADEMIC ADMINISTRATOR</div>
                   <div style={{ fontSize: 12, opacity: .6, marginTop: 4 }}>{localStorage.getItem('userEmail') || 'academic@essa.rw'}</div>
                 </div>
-                <div style={{ background: 'white', borderRadius: 14, padding: 22, boxShadow: '0 2px 10px rgba(0,0,0,.05)' }}>
-                  <h3 style={{ margin: '0 0 16px', fontSize: 15, color: '#1a3a5c', fontFamily: 'Georgia, serif', display: 'flex', alignItems: 'center', gap: 8 }}>
+                <div style={{ background:'var(--surface-card)', borderRadius: 14, padding: 22, boxShadow: '0 2px 10px rgba(0,0,0,.05)' }}>
+                  <h3 style={{ margin: '0 0 16px', fontSize: 15, color:'var(--navy)', fontFamily: 'Georgia, serif', display: 'flex', alignItems: 'center', gap: 8 }}>
                     <i className="fas fa-lock" style={{ color: '#ffc107' }} />Change Password
                   </h3>
                   {[['Current Password', 'currentPw'], ['New Password', 'newPw'], ['Confirm New Password', 'confirmPw']].map(([label, id]) => (
