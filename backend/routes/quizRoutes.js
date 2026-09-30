@@ -363,7 +363,9 @@ router.get('/teacher/quizzes/:id/results', authMiddleware, requireRole(...QUIZ_R
     const quiz = await loadOwnQuiz(req, res);
     if (!quiz) return;
 
-    const attempts = await QuizAttempt.find({ quizId: quiz._id })
+    // Only handed-in attempts count towards the class picture; an attempt the pupil
+    // has merely opened would otherwise show up as a zero.
+    const attempts = await QuizAttempt.find({ quizId: quiz._id, status: 'submitted' })
       .sort({ submittedAt: -1 })
       .populate('studentId', 'fullName studentId')
       .lean();
@@ -508,15 +510,19 @@ router.get('/student/quizzes', authMiddleware, requireRole('student'), async (re
     const pupil = await pupilOwnRecord(req.userId);
     if (!pupil || !pupil.classId) return res.json({ quizzes: [] });
 
-    // Only published quizzes for the pupil's own class. A draft, another form's
-    // quiz, or a closed window is not returned at all rather than returned and
-    // hidden by the client.
+    // Only published quizzes for the pupil's own class. A draft or another
+    // form's quiz is not returned at all rather than returned and hidden by the
+    // client. A quiz whose window has closed is still listed, but marked closed
+    // so the pupil can see it existed rather than wondering where it went.
     const quizzes = await Quiz.find({
       classId: pupil.classId,
       status: 'published'
     }).sort({ createdAt: -1 }).lean();
 
-    const attempts = await QuizAttempt.find({ studentId: pupil._id }).lean();
+    // An attempt the pupil has opened but not handed in is not a result, so it
+    // must not stand in for one when deciding canAttempt.
+    const attempts = await QuizAttempt.find({ studentId: pupil._id, status: 'submitted' })
+      .sort({ attemptNumber: -1 }).lean();
     const attemptByQuiz = new Map(attempts.map((a) => [String(a.quizId), a]));
 
     res.json({
@@ -562,9 +568,76 @@ router.get('/student/quizzes/:id', authMiddleware, requireRole('student'), async
   try {
     const loaded = await loadPupilQuiz(req, res);
     if (!loaded) return;
-    const attempt = await QuizAttempt.findOne({ quizId: loaded.quiz._id, studentId: loaded.pupil._id })
-      .sort({ attemptNumber: -1 }).lean();
-    res.json({ quiz: studentQuizView(loaded.quiz, { includeResult: attempt || null }) });
+    const attempt = await QuizAttempt.findOne({
+      quizId: loaded.quiz._id, studentId: loaded.pupil._id, status: 'submitted'
+    }).sort({ attemptNumber: -1 }).lean();
+    // Handed back so a pupil who refreshes mid-quiz keeps the clock they
+    // started, instead of being given a new one.
+    const inProgress = await QuizAttempt.findOne({
+      quizId: loaded.quiz._id, studentId: loaded.pupil._id, status: 'in_progress'
+    }).sort({ attemptNumber: -1 }).lean();
+    res.json({
+      quiz: studentQuizView(loaded.quiz, { includeResult: attempt || null }),
+      inProgress: inProgress
+        ? { remainingSeconds: secondsLeft(loaded.quiz, inProgress.startedAt), startedAt: inProgress.startedAt }
+        : null
+    });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+});
+
+// Seconds left against a server-recorded start, or null when the quiz is
+// untimed. Shared by the start endpoint and the re-open path so a pupil who
+// refreshes mid-quiz sees the same clock, not a fresh one.
+const secondsLeft = (quiz, startedAt) => {
+  if (!quiz.timeLimitMinutes || !startedAt) return null;
+  return Math.max(0, quiz.timeLimitMinutes * 60 - Math.round((Date.now() - new Date(startedAt)) / 1000));
+};
+
+router.post('/student/quizzes/:id/start', authMiddleware, requireRole('student'), async (req, res) => {
+  try {
+    const loaded = await loadPupilQuiz(req, res);
+    if (!loaded) return;
+    const { quiz, pupil } = loaded;
+
+    // Re-opening after a refresh must not restart the clock, or the limit could
+    // be dodged by reloading the page. This is checked before the
+    // already-attempted refusal, because an open attempt means the pupil has not
+    // finished, not that they are out of tries.
+    const open = await QuizAttempt.findOne({
+      quizId: quiz._id, studentId: pupil._id, status: 'in_progress'
+    }).sort({ attemptNumber: -1 });
+    if (open) {
+      return res.json({
+        startedAt: open.startedAt,
+        timeLimitMinutes: quiz.timeLimitMinutes || 0,
+        remainingSeconds: secondsLeft(quiz, open.startedAt),
+        attemptNumber: open.attemptNumber
+      });
+    }
+
+    const last = await QuizAttempt.findOne({ quizId: quiz._id, studentId: pupil._id })
+      .sort({ attemptNumber: -1 });
+    if (last && !quiz.allowRetakes) {
+      return res.status(409).json({ message: 'You have already attempted this quiz' });
+    }
+
+    const attempt = await QuizAttempt.create({
+      quizId: quiz._id,
+      studentId: pupil._id,
+      classId: pupil.classId,
+      status: 'in_progress',
+      attemptNumber: (last ? last.attemptNumber : 0) + 1,
+      startedAt: new Date()
+    });
+
+    res.status(201).json({
+      startedAt: attempt.startedAt,
+      timeLimitMinutes: quiz.timeLimitMinutes || 0,
+      remainingSeconds: secondsLeft(quiz, attempt.startedAt),
+      attemptNumber: attempt.attemptNumber
+    });
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
@@ -580,8 +653,16 @@ router.post('/student/quizzes/:id/submit', authMiddleware, requireRole('student'
     const last = existing[0];
     // A retake is a new attempt, so the earlier one is kept rather than
     // overwritten: the attempt history is what a parent dispute relies on.
-    if (last && !quiz.allowRetakes) {
+    if (last && !quiz.allowRetakes && last.status === 'submitted') {
       return res.status(409).json({ message: 'You have already attempted this quiz' });
+    }
+
+    // The answers are only accepted against an attempt the server opened, which
+    // is what makes the time limit real. A crafted request with a made-up
+    // startedAt has nothing to attach to and is refused.
+    const open = existing.find((a) => a.status === 'in_progress');
+    if (!open) {
+      return res.status(409).json({ message: 'Open the quiz before handing it in' });
     }
 
     const submitted = Array.isArray(req.body.answers) ? req.body.answers : [];
@@ -592,29 +673,26 @@ router.post('/student/quizzes/:id/submit', authMiddleware, requireRole('student'
 
     const marked = markAttempt(quiz, answers);
 
-    // The time limit is enforced here, not in the browser. A client-side timer is
-    // a suggestion; without this the pupil closes the tab, waits and submits.
-    // submittedAt is the server's own clock, so this cannot be back-dated.
-    const startedAt = req.body.startedAt ? new Date(req.body.startedAt) : new Date();
-    const elapsed = Math.round((Date.now() - startedAt.getTime()) / 1000);
+    // Elapsed time comes from the server's own start stamp. A client-side timer
+    // is a suggestion, and without this the pupil closes the tab, waits and
+    // submits. Lateness is recorded rather than rejected here so that a slow
+    // connection cannot cost a pupil their work; the teacher decides what a late
+    // attempt is worth from the results screen.
+    const elapsed = Math.max(0, Math.round((Date.now() - new Date(open.startedAt)) / 1000));
 
-    const attempt = await QuizAttempt.create({
-      quizId: quiz._id,
-      studentId: pupil._id,
-      classId: pupil.classId,
+    const attempt = await QuizAttempt.findByIdAndUpdate(open._id, {
       answers: marked.answers,
       score: marked.score,
       maxScore: marked.maxScore,
       percentage: marked.maxScore ? Math.round((marked.score / marked.maxScore) * 100) : 0,
       pendingManualMarking: marked.pendingManualMarking,
       fullyMarked: !marked.pendingManualMarking,
-      attemptNumber: (last ? last.attemptNumber : 0) + 1,
-      startedAt,
+      status: 'submitted',
       submittedAt: new Date(),
       durationSeconds: elapsed
-    });
+    }, { new: true });
 
-    res.status(201).json({
+    res.status(200).json({
       success: true,
       attempt: {
         _id: attempt._id,
@@ -625,6 +703,8 @@ router.post('/student/quizzes/:id/submit', authMiddleware, requireRole('student'
         fullyMarked: attempt.fullyMarked,
         attemptNumber: attempt.attemptNumber,
         submittedAt: attempt.submittedAt,
+        durationSeconds: attempt.durationSeconds,
+        late: Boolean(quiz.timeLimitMinutes && elapsed > quiz.timeLimitMinutes * 60),
         // Written answers are echoed back so the pupil can check what was
         // recorded, but the key is never included.
         answers: attempt.answers.map((a) => ({
@@ -648,7 +728,7 @@ router.get('/student/quizzes/attempts/mine', authMiddleware, requireRole('studen
     const pupil = await pupilOwnRecord(req.userId);
     if (!pupil) return res.json({ attempts: [] });
 
-    const attempts = await QuizAttempt.find({ studentId: pupil._id })
+    const attempts = await QuizAttempt.find({ studentId: pupil._id, status: 'submitted' })
       .sort({ submittedAt: -1 })
       .populate('quizId', 'title subject timeLimitMinutes questions')
       .lean();
@@ -668,6 +748,21 @@ router.get('/student/quizzes/attempts/mine', authMiddleware, requireRole('studen
           attemptNumber: a.attemptNumber,
           submittedAt: a.submittedAt,
           durationSeconds: a.durationSeconds,
+          // Computed the same way the teacher screen does it, so the pupil and
+          // the teacher are looking at one number rather than two.
+          late: Boolean(quiz.timeLimitMinutes && a.durationSeconds > quiz.timeLimitMinutes * 60),
+          // The pupil's own answers, so they can check what was recorded. The
+          // key is a separate field below and only travels once marking is done.
+          answers: (a.answers || []).map((ans) => ({
+            questionId: ans.questionId,
+            text: ans.text,
+            selectedOptions: ans.selectedOptions,
+            isCorrect: ans.isCorrect,
+            pointsAwarded: ans.pointsAwarded,
+            maxPoints: ans.maxPoints,
+            autoMarked: ans.autoMarked,
+            teacherComment: ans.teacherComment
+          })),
           // The answer key travels back to the pupil only once the attempt is
           // fully marked, which is the point at which it stops being a secret.
           answerKey: a.fullyMarked

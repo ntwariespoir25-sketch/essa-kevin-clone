@@ -35,6 +35,11 @@ const attemptSchema = new mongoose.Schema({
   fullyMarked: { type: Boolean, default: false },
 
   attemptNumber: { type: Number, default: 1 },
+  // 'in_progress' is created by the server the moment a pupil opens the quiz and
+  // is what makes the time limit meaningful: startedAt below is the server's
+  // clock, so a pupil cannot claim they started later than they did. The attempt
+  // only becomes 'submitted' when the answers come back.
+  status: { type: String, enum: ['in_progress', 'submitted'], default: 'submitted' },
   startedAt: { type: Date, default: Date.now },
   submittedAt: Date,
   durationSeconds: Number

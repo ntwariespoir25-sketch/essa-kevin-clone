@@ -4,6 +4,10 @@ import Swal from 'sweetalert2';
 import io from 'socket.io-client';
 import { GradebookPanel } from './GradebookPanel';
 import { AttendancePanel } from './AttendancePanel';
+import { QuizBuilderPanel } from './QuizBuilderPanel';
+import { ProgressPanel } from './ProgressPanel';
+import { ClassAnnouncementsPanel } from './ClassAnnouncementsPanel';
+import { PermissionRequestsPanel } from './PermissionRequestsPanel';
 import GroupedNav from '../components/GroupedNav';
 import ThemeToggle from '../components/ThemeToggle';
 import PreferencesPanel from '../components/PreferencesPanel';
@@ -483,6 +487,8 @@ const TeacherDashboard = () => {
       id: 'g-assessment', label: 'Assessment', icon: 'fas fa-clipboard-check',
       items: [
         { id: 'gradebook', label: 'Gradebook', icon: 'fas fa-table' },
+        { id: 'quizzes', label: 'Quiz Builder', icon: 'fas fa-puzzle-piece' },
+        { id: 'progress', label: 'Progress', icon: 'fas fa-chart-line' },
         { id: 'assignments', label: 'Assignments', icon: 'fas fa-tasks', badge: pendingAssignments },
         { id: 'attendance', label: 'Attendance', icon: 'fas fa-calendar-check' },
       ]
@@ -502,13 +508,14 @@ const TeacherDashboard = () => {
     {
       id: 'g-comms', label: 'Communication', icon: 'fas fa-comments',
       items: [
-        { id: 'announcements', label: 'Announcements', icon: 'fas fa-bullhorn' },
+        { id: 'announcements', label: 'Class Notices', icon: 'fas fa-bullhorn' },
         { id: 'messages', label: 'Messages', icon: 'fas fa-comments', badge: unread },
       ]
     },
     {
       id: 'g-account', label: 'Account', icon: 'fas fa-user-shield',
       items: [
+        { id: 'permissions', label: 'Permission Requests', icon: 'fas fa-file-signature' },
         { id: 'profile', label: 'Profile', icon: 'fas fa-user-shield' },
       ]
     },
@@ -686,6 +693,12 @@ const TeacherDashboard = () => {
 
           {activeTab === 'gradebook' && <GradebookPanel />}
 
+          {activeTab === 'quizzes' && <QuizBuilderPanel />}
+
+          {activeTab === 'progress' && <ProgressPanel />}
+
+          {activeTab === 'permissions' && <PermissionRequestsPanel />}
+
           {activeTab === 'attendance' && <AttendancePanel />}
 
           {/* ══ ASSIGNMENTS ══ */}
@@ -794,10 +807,17 @@ const TeacherDashboard = () => {
             </div>
           )}
 
-          {/* ══ ANNOUNCEMENTS ══ */}
+          {/* ══ CLASS NOTICES ══ */}
           {activeTab === 'announcements' && (
             <div>
-              <div style={{ marginBottom: 18 }}><h2 style={{ margin: 0, fontSize: 19, color:'var(--navy)', fontFamily: 'Georgia, serif' }}>School Announcements</h2><p style={{ margin: '3px 0 0', fontSize: 12, color:'var(--text-faint)' }}>{announcements.length} total</p></div>
+              <ClassAnnouncementsPanel />
+
+              {/* The school-wide feed stays: a teacher's own notices sit above
+                  it, and the head's notices are still worth reading. */}
+              <div style={{ margin: '26px 0 18px' }}>
+                <h2 style={{ margin: 0, fontSize: 17, color:'var(--navy)', fontFamily: 'Georgia, serif' }}>School Announcements</h2>
+                <p style={{ margin: '3px 0 0', fontSize: 12, color:'var(--text-faint)' }}>{announcements.length} for the whole school</p>
+              </div>
               <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
                 {announcements.length === 0 && <div style={{ textAlign: 'center', padding: 50, background:'var(--surface-card)', borderRadius: 14, color:'var(--text-faint-2)' }}><i className="fas fa-bullhorn" style={{ fontSize: 32, display: 'block', marginBottom: 10, opacity: .3 }} />No announcements yet</div>}
                 {announcements.map(ann => {

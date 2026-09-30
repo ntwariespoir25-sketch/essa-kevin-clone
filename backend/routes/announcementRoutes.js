@@ -57,9 +57,13 @@ router.get('/announcements', authMiddleware, async (req, res) => {
       ? announcements
       : announcements.filter((a) => visibleToAudience(a, caller));
 
-    const formatted = visible.map(ann => ({
+const formatted = visible.map(ann => ({
       ...ann.toObject(),
-      audience: Array.isArray(ann.audience) ? ann.audience[0] : (ann.audience || 'all')
+      audience: Array.isArray(ann.audience) ? ann.audience[0] : (ann.audience || 'all'),
+      // The admin screens read `audience` as a single word, so it stays that
+      // way here. Anything that needs the real list, such as the audit trail on
+      // a class notice, reads this instead.
+      audienceList: Array.isArray(ann.audience) ? ann.audience : (ann.audience ? [ann.audience] : ['all'])
     }));
     res.json(formatted);
   } catch (error) {
@@ -215,7 +219,7 @@ router.post('/teacher/announcements', authMiddleware, requireRole('teacher'), as
 
     res.status(201).json({
       success: true,
-      announcement: { ...announcement.toObject(), audience: announcement.audience[0] },
+      announcement: { ...announcement.toObject(), audience: announcement.audience[0], audienceList: announcement.audience },
       // Tell the caller plainly when part of the request was dropped, rather than
       // quietly posting to fewer classes than they asked for.
       skippedClasses: requested.length - permitted.length
@@ -226,7 +230,7 @@ router.post('/teacher/announcements', authMiddleware, requireRole('teacher'), as
   }
 });
 
-// The roles a teacher may address a class notice to. 'all' and 'everyone' are
+// The roles a teacher may add to a class notice. 'all' and 'everyone' are
 // absent on purpose and are filtered even if supplied: a class-scoped notice
 // turned into a whole-school one would defeat the point of scoping it.
 const TEACHER_AUDIENCE = ['students', 'parents', 'teachers', 'staff'];
@@ -235,9 +239,12 @@ const normalizeTeacherAudience = (raw) => {
   const wanted = list
     .map((a) => String(a).trim().toLowerCase())
     .filter((a) => a && !['all', 'everyone'].includes(a) && TEACHER_AUDIENCE.includes(a));
-  // Default is the class itself: its pupils and their parents. Anyone else has to
-  // be asked for explicitly.
-  return wanted.length ? wanted : ['students', 'parents'];
+  // A class notice always goes to that class's pupils and to their parents.
+  // Those two are added rather than merely defaulted: a body that names only
+  // 'students' used to quietly exclude every parent of that class, which is
+  // not a choice the composer was offered and not one the notice implies.
+  // Anything else on top is an extra copy the teacher asked for by name.
+  return Array.from(new Set(['students', 'parents', ...wanted]));
 };
 
 module.exports = router;

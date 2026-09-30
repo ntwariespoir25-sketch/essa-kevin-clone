@@ -3,6 +3,8 @@ import { useNavigate } from 'react-router-dom';
 import Swal from 'sweetalert2';
 import io from 'socket.io-client';
 import ChatModal from "../components/ChatModal";
+import GroupedNav from '../components/GroupedNav';
+import StudentQuizzesPanel from './StudentQuizzesPanel';
 import ThemeToggle from '../components/ThemeToggle';
 import PreferencesPanel from '../components/PreferencesPanel';
 
@@ -229,15 +231,6 @@ const StudentDashboard = () => {
     navigate('/portal/login');
   };
 
-  const menuItems = [
-    { id: 'overview', label: 'Dashboard', icon: 'fas fa-chart-line', color: '#3498db' },
-    { id: 'assignments', label: 'Assignments', icon: 'fas fa-tasks', color: '#f39c12' },
-    { id: 'grades', label: 'Grades', icon: 'fas fa-chart-simple', color: '#27ae60' },
-    { id: 'attendance', label: 'Attendance', icon: 'fas fa-calendar-check', color: '#e74c3c' },
-    { id: 'timetable', label: 'Timetable', icon: 'fas fa-calendar-alt', color: '#16a085' },
-    { id: 'fees', label: 'Fee Status', icon: 'fas fa-money-bill-wave', color: '#9b59b6' },
-    { id: 'profile', label: 'Profile', icon: 'fas fa-user-circle', color: '#34495e' }
-  ];
 
   const sidebarWidth = sidebarCollapsed ? '80px' : '280px';
   const sidebarWidthMobile = mobileMenuOpen ? sidebarWidth : '0px';
@@ -250,6 +243,52 @@ const StudentDashboard = () => {
   const attendanceRate = attendance.length > 0 ? Math.round((attendance.filter(a => a.status === 'present').length / attendance.length) * 100) : 0;
   const feeBalance = feeStatus ? feeStatus.total - feeStatus.paid : 0;
 
+  const menuGroups = [
+    {
+      id: 'g-dashboard', label: 'Dashboard', icon: 'fas fa-chart-line',
+      items: [
+        { id: 'overview', label: 'Dashboard', icon: 'fas fa-chart-line' },
+      ]
+    },
+    {
+      id: 'g-work', label: 'My Work', icon: 'fas fa-tasks',
+      items: [
+        { id: 'assignments', label: 'Assignments', icon: 'fas fa-tasks', badge: pendingAssignments },
+      ]
+    },
+    {
+      id: 'g-results', label: 'My Results', icon: 'fas fa-chart-simple',
+      items: [
+        { id: 'grades', label: 'Grades', icon: 'fas fa-chart-simple' },
+        { id: 'quizzes', label: 'Quizzes', icon: 'fas fa-puzzle-piece' },
+      ]
+    },
+    {
+      id: 'g-attendance', label: 'Attendance', icon: 'fas fa-calendar-check',
+      items: [
+        { id: 'attendance', label: 'Attendance', icon: 'fas fa-calendar-check' },
+      ]
+    },
+    {
+      id: 'g-school', label: 'School Life', icon: 'fas fa-school',
+      items: [
+        { id: 'timetable', label: 'Timetable', icon: 'fas fa-calendar-alt' },
+        { id: 'fees', label: 'Fee Status', icon: 'fas fa-money-bill-wave' },
+      ]
+    },
+    {
+      id: 'g-comms', label: 'Communication', icon: 'fas fa-comments',
+      items: [
+        { id: 'chat', label: 'Messages', icon: 'fas fa-comments', badge: unreadCount },
+      ]
+    },
+    {
+      id: 'g-account', label: 'My Account', icon: 'fas fa-user-circle',
+      items: [
+        { id: 'profile', label: 'Profile', icon: 'fas fa-user-circle' },
+      ]
+    }
+  ];
   if (loading) {
     return (
       <div className="loading-container">
@@ -286,22 +325,16 @@ const StudentDashboard = () => {
           )}
         </div>
 
-        <nav className="sidebar-nav">
-          {menuItems.map((item) => (
-            <button key={item.id} className={`nav-item ${activeTab === item.id ? 'active' : ''}`}
-              onClick={() => { setActiveTab(item.id); if (isMobile) setMobileMenuOpen(false); }}>
-              <i className={item.icon} style={{ color: item.color }}></i>
-              {!sidebarCollapsed && <span>{item.label}</span>}
-            </button>
-          ))}
-        </nav>
+        <GroupedNav
+          groups={menuGroups}
+          activeTab={activeTab}
+          onSelect={(id) => { setActiveTab(id); if (id === 'chat') handleOpenChat(); }}
+          expanded={!sidebarCollapsed}
+          isMobile={isMobile}
+          onNavigate={() => { if (isMobile) setMobileMenuOpen(false); }}
+        />
 
         <div className="sidebar-footer">
-          <button className="chat-btn" onClick={() => handleOpenChat()}>
-            <i className="fas fa-comments"></i>
-            {!sidebarCollapsed && <span>Messages</span>}
-            {unreadCount > 0 && <span className="chat-badge">{unreadCount}</span>}
-          </button>
           <button className="logout-btn" onClick={handleLogout}>
             <i className="fas fa-sign-out-alt"></i>
             {!sidebarCollapsed && <span>Logout</span>}
@@ -424,6 +457,11 @@ const StudentDashboard = () => {
               </div>
             ))}
           </div>
+        )}
+
+        {/* Quizzes Tab */}
+        {activeTab === 'quizzes' && (
+          <StudentQuizzesPanel />
         )}
 
         {/* Grades Tab */}
@@ -566,14 +604,7 @@ const StudentDashboard = () => {
         .user-avatar i { font-size: 1.8rem; color: #ffc107; }
         .user-info h4 { margin: 0; font-size: 0.9rem; }
         .user-role { font-size: 0.7rem; opacity: 0.8; }
-        .sidebar-nav { flex: 1; padding: 1rem 0; }
-        .nav-item { display: flex; align-items: center; gap: 12px; width: 100%; padding: 12px 20px; background: transparent; border: none; color: rgba(255,255,255,0.8); cursor: pointer; font-size: 0.9rem; transition: all 0.3s; }
-        .nav-item i { width: 20px; }
-        .nav-item:hover { background: rgba(255,255,255,0.1); color: #ffc107; }
-        .nav-item.active { background: rgba(255,255,255,0.15); color: #ffc107; border-right: 3px solid #ffc107; }
         .sidebar-footer { padding: 1rem; border-top: 1px solid rgba(255,255,255,0.1); display: flex; flex-direction: column; gap: 8px; }
-        .chat-btn { display: flex; align-items: center; gap: 12px; width: 100%; padding: 12px; background: #3498db; border: none; border-radius: 8px; color: white; cursor: pointer; position: relative; }
-        .chat-badge { position: absolute; right: 10px; background: #e74c3c; border-radius: 50%; padding: 2px 6px; font-size: 0.7rem; }
         .logout-btn { display: flex; align-items: center; gap: 12px; width: 100%; padding: 12px; background: #e74c3c; border: none; border-radius: 8px; color: white; cursor: pointer; }
         .main-content { transition: margin-left 0.3s ease; padding: 20px; min-height: 100vh; }
         .top-bar { background: white; padding: 12px 20px; border-radius: 12px; display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 10px; }

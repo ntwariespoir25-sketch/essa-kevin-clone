@@ -81,13 +81,16 @@ const classScopedToCaller = (announcement, caller = {}) => {
 // school another form's notice. Only once the caller is known to be inside the
 // scope do the role and grade rules apply.
 const visibleToAudience = (announcement, caller = {}) => {
+  const audience = normalizeAudience(announcement);
+  // Staff oversight comes before the class check. Admins have no class of their
+  // own, so testing the class first silently hid every class-scoped notice from
+  // them, which is the opposite of the oversight they exist to provide.
+  if (isOpenToEveryone(audience)) return true;
+  if (isStaffRole(caller.role)) return true;
+
   const classes = audienceClassIds(announcement);
   const classScoped = classes.length > 0;
   if (classScoped && !classScopedToCaller(announcement, caller)) return false;
-
-  const audience = normalizeAudience(announcement);
-  if (isOpenToEveryone(audience)) return true;
-  if (isStaffRole(caller.role)) return true;
 
   // A teacher who is inside the scope of a class-scoped notice has already
   // passed the class check, and the audience tokens describe that class's own
