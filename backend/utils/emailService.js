@@ -69,4 +69,50 @@ const sendAdmissionConfirmationEmail = async (application) => {
   });
 };
 
-module.exports = { sendWelcomeEmail, sendNewsNotificationEmail, sendAdmissionConfirmationEmail };
+// Sent when an admin records a decision on an application. The internal note the
+// reviewer types is deliberately not included: reviewNotes exists for staff, and
+// putting it in applicant-facing mail would leak panel deliberations.
+const DECISION_COPY = {
+  shortlisted: {
+    subject: '🎓 You have been shortlisted - ESSA Nyarugunga',
+    heading: 'You have been shortlisted',
+    body: 'Thank you for applying. The admissions panel has shortlisted your application and will contact you shortly with the next steps.'
+  },
+  accepted: {
+    subject: '🎓 Application accepted - ESSA Nyarugunga',
+    heading: 'Congratulations - your application was accepted',
+    body: 'Thank you for applying. We are pleased to tell you that your application has been accepted. Our office will contact you with enrolment details.'
+  },
+  waitlisted: {
+    subject: '🎓 Application waitlisted - ESSA Nyarugunga',
+    heading: 'Your application is on the waiting list',
+    body: 'Thank you for applying. Your application is currently on the waiting list. We will be in touch if a place becomes available.'
+  },
+  rejected: {
+    subject: '🎓 Update on your application - ESSA Nyarugunga',
+    heading: 'Update on your application',
+    body: 'Thank you for taking the time to apply. We are unable to offer you a place this year.'
+  }
+};
+
+const sendAdmissionDecisionEmail = async (application) => {
+  if (!process.env.EMAIL_USER) return;
+  const copy = DECISION_COPY[application.status];
+  // Only the four decided states have something to announce; "reviewing" is an
+  // internal working state and "pending" already got a confirmation email.
+  if (!copy) return;
+  await emailTransporter.sendMail({
+    from: process.env.EMAIL_USER,
+    to: application.email,
+    subject: copy.subject,
+    html: `<div style="font-family:Arial,sans-serif;max-width:600px;margin:0 auto;">
+      <div style="background:linear-gradient(135deg,#1a3a5c,#2c5f8a);color:white;padding:20px;text-align:center;"><h2>${copy.heading}</h2></div>
+      <div style="padding:20px;background:#f5f5f5;">
+        <h3>Dear ${application.fullName},</h3>
+        <p>Application Number: <strong>${application.applicationNumber}</strong></p>
+        <p>${copy.body}</p>
+      </div></div>`
+  });
+};
+
+module.exports = { sendWelcomeEmail, sendNewsNotificationEmail, sendAdmissionConfirmationEmail, sendAdmissionDecisionEmail };

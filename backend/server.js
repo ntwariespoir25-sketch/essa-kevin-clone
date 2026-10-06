@@ -49,6 +49,10 @@ app.use('/api', require('./routes/subscriptionRoutes'));
 app.use('/api', require('./routes/announcementRoutes'));
 app.use('/api', require('./routes/newsRoutes'));
 app.use('/api', require('./routes/galleryRoutes'));
+// Ahead of admissionRoutes so the richer admin endpoints match first. The
+// router declares its paths as /applications/... and is mounted under the
+// academic-admin prefix the frontend already calls.
+app.use('/api/academic-admin', require('./routes/admissionsAdminRoutes'));
 app.use('/api', require('./routes/admissionRoutes'));
 app.use('/api', require('./routes/superAdminRoutes'));
 app.use('/api', require('./routes/academicAdminRoutes'));
@@ -61,6 +65,8 @@ app.use('/api', require('./routes/disciplineAdminRoutes'));
 app.use('/api', require('./routes/permissionRoutes'));
 app.use('/api', require('./routes/accountsRoutes'));
 app.use('/api', require('./routes/messageRoutes'));
+app.use('/api', require('./routes/conversationRoutes'));
+app.use('/api', require('./routes/fileRoutes'));
 app.use('/api', require('./routes/calendarRoutes'));
 app.use('/api', require('./routes/subjectRoutes'));
 app.use('/api', require('./routes/timetableRoutes'));

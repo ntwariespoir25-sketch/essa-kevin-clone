@@ -2,8 +2,6 @@ const express = require('express');
 const { body, validationResult } = require('express-validator');
 
 const AdmissionApplication = require('../models/AdmissionApplication');
-const authMiddleware = require('../middleware/auth');
-const requireRole = require('../middleware/roleCheck');
 const { sendAdmissionConfirmationEmail } = require('../utils/emailService');
 const { publicFormLimiter } = require('../config/rateLimit');
 
@@ -33,27 +31,34 @@ router.post('/admissions/submit', publicFormLimiter,
         lastAverage: parseFloat(data.lastAverage), achievements: data.achievements || '',
         parentName: data.parentName, parentPhone: data.parentPhone,
         parentEmail: data.parentEmail || '', parentOccupation: data.parentOccupation || '',
-        applyScholarship: data.applyScholarship || false
+        applyScholarship: data.applyScholarship || false,
+        activity: [{ action: 'submitted', detail: 'Application received', at: new Date() }]
       });
     sendAdmissionConfirmationEmail(application).catch(console.error);
     res.json({ success: true, message: 'Application submitted!', applicationNumber: application.applicationNumber });
   } catch (error) {
+    // 11000 is the duplicate key on applicationNumber. Two people applying at
+    // once can read the same "next" number, so try once more rather than showing
+    // the applicant a server error for something that is not their fault.
+    if (error.code === 11000) {
+      try {
+        const application = await AdmissionApplication.create({
+          ...req.body,
+          email: req.body.email.toLowerCase(),
+          dateOfBirth: new Date(req.body.dateOfBirth),
+          lastAverage: parseFloat(req.body.lastAverage),
+          activity: [{ action: 'submitted', detail: 'Application received', at: new Date() }]
+        });
+        sendAdmissionConfirmationEmail(application).catch(console.error);
+        return res.json({ success: true, message: 'Application submitted!', applicationNumber: application.applicationNumber });
+      } catch (retryError) {
+        return res.status(500).json({ success: false, message: retryError.message });
+      }
+    }
     res.status(500).json({ success: false, message: error.message });
   }
 });
 
-router.get('/academic-admin/applications', authMiddleware, requireRole('academic_admin', 'super_admin'), async (req, res) => {
-  const applications = await AdmissionApplication.find().sort({ createdAt: -1 });
-  res.json(applications);
-});
-
-router.put('/academic-admin/applications/:id/status', authMiddleware, requireRole('academic_admin', 'super_admin'), async (req, res) => {
-  const application = await AdmissionApplication.findByIdAndUpdate(
-    req.params.id,
-    { status: req.body.status, reviewNotes: req.body.reviewNotes || '', reviewedAt: new Date(), reviewedBy: req.userId },
-    { new: true }
-  );
-  res.json({ success: true, application });
-});
-
+// Admin-side listing, decisions, scoring and printing live in
+// admissionsAdminRoutes.js, which is mounted ahead of this file.
 module.exports = router;

@@ -7,6 +7,7 @@
     PromotionPanel, AnalyticsPanel, LessonReviewPanel, SdmsPanel
   } from './AcademicPanels';
   import { CalendarPanel } from './CalendarPanel';
+  import ApplicationsPanel from './ApplicationsPanel';
   import GroupedNav from '../components/GroupedNav';
   import ThemeToggle from '../components/ThemeToggle';
   import PreferencesPanel from '../components/PreferencesPanel';
@@ -144,7 +145,10 @@
     const [announcements, setAnnouncements] = useState([]);
     const [studentPerformance, setStudentPerformance] = useState([]);
     const [classPerformance, setClassPerformance] = useState([]);
-    const [applications, setApplications] = useState([]);
+    // Status tallies for the sidebar badge and overview card. The list itself
+    // lives in ApplicationsPanel; the dashboard only needs the counts, which
+    // arrive in one row-sized request.
+    const [applicationCounts, setApplicationCounts] = useState({});
 
     // modals
     const [teacherModal, setTeacherModal] = useState(false);
@@ -209,7 +213,7 @@
     const loadAll = () => Promise.all([
       fetchTeachers(), fetchClasses(), fetchStudents(), fetchNews(),
       fetchGallery(), fetchAnnouncements(), fetchPerformance(),
-      fetchApplications(), fetchMsgUsers(), fetchUnread(),
+      fetchApplicationCounts(), fetchMsgUsers(), fetchUnread(),
     ]).finally(() => setLoading(false));
 
     const fetchTeachers = () => api('/academic-admin/teachers-list').then(d => setTeachers(Array.isArray(d) ? d : [])).catch(() => {});
@@ -218,7 +222,7 @@
     const fetchNews = () => api('/academic-admin/news').then(d => setNews(Array.isArray(d) ? d : [])).catch(() => {});
     const fetchGallery = () => api('/academic-admin/gallery').then(d => setGallery(Array.isArray(d) ? d : [])).catch(() => {});
     const fetchAnnouncements = () => api('/announcements').then(d => setAnnouncements(Array.isArray(d) ? d : [])).catch(() => {});
-    const fetchApplications = () => api('/academic-admin/applications').then(d => setApplications(Array.isArray(d) ? d : [])).catch(() => {});
+    const fetchApplicationCounts = () => api('/academic-admin/applications?limit=1').then(d => d?.counts && setApplicationCounts(d.counts)).catch(() => {});
     const fetchPerformance = () => {
       api('/academic-admin/students-performance').then(d => setStudentPerformance(Array.isArray(d) ? d : [])).catch(() => {});
       api('/academic-admin/class-performance').then(d => setClassPerformance(Array.isArray(d) ? d : [])).catch(() => {});
@@ -348,13 +352,6 @@
       Swal.fire('Deleted!', '', 'success'); fetchGallery();
     };
 
-    const reviewApplication = async (app, status) => {
-      const { value: reviewNotes } = await Swal.fire({ title: `${status === 'accepted' ? 'Accept' : 'Reject'} Application`, input: 'textarea', inputLabel: 'Notes (optional)', showCancelButton: true, confirmButtonText: status === 'accepted' ? '✅ Accept' : '❌ Reject', confirmButtonColor: status === 'accepted' ? '#27ae60' : '#e74c3c' });
-      if (reviewNotes === undefined) return;
-      await api(`/academic-admin/applications/${app._id}/status`, { method: 'PUT', body: JSON.stringify({ status, reviewNotes: reviewNotes || '' }) });
-      Swal.fire('Updated!', '', 'success'); fetchApplications();
-    };
-
     const sendMessage = async () => {
       if (!msgText.trim() || !selectedUser) return;
       try {
@@ -403,7 +400,7 @@
         id: 'g-quality', label: 'Quality', icon: 'fas fa-clipboard-check',
         items: [
           { id: 'lessonreview', label: 'Lesson Review', icon: 'fas fa-clipboard-check' },
-          { id: 'applications', label: 'Applications', icon: 'fas fa-file-alt', badge: applications.filter(a => a.status === 'pending').length },
+          { id: 'applications', label: 'Applications', icon: 'fas fa-file-alt', badge: applicationCounts.pending || 0 },
         ]
       },
       {
@@ -533,7 +530,7 @@
                   <StatCard icon="fas fa-user-graduate" label="Students" value={students.length} sub="Enrolled students" accent="#9b59b6" bg="#f3e5f5" onClick={() => setActiveTab('students')} />
                   <StatCard icon="fas fa-newspaper" label="News & Events" value={news.length} sub="Published articles" accent="#f39c12" bg="#fff3e0" onClick={() => setActiveTab('news')} />
                   <StatCard icon="fas fa-images" label="Gallery" value={gallery.length} sub="Images uploaded" accent="#e74c3c" bg="#fdecea" onClick={() => setActiveTab('gallery')} />
-                  <StatCard icon="fas fa-file-alt" label="Applications" value={applications.filter(a => a.status === 'pending').length} sub="Pending review" accent="#1abc9c" bg="#e0f7fa" onClick={() => setActiveTab('applications')} />
+                  <StatCard icon="fas fa-file-alt" label="Applications" value={applicationCounts.pending || 0} sub="Pending review" accent="#1abc9c" bg="#e0f7fa" onClick={() => setActiveTab('applications')} />
                 </div>
                 {/* recent news */}
                 <div style={{ background:'var(--surface-card)', borderRadius: 14, padding: 18, boxShadow: '0 2px 10px rgba(0,0,0,.05)' }}>
@@ -688,26 +685,11 @@
               </div>
             )}
 
-            {/* ══ APPLICATIONS ══ */}
+{/* ══ APPLICATIONS ══ */}
             {activeTab === 'applications' && (
               <div>
-                <div style={{ marginBottom: 18 }}><h2 style={{ margin: 0, fontSize: 19, color:'var(--navy)', fontFamily: 'Georgia, serif' }}>Admission Applications</h2><p style={{ margin: '3px 0 0', fontSize: 12, color:'var(--text-faint)' }}>{applications.length} total · {applications.filter(a => a.status === 'pending').length} pending</p></div>
-                <div style={{ background:'var(--surface-card)', borderRadius: 14, boxShadow: '0 2px 10px rgba(0,0,0,.05)' }}>
-                  <Table cols={['Applicant', 'Level', 'Previous School', 'Average', 'Applied', 'Status', 'Actions']} emptyMsg="No applications submitted yet."
-                    rows={applications.map(app => (
-                      <><TD><div style={{ fontWeight: 600, fontSize: 13 }}>{app.fullName}</div><div style={{ fontSize: 11, color:'var(--text-faint)' }}>{app.email}</div></TD>
-                        <TD><Badge text={app.level} color="#3498db" bg="#e3f2fd" /></TD>
-                        <TD style={{ fontSize: 12 }}>{app.previousSchool}</TD>
-                        <TD><span style={{ fontWeight: 700, color: app.lastAverage >= 70 ? '#27ae60' : '#e74c3c' }}>{app.lastAverage}%</span></TD>
-                        <TD style={{ fontSize: 12, color:'var(--text-faint)' }}>{fmt(app.createdAt)}</TD>
-                        <TD>{(() => { const sc = { pending: { color: '#f39c12', bg:'var(--tint-warning)' }, accepted: { color: '#27ae60', bg:'var(--tint-success)' }, rejected: { color: '#e74c3c', bg:'var(--tint-danger)' }, reviewing: { color: '#3498db', bg:'var(--tint-primary)' } }[app.status] || {}; return <Badge text={app.status} color={sc.color} bg={sc.bg} />; })()}</TD>
-                        <TD>{app.status === 'pending' && <div style={{ display: 'flex', gap: 6 }}>
-                          <Btn small onClick={() => reviewApplication(app, 'accepted')} color="#27ae60">Accept</Btn>
-                          <Btn small onClick={() => reviewApplication(app, 'rejected')} danger>Reject</Btn>
-                        </div>}</TD></>
-                    ))}
-                  />
-                </div>
+                <div style={{ marginBottom: 18 }}><h2 style={{ margin: 0, fontSize: 19, color:'var(--navy)', fontFamily: 'Georgia, serif' }}>Admission Applications</h2><p style={{ margin: '3px 0 0', fontSize: 12, color:'var(--text-faint)' }}>Review, score and decide on incoming applications.</p></div>
+                <ApplicationsPanel onCountChange={setApplicationCounts} />
               </div>
             )}
 

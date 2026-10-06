@@ -148,6 +148,12 @@ const messagingDirectory = async (userId, userRole) => {
 
   if (userRole === 'teacher') {
     const ids = await allowedClassIds(userId, userRole);
+    // classId lives on Student, not on User. Filtering the users collection by
+    // it (as this did before) matched nothing, so a teacher's message directory
+    // listed no pupils at all even for classes they teach.
+    const classmates = ids.length
+      ? await Student.find({ classId: { $in: ids } }).distinct('userId')
+      : [];
     return {
       includeEmail: false,
       filter: {
@@ -155,7 +161,7 @@ const messagingDirectory = async (userId, userRole) => {
         $or: [
           leadership,
           { role: 'teacher' },
-          { role: 'student', classId: { $in: ids } }
+          { _id: { $in: classmates } }
         ]
       }
     };

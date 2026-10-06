@@ -5917,3 +5917,16 @@ section {
 .role-badge.teacher { background: #f39c12; }
 .role-badge.student { background: #1abc9c; }
 .role-badge.parent { background: #9b59b6; }
+
+/* -- admission applications table -------------------------------------------
+   The three labelled row actions need roughly 210px. Below that the table has
+   to scroll sideways anyway, so the labels are replaced by one overflow menu
+   that opens the same three actions plus print. */
+.app-actions-narrow { display: none; }
+@media (max-width: 1100px) {
+  .app-actions-wide { display: none !important; }
+  .app-actions-narrow { display: block; }
+  .app-actions-narrow summary::-webkit-details-marker { display: none; }
+  .app-actions-narrow[open] summary { border-color: #1a3a5c; color: #1a3a5c; }
+  .app-actions-narrow > div > button { display: flex; width: 100%; margin: 2px 0; }
+}
