@@ -1,16 +1,82 @@
 const express = require('express');
 
 const Announcement = require('../models/Announcement');
-const Student = require('../models/Student');
 const Class = require('../models/Class');
-const SubjectAllocation = require('../models/SubjectAllocation');
-const ParentProfile = require('../models/ParentProfile');
+const User = require('../models/User');
 const authMiddleware = require('../middleware/auth');
 const requireRole = require('../middleware/roleCheck');
 const { isStaffRole, visibleToAudience } = require('../utils/announcementAudience');
+const { buildCallerContexts, resolveAnnouncementRecipients } = require('../utils/announcementRecipients');
 const { teacherOwnsClass } = require('../utils/access');
+const { notifyMany } = require('../utils/notifier');
 
 const router = express.Router();
+
+// Reads the targeting fields off a request body and checks them against the
+// database. Anything unrecognised or dangling is reported rather than dropped,
+// because an announcement that silently reaches fewer people than it says it
+// does is worse than one that fails to post.
+const sanitizeTargeting = async (body) => {
+  const classIds = (Array.isArray(body.classIds) ? body.classIds : [body.classId]).filter(Boolean);
+  const grades = (Array.isArray(body.grades) ? body.grades : [body.grades]).filter(Boolean);
+  const userIds = (Array.isArray(body.userIds) ? body.userIds : [body.userIds]).filter(Boolean);
+
+  if (classIds.length > 50) return { error: 'A notice can be scoped to at most 50 classes.' };
+  if (grades.length > 30) return { error: 'A notice can be scoped to at most 30 year groups.' };
+  if (userIds.length > 500) return { error: 'A notice can name at most 500 people.' };
+
+  const cleanClasses = [];
+  for (const id of classIds) {
+    if (!/^[0-9a-fA-F]{24}$/.test(String(id))) return { error: 'One of the classes is not a valid id.' };
+    if (!await Class.exists({ _id: id })) return { error: 'One of the classes no longer exists.' };
+    cleanClasses.push(id);
+  }
+
+  const cleanGrades = [...new Set(
+    grades
+      .map(g => String(g).trim().replace(/\s+/g, ' '))
+      .filter(Boolean)
+      .map(g => g.substring(0, 60))
+  )];
+
+  const cleanUsers = [];
+  if (userIds.length) {
+    for (const id of userIds) {
+      if (!/^[0-9a-fA-F]{24}$/.test(String(id))) return { error: 'One of the recipients is not a valid id.' };
+    }
+    const found = await User.find({ _id: { $in: userIds }, isActive: true }).distinct('_id');
+    if (found.length !== userIds.length) {
+      return { error: `${userIds.length - found.length} of the named recipients could not be found.` };
+    }
+    cleanUsers.push(...found.map(String));
+  }
+
+  return { classIds: cleanClasses, grades: cleanGrades, userIds: cleanUsers };
+};
+
+// Fan-out. Fire-and-forget from the caller's point of view: the announcement
+// is already stored, and a slow mailbox must not hold up the post. Recipient
+// resolution is the same predicate that decides portal visibility, minus staff
+// oversight, so nobody is notified about something they cannot see and nobody
+// who was addressed misses it.
+const broadcastAnnouncement = (announcement) => {
+  resolveAnnouncementRecipients(announcement)
+    .then(async (recipients) => {
+      if (!recipients.length) return;
+      const author = await User.findById(announcement.createdBy).select('fullName').lean();
+      await notifyMany(recipients, {
+        type: 'announcement',
+        title: announcement.title,
+        body: String(announcement.content || '').replace(/\s+/g, ' ').substring(0, 200),
+        link: '/announcements',
+        announcementId: announcement._id,
+        actorId: announcement.createdBy,
+        actorName: (author && author.fullName) || 'Administration'
+      });
+    })
+    .catch(err => console.error('Announcement notification failed:', err.message));
+};
+
 
 // Requires a session. This used to be public, which meant a discipline notice
 // addressed to parents was handed to any anonymous visitor. Only the four staff
@@ -21,37 +87,14 @@ router.get('/announcements', authMiddleware, async (req, res) => {
     const announcements = await Announcement.find({ isActive: true }).sort({ createdAt: -1 });
     const staff = isStaffRole(req.userRole);
 
-    // A pupil can also be reached through this endpoint, and an announcement
-    // addressed to a year group ("S3") is meaningless without knowing which
-    // year they are in. The class id matters for the same reason: a teacher's
-    // notice to one form must not reach another form in the same year.
-    let gradeLabel = '';
-    const caller = { role: req.userRole, gradeLabel, classIds: [] };
-    if (!staff && req.userRole === 'student') {
-      const pupil = await Student.findOne({ userId: req.userId }).populate('classId', 'grade');
-      caller.gradeLabel = (pupil && pupil.classId && pupil.classId.grade) || '';
-      if (pupil && pupil.classId) caller.classIds = [pupil.classId._id];
-    } else if (!staff && req.userRole === 'parent') {
-      // Parents are linked through ParentProfile, not Student.userId, and may
-      // have children in more than one form. Both matter: using the wrong link
-      // finds nothing at all, and taking only the first child would hide the
-      // other form's notices from a parent who is entitled to them.
-      const profile = await ParentProfile.findOne({ userId: req.userId }).select('children');
-      const children = (profile && profile.children) || [];
-      if (children.length) {
-        const classes = await Student.find({ _id: { $in: children } }).distinct('classId');
-        caller.classIds = classes.filter(Boolean);
-      }
-    } else if (!staff && req.userRole === 'teacher') {
-      // A teacher sees the notices for the forms they are responsible for, plus
-      // the whole-school ones. Without this they would lose sight of their own
-      // class notices as soon as class scoping was introduced.
-      const [homeroom, allocations] = await Promise.all([
-        Class.find({ teacherId: req.userId }).distinct('_id'),
-        SubjectAllocation.find({ teacherId: req.userId }).distinct('classId')
-      ]);
-      caller.classIds = [...new Set([...homeroom, ...allocations].map(String))];
-    }
+    // Built from the shared context builder rather than a per-role branch: the
+    // same structure feeds notification fan-out, so a pupil, a parent with
+    // children in two forms, and a teacher who only takes a subject in one
+    // class are described identically in the portal and in the inbox. The old
+    // branch had no idea a notice could be addressed to a named person or
+    // scoped to a year group.
+    const { contexts } = await buildCallerContexts();
+    const caller = contexts.get(String(req.userId)) || { userId: String(req.userId), role: req.userRole };
 
     const visible = staff
       ? announcements
@@ -72,37 +115,51 @@ const formatted = visible.map(ann => ({
   }
 });
 
+const normalizeAudienceList = (raw) => {
+  let audience = raw;
+  if (typeof audience === 'string') audience = audience === 'all' ? ['all'] : [audience];
+  if (!audience || (Array.isArray(audience) && audience.length === 0)) audience = ['all'];
+  return audience;
+};
+
+// Shared by the two staff posting routes, which had drifted apart: one was the
+// general endpoint every staff portal calls and the other was the super
+// admin's, and only the first one would have known about class or year scoping.
+const createStaffAnnouncement = async (req, res) => {
+  const audience = normalizeAudienceList(req.body.audience);
+  const targeting = await sanitizeTargeting(req.body);
+  if (targeting.error) return res.status(400).json({ message: targeting.error });
+
+  const announcement = await Announcement.create({
+    title: req.body.title,
+    content: req.body.content,
+    audience,
+    classIds: targeting.classIds,
+    grades: targeting.grades,
+    userIds: targeting.userIds,
+    priority: req.body.priority || 'normal',
+    createdBy: req.userId,
+    isActive: true
+  });
+
+  broadcastAnnouncement(announcement);
+
+  res.json({
+    success: true,
+    announcement: {
+      ...announcement.toObject(),
+      audience: announcement.audience[0]
+    }
+  });
+};
+
 router.post('/announcements', authMiddleware, async (req, res) => {
   try {
     const allowedRoles = ['super_admin', 'academic_admin', 'discipline_admin', 'accounts_admin'];
     if (!allowedRoles.includes(req.userRole)) {
       return res.status(403).json({ message: 'Access denied. You do not have permission to post announcements.' });
     }
-
-    let audience = req.body.audience;
-    if (typeof audience === 'string') {
-      audience = audience === 'all' ? ['all'] : [audience];
-    }
-    if (!audience || (Array.isArray(audience) && audience.length === 0)) {
-      audience = ['all'];
-    }
-
-    const announcement = await Announcement.create({
-      title: req.body.title,
-      content: req.body.content,
-      audience: audience,
-      priority: req.body.priority || 'normal',
-      createdBy: req.userId,
-      isActive: true
-    });
-
-    res.json({
-      success: true,
-      announcement: {
-        ...announcement.toObject(),
-        audience: announcement.audience[0]
-      }
-    });
+    await createStaffAnnouncement(req, res);
   } catch (error) {
     console.error('POST /api/announcements error:', error);
     res.status(500).json({ message: error.message });
@@ -125,30 +182,7 @@ router.get('/super-admin/announcements', authMiddleware, requireRole('super_admi
 
 router.post('/super-admin/announcements', authMiddleware, requireRole('super_admin'), async (req, res) => {
   try {
-    let audience = req.body.audience;
-    if (typeof audience === 'string') {
-      audience = audience === 'all' ? ['all'] : [audience];
-    }
-    if (!audience || (Array.isArray(audience) && audience.length === 0)) {
-      audience = ['all'];
-    }
-
-    const announcement = await Announcement.create({
-      title: req.body.title,
-      content: req.body.content,
-      audience: audience,
-      priority: req.body.priority || 'normal',
-      createdBy: req.userId,
-      isActive: true
-    });
-
-    res.json({
-      success: true,
-      announcement: {
-        ...announcement.toObject(),
-        audience: announcement.audience[0]
-      }
-    });
+    await createStaffAnnouncement(req, res);
   } catch (error) {
     console.error('POST /api/super-admin/announcements error:', error);
     res.status(500).json({ message: error.message });
@@ -157,7 +191,37 @@ router.post('/super-admin/announcements', authMiddleware, requireRole('super_adm
 
 router.put('/super-admin/announcements/:id', authMiddleware, requireRole('super_admin'), async (req, res) => {
   try {
-    const announcement = await Announcement.findByIdAndUpdate(req.params.id, req.body, { new: true });
+    const existing = await Announcement.findById(req.params.id);
+    if (!existing) return res.status(404).json({ message: 'Announcement not found' });
+
+    // Built as a whitelist: passing req.body straight through let a single
+    // edit turn a class notice into a whole-school one by overwriting the
+    // scoping fields, or stamp a createdBy that is not the author.
+    const updates = {};
+    if (req.body.title !== undefined) updates.title = req.body.title;
+    if (req.body.content !== undefined) updates.content = req.body.content;
+    if (req.body.priority !== undefined) updates.priority = req.body.priority;
+    if (req.body.isActive !== undefined) updates.isActive = !!req.body.isActive;
+    if (req.body.audience !== undefined) updates.audience = normalizeAudienceList(req.body.audience);
+
+    if (req.body.classIds !== undefined || req.body.grades !== undefined || req.body.userIds !== undefined) {
+      const targeting = await sanitizeTargeting({
+        classIds: req.body.classIds || [],
+        grades: req.body.grades || [],
+        userIds: req.body.userIds || []
+      });
+      if (targeting.error) return res.status(400).json({ message: targeting.error });
+      updates.classIds = targeting.classIds;
+      updates.grades = targeting.grades;
+      updates.userIds = targeting.userIds;
+    }
+
+    const announcement = await Announcement.findByIdAndUpdate(
+      req.params.id,
+      { $set: updates },
+      { new: true, runValidators: true }
+    );
+
     res.json({
       success: true,
       announcement: {
@@ -216,6 +280,8 @@ router.post('/teacher/announcements', authMiddleware, requireRole('teacher'), as
       createdBy: req.userId,
       isActive: true
     });
+
+    broadcastAnnouncement(announcement);
 
     res.status(201).json({
       success: true,

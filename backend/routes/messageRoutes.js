@@ -11,6 +11,7 @@ const Class = require('../models/Class');
 const { getIO } = require('../socket');
 const { messagingDirectory, isStaff } = require('../utils/access');
 const { presenceMap } = require('../utils/presence');
+const { notify } = require('../utils/notifier');
 const {
   toId,
   oid,
@@ -355,11 +356,15 @@ router.post('/messages/send', authMiddleware, async (req, res) => {
     // Fetched before the insert so the reply preview travels with a single
     // write instead of costing a second round trip.
     let replyPreview;
+    let replyAuthorId = null;
     if (replyTo && mongoose.isValidObjectId(replyTo)) {
-      const parent = await Message.findById(replyTo).select('conversationId senderName content type').lean();
+      const parent = await Message.findById(replyTo)
+        .select('conversationId senderId senderName content type')
+        .lean();
       if (!parent || toId(parent.conversationId) !== toId(conversation._id)) {
         return fail(res, 400, 'The message you are replying to is not in this conversation.');
       }
+      replyAuthorId = toId(parent.senderId);
       replyPreview = {
         senderName: parent.senderName,
         content: (parent.content || '').substring(0, 140),
@@ -399,6 +404,39 @@ router.post('/messages/send', authMiddleware, async (req, res) => {
 
     const payload = { message: shapeMessage(message, req.userId), conversationId: toId(conversation._id) };
     emitToConversation(conversation, 'new_message', payload, req.userId);
+
+    // Deliberately not awaited: the message is already durable, and an SMTP
+    // round trip must never sit in front of the sender's response. Failures
+    // inside notify are contained there.
+    const mentioned = new Set((message.mentions || []).map(toId));
+    const recipients = (conversation.participants || [])
+      .map(p => toId(p.userId))
+      .filter(id => id !== toId(req.userId));
+    const groupName = conversation.type === 'group' ? conversation.name : null;
+    const preview = trimmed ||
+      ((message.attachments[0] && message.attachments[0].name) || 'sent an attachment');
+
+    Promise.all(
+      recipients.map(recipientId => {
+        const type = mentioned.has(recipientId)
+          ? 'mention'
+          : replyAuthorId === recipientId
+            ? 'reply'
+            : conversation.type === 'group' ? 'group_message' : 'message';
+
+        return notify({
+          userId: recipientId,
+          type,
+          title: groupName ? `${sender.fullName} in ${groupName}` : sender.fullName,
+          body: type === 'mention' ? `mentioned you: ${preview}` : preview,
+          link: `/messages?conversation=${toId(conversation._id)}`,
+          conversationId: conversation._id,
+          messageId: message._id,
+          actorId: req.userId,
+          actorName: sender.fullName
+        });
+      })
+    ).catch(() => { /* notifications never fail a send */ });
 
     res.json({ success: true, message, conversationId: conversation._id });
   } catch (error) {

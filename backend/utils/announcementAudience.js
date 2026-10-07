@@ -52,12 +52,48 @@ const audienceClassIds = (announcement) => {
   return list.filter(Boolean).map((id) => String(id));
 };
 
+// Year groups an announcement is restricted to, normalised for comparison.
+const normGrade = (g) => String(g || '').trim().toLowerCase().replace(/\s+/g, ' ');
+
+const audienceGrades = (announcement) => {
+  const raw = (announcement && announcement.grades) || [];
+  const list = Array.isArray(raw) ? raw : (raw ? [raw] : []);
+  return list.map(normGrade).filter(Boolean);
+};
+
+// People addressed by name. These always receive the notice: naming an
+// individual is the one targeting mode that cannot be satisfied by any role
+// or year-group token, so it is resolved before every other rule.
+const targetedUserIds = (announcement) => {
+  const raw = (announcement && announcement.userIds) || [];
+  const list = Array.isArray(raw) ? raw : [raw];
+  return list.filter(Boolean).map((id) => String(id));
+};
+
 // Every class the caller belongs to. A pupil has exactly one; a parent may have
 // children spread across forms, and is entitled to the notices for each of them,
 // so the plural matters.
 const callerClassIds = ({ classId, classIds } = {}) => {
   const list = [classId, ...(classIds || [])].filter(Boolean);
   return new Set(list.map((id) => String(id)));
+};
+
+// Every year group the caller belongs to. A parent with children in two years
+// belongs to both, so this is a list and not a single label.
+const callerGrades = (caller = {}) => {
+  const list = [caller.gradeLabel, ...(caller.grades || [])].filter(Boolean);
+  return [...new Set(list.map(normGrade).filter(Boolean))];
+};
+
+// Comparison stays deliberately forgiving about formatting: an author may type
+// "S3" or "S3 B" or "primary 4", and the stored caller grade comes from the
+// Class document, so exact string equality alone would miss real matches in
+// either direction. The match never widens past the characters involved.
+const gradeMatchesCaller = (grades, caller = {}) => {
+  if (!grades.length) return false;
+  const mine = callerGrades(caller);
+  if (!mine.length) return false;
+  return grades.some((g) => mine.some((m) => m === g || m.includes(g) || g.includes(m)));
 };
 
 // A pupil or a parent only ever sees a class-scoped notice for a class they are
@@ -73,34 +109,51 @@ const classScopedToCaller = (announcement, caller = {}) => {
   return classes.some((id) => mine.has(id));
 };
 
-// Who sees an announcement.
+// Who the notice was written to.
 //
-// Order matters. Class scoping is resolved first, because a class-scoped notice
-// is addressed to a role token ('students') that every pupil in the school also
-// carries: testing the audience before the class would hand every pupil in the
-// school another form's notice. Only once the caller is known to be inside the
-// scope do the role and grade rules apply.
-const visibleToAudience = (announcement, caller = {}) => {
+// Deliberately separate from `visibleToAudience`. Staff can see every notice
+// for oversight purposes, but "can see" is not "was addressed": a teacher's
+// homework reminder for S3 B should not push a notification onto every
+// administrator just because their portal shows it. Notification fan-out uses
+// this function; portal visibility uses the one below.
+//
+// Order matters:
+//   1. a named recipient always receives it - naming a person is the only mode
+//      no role or year token can stand in for;
+//   2. class scope, which runs for whole-school-shaped notices too, because an
+//      admin notice addressed to a single form has to be restricted to that
+//      form whether or not its role token happens to say "all";
+//   3. year group scope, before the "open to everyone" shortcut, because "S3"
+//      with an audience of everyone must still mean S3;
+//   4. role tokens, then the older free-text grade matching.
+const addressedToAudience = (announcement, caller = {}) => {
   const audience = normalizeAudience(announcement);
-  // Staff oversight comes before the class check. Admins have no class of their
-  // own, so testing the class first silently hid every class-scoped notice from
-  // them, which is the opposite of the oversight they exist to provide.
-  if (isOpenToEveryone(audience)) return true;
-  if (isStaffRole(caller.role)) return true;
-
   const classes = audienceClassIds(announcement);
-  const classScoped = classes.length > 0;
-  if (classScoped && !classScopedToCaller(announcement, caller)) return false;
+  const grades = audienceGrades(announcement);
 
-  // A teacher who is inside the scope of a class-scoped notice has already
-  // passed the class check, and the audience tokens describe that class's own
-  // pupils and parents rather than the teacher who wrote it. Without this a
-  // teacher would stop seeing their own class notices the moment class scoping
-  // was introduced.
-  if (classScoped && String(caller.role || '').toLowerCase() === 'teacher') return true;
+  if (caller.userId && targetedUserIds(announcement).includes(String(caller.userId))) return true;
+
+  if (classes.length && !classScopedToCaller(announcement, caller)) return false;
+  if (grades.length && !gradeMatchesCaller(grades, caller)) return false;
+
+  if (isOpenToEveryone(audience)) return true;
+
+  // A teacher who is inside the scope of their own class notice passes the
+  // class check without matching a role token, because a class notice is
+  // addressed to that class's pupils and parents rather than to its author.
+  if (classes.length && String(caller.role || '').toLowerCase() === 'teacher') return true;
 
   if (audienceMatchesRole(audience, caller.role)) return true;
   return audienceMatchesGrade(audience, caller.gradeLabel);
+};
+
+// Who sees an announcement in the portal: everything above plus staff
+// oversight, checked first. Admins have no class or year of their own, so
+// testing either before this shortcut silently hid every scoped notice from
+// them - the opposite of the oversight they exist to provide.
+const visibleToAudience = (announcement, caller = {}) => {
+  if (isStaffRole(caller.role)) return true;
+  return addressedToAudience(announcement, caller);
 };
 
 module.exports = {
@@ -110,8 +163,14 @@ module.exports = {
   audienceMatchesRole,
   audienceMatchesGrade,
   audienceClassIds,
+  audienceGrades,
+  targetedUserIds,
+  gradeMatchesCaller,
   classScopedToCaller,
   callerClassIds,
+  callerGrades,
+  normGrade,
   isStaffRole,
+  addressedToAudience,
   visibleToAudience
 };

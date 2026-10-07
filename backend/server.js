@@ -15,6 +15,7 @@ const { initSocket } = require('./socket');
 const seedDatabase = require('./utils/seedDatabase');
 const errorHandler = require('./middleware/errorHandler');
 const { apiLimiter } = require('./config/rateLimit');
+const notifier = require('./utils/notifier');
 const User = require('./models/User');
 
 if (!process.env.JWT_SECRET) {
@@ -67,6 +68,7 @@ app.use('/api', require('./routes/accountsRoutes'));
 app.use('/api', require('./routes/messageRoutes'));
 app.use('/api', require('./routes/conversationRoutes'));
 app.use('/api', require('./routes/fileRoutes'));
+app.use('/api', require('./routes/notificationRoutes'));
 app.use('/api', require('./routes/calendarRoutes'));
 app.use('/api', require('./routes/subjectRoutes'));
 app.use('/api', require('./routes/timetableRoutes'));
@@ -107,6 +109,9 @@ connectDB()
       const target = process.env.FRONTEND_URL || 'http://localhost:5173';
       console.log(`\n🚀 API      http://localhost:${PORT}`);
       console.log(`🚀 Frontend ${target}\n`);
+      // Releases whatever quiet hours deferred. The timer is unref'd inside,
+      // so it never holds a short-lived test process open on shutdown.
+      notifier.startFlushLoop();
     });
   })
   .catch(err => {

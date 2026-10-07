@@ -5,6 +5,7 @@ import io from 'socket.io-client';
 import PreferencesPanel from '../components/PreferencesPanel';
 import ThemeToggle from '../components/ThemeToggle';
 import GroupedNav from '../components/GroupedNav';
+import MessagingPanel from '../components/chat/MessagingPanel';
 
 const API_URL = import.meta.env.VITE_API_URL;
 const SOCKET_URL = API_URL;
@@ -1272,129 +1273,7 @@ if (activeTab === 'security-logins') { fetchLoginTrail(1); fetchLockPolicy(); }
 
           {/* ╔══ MESSAGES ══╗ */}
           {activeTab === 'messages' && (
-            <div style={{ background:'var(--surface-card)', borderRadius: 16, boxShadow: '0 2px 12px rgba(0,0,0,.06)',
-              overflow: 'hidden', height: 'calc(100vh - 150px)', display: 'flex', flexDirection: 'column' }}>
-              {/* tabs */}
-              <div style={{ padding: '14px 20px', borderBottom:'1px solid var(--border)', display: 'flex', gap: 10, alignItems: 'center', flexWrap: 'wrap' }}>
-                {['inbox', 'compose'].map(t => (
-                  <button key={t} onClick={() => { setMsgTab(t); if (t === 'compose') { setSelectedUser(null); setMessages([]); } }}
-                    style={{
-                      padding: '7px 18px', borderRadius: 30, border: 'none', cursor: 'pointer', fontSize: 13, fontWeight: 600,
-                      background: msgTab === t ? '#1a3a5c' : '#f0f3f8', color: msgTab === t ? 'var(--on-solid)' : '#666',
-                      transition: 'all .2s',
-                    }}>
-                    {t === 'inbox' ? <><i className="fas fa-inbox" style={{ marginRight: 6 }} />Inbox{unread > 0 && <span style={{ marginLeft: 6, background: '#e74c3c', color:'var(--on-solid)', borderRadius: 20, fontSize: 10, padding: '1px 7px' }}>{unread}</span>}</> : <><i className="fas fa-pen" style={{ marginRight: 6 }} />New Message</>}
-                  </button>
-                ))}
-              </div>
-
-              {msgTab === 'inbox' ? (
-                <div style={{ flex: 1, display: 'flex', overflow: 'hidden' }}>
-                  {/* user list */}
-                  <div style={{ width: 280, borderRight:'1px solid var(--border)', display: 'flex', flexDirection: 'column', background:'var(--surface-raised)', flexShrink: 0, overflow: 'hidden' }}>
-                    <div style={{ padding: '12px 14px', borderBottom:'1px solid var(--border)' }}>
-                      <div style={{ position: 'relative' }}>
-                        <i className="fas fa-search" style={{ position: 'absolute', left: 10, top: '50%', transform: 'translateY(-50%)', color:'var(--border-strong)', fontSize: 12 }} />
-                        <input value={msgSearch} onChange={e => setMsgSearch(e.target.value)}
-                          placeholder="Search users…" style={{ width: '100%', padding: '7px 10px 7px 30px',
-                          border:'1px solid var(--border)', borderRadius: 20, fontSize: 12, boxSizing: 'border-box',
-                          background:'var(--surface-card)', outline: 'none' }} />
-                      </div>
-                    </div>
-                    <div style={{ flex: 1, overflowY: 'auto' }}>
-                      {filteredUsers.length === 0 && <div style={{ textAlign: 'center', padding: 30, color:'var(--border-strong)', fontSize: 13 }}>No users found</div>}
-                      {filteredUsers.map(u => (
-                        <div key={u._id} onClick={() => { setSelectedUser(u); fetchConversation(u._id); }}
-                          style={{
-                            display: 'flex', alignItems: 'center', gap: 10, padding: '12px 14px', cursor: 'pointer',
-                            background: selectedUser?._id === u._id ? '#e8f0fe' : 'transparent',
-                            borderLeft: selectedUser?._id === u._id ? '3px solid #ffc107' : '3px solid transparent',
-                            transition: 'background .15s',
-                          }}>
-                          <Avatar name={u.fullName} size={36} img={u.profileImage} />
-                          <div style={{ overflow: 'hidden' }}>
-                            <div style={{ fontSize: 13, fontWeight: 600, color:'var(--text-body)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{u.fullName}</div>
-                            <div style={{ fontSize: 10, color: '#ffc107', fontWeight: 700, letterSpacing: .3 }}>{roleBadge(u.role).label}</div>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-
-                  {/* conversation */}
-                  <div style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
-                    {selectedUser ? (
-                      <>
-                        <div style={{ padding: '14px 18px', borderBottom:'1px solid var(--border)', display: 'flex', alignItems: 'center', gap: 12, background:'var(--surface-card)' }}>
-                          <Avatar name={selectedUser.fullName} size={40} img={selectedUser.profileImage} />
-                          <div>
-                            <div style={{ fontWeight: 600, fontSize: 14, color:'var(--navy)' }}>{selectedUser.fullName}</div>
-                            <div style={{ fontSize: 11, color: '#ffc107', fontWeight: 700 }}>{roleBadge(selectedUser.role).label}</div>
-                          </div>
-                        </div>
-                        <div style={{ flex: 1, overflowY: 'auto', padding: 18, display: 'flex', flexDirection: 'column', gap: 12, background:'var(--surface-raised)' }}>
-                          {messages.length === 0 && (
-                            <div style={{ textAlign: 'center', color:'var(--border-strong)', paddingTop: 40 }}>
-                              <i className="fas fa-comments" style={{ fontSize: 32, marginBottom: 8, display: 'block' }} />
-                              <div style={{ fontSize: 13 }}>Start a conversation with {selectedUser.fullName}</div>
-                            </div>
-                          )}
-                          {messages.map(m => (
-                            <div key={m._id} className={m.senderId === userId ? 'msg-bubble-sent' : 'msg-bubble-received'}>
-                              <div>{m.content}</div>
-                              <div style={{ fontSize: 10, opacity: .6, marginTop: 4, textAlign: 'right' }}>{fmtTime(m.createdAt)}</div>
-                            </div>
-                          ))}
-                          <div ref={messagesEndRef} />
-                        </div>
-                        <div style={{ padding: '12px 16px', borderTop:'1px solid var(--border)', display: 'flex', gap: 10, background:'var(--surface-card)', alignItems: 'flex-end' }}>
-                          <textarea value={msgText} onChange={e => setMsgText(e.target.value)}
-                            placeholder={`Message ${selectedUser.fullName}…`}
-                            rows={2} onKeyDown={e => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMessage(); } }}
-                            style={{ flex: 1, padding: '10px 14px', border:'1.5px solid var(--surface-sunken-2)', borderRadius: 12,
-                              resize: 'none', fontFamily: 'inherit', fontSize: 13, outline: 'none', boxSizing: 'border-box' }} />
-                          <button onClick={sendMessage} disabled={!msgText.trim()}
-                            style={{ width: 42, height: 42, background: msgText.trim() ? '#1a3a5c' : '#ddd',
-                              border: 'none', borderRadius: '50%', cursor: msgText.trim() ? 'pointer' : 'default',
-                              color:'var(--on-solid)', fontSize: 16, transition: 'all .2s', flexShrink: 0 }}>
-                            <i className="fas fa-paper-plane" />
-                          </button>
-                        </div>
-                      </>
-                    ) : (
-                      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', color:'var(--border-strong)', gap: 12 }}>
-                        <i className="fas fa-comments" style={{ fontSize: 48, opacity: .3 }} />
-                        <div style={{ fontSize: 14 }}>Select a user to start messaging</div>
-                      </div>
-                    )}
-                  </div>
-                </div>
-              ) : (
-                /* compose */
-                <div style={{ flex: 1, padding: 28, maxWidth: 600, margin: '0 auto', width: '100%', overflowY: 'auto' }}>
-                  <h3 style={{ margin: '0 0 20px', color:'var(--navy)', fontFamily: "'Crimson Text', Georgia, serif" }}>New Message</h3>
-                  <Field label="Recipient" required>
-                    <Select value={selectedUser?._id || ''} onChange={e => {
-                      const u = msgUsers.find(x => x._id === e.target.value);
-                      setSelectedUser(u || null);
-                    }}>
-                      <option value="">Select a user…</option>
-                      {msgUsers.map(u => <option key={u._id} value={u._id}>{u.fullName} — {roleBadge(u.role).label}</option>)}
-                    </Select>
-                  </Field>
-                  <Field label="Message" required>
-                    <Textarea value={msgText} onChange={e => setMsgText(e.target.value)} rows={8} placeholder="Type your message…" />
-                  </Field>
-                  <Btn icon="fas fa-paper-plane" color="#1a3a5c" style={{ width: '100%', justifyContent: 'center', padding: '12px' }}
-                    onClick={async () => {
-                      if (!selectedUser || !msgText.trim()) { Swal.fire('Error', 'Select recipient and enter message', 'warning'); return; }
-                      await sendMessage();
-                      Swal.fire('✅ Sent!', '', 'success');
-                      setMsgTab('inbox');
-                    }}>Send Message</Btn>
-                </div>
-              )}
-            </div>
+            <MessagingPanel recipient={selectedUser || undefined} height="calc(100vh - 150px)" />
           )}
 
           {/* ╔══ PROFILE ══╗ */}

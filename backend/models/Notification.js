@@ -25,6 +25,9 @@ const notificationSchema = new mongoose.Schema(
     body: { type: String },
     // Route the notification centre should jump to when clicked.
     link: String,
+    // Rolling tally for aggregated message notifications, so a burst of chat
+    // messages becomes "12 new messages" rather than twelve rows.
+    count: { type: Number, default: 1 },
 
     conversationId: { type: mongoose.Schema.Types.ObjectId, ref: 'Conversation' },
     messageId: { type: mongoose.Schema.Types.ObjectId, ref: 'Message' },

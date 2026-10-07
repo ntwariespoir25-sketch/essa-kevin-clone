@@ -26,46 +26,46 @@ const AboutPage = () => {
 
   const leadershipTeam = [
     {
-      name: 'Ingabire Jolly',
-      title: 'Headmistress / Director',
+      name: 'Musana Alex',
+      title: 'Headmaster / Director',
       image: campusImage,
       education: 'Experienced in Educational Leadership',
-      experience: '10+ years experience'
+      experience: '5+ years experience'
     },
     {
       name: 'Linah',
       title: 'Assistant Administrator',
       image: studentsImage,
       education: 'Experience in Educational and Social Affairs Management',
-      experience: '10+ years experience'
+      experience: '5+ years experience'
     },
     {
       name: 'Kabutore Boniface',
       title: 'Director of Studies',
       image: graduationImg,
       education: 'Experience in Curriculum Development and Academic Management',
-      experience: '12+ years experience'
+      experience: '5+ years experience'
     },
     {
-      name: 'AineByoona James',
+      name: 'Nemeye',
       title: 'Dean of Discipline',
       image: graduationImg,
       education: 'Experience in Behaviours Management and Discipline Conduct',
-      experience: '15+ years experience'
+      experience: '5+ years experience'
     },
     {
-      name: 'Coming Soon.....',
+      name: 'Huguette',
       title: 'Dean of Discipline',
       image: graduationImg,
       education: 'Experience in Behaviours Management and Discipline Conduct',
-      experience: '11+ years experience'
+      experience: '5+ years experience'
     },
     {
-      name: 'Coming Soon.....',
+      name: 'Rebecca',
       title: 'Accountant',
       image: graduationImg,
       education: 'Experience in Accounting and Budgeting',
-      experience: '12+ years experience'
+      experience: '5+ years experience'
     }
   ];
 

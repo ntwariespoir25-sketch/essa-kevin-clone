@@ -115,4 +115,34 @@ const sendAdmissionDecisionEmail = async (application) => {
   });
 };
 
-module.exports = { sendWelcomeEmail, sendNewsNotificationEmail, sendAdmissionConfirmationEmail, sendAdmissionDecisionEmail };
+// Plain transactional mail for the notification centre. Guarded the same way as
+// the rest of this module: with no EMAIL_USER configured the app must keep
+// working and simply not send.
+const sendNotificationEmail = async (user, { title, body, link }) => {
+  if (!process.env.EMAIL_USER || !user || !user.email) return false;
+  const origin = process.env.FRONTEND_URL || 'http://localhost:5174';
+  const action = link
+    ? `<p style="text-align:center;margin:24px 0;">
+         <a href="${link.startsWith('http') ? link : origin + link}"
+            style="background:#1a3a5c;color:white;padding:12px 24px;border-radius:8px;text-decoration:none;font-weight:600;display:inline-block;">Open</a>
+       </p>`
+    : '';
+
+  await emailTransporter.sendMail({
+    from: process.env.EMAIL_USER,
+    to: user.email,
+    subject: title,
+    html: `<div style="font-family:Arial,sans-serif;max-width:600px;margin:0 auto;">
+      <div style="background:linear-gradient(135deg,#1a3a5c,#2c5f8a);color:white;padding:24px;text-align:center;border-radius:10px 10px 0 0;">
+        <h2>${title}</h2></div>
+      <div style="background:#f5f5f5;padding:24px;border-radius:0 0 10px 10px;">
+        <p style="white-space:pre-wrap;">${body || ''}</p>
+        ${action}
+        <p style="font-size:12px;color:#777;">You are receiving this because of your notification settings in the portal.</p>
+      </div></div>`
+  });
+  return true;
+};
+
+const module_exports = { sendWelcomeEmail, sendNewsNotificationEmail, sendAdmissionConfirmationEmail, sendAdmissionDecisionEmail, sendNotificationEmail };
+module.exports = module_exports;
